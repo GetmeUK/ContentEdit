@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>ContentEdit sandbox</title>
+        <link rel="stylesheet" type="text/css" href="../build/content-edit.min.css">
+        <link rel="stylesheet" type="text/css" href="sandbox.css">
+    </head>
+    <body>
+
+        <div class="edit-me">
+            <h1 class="foo">
+                This is a sandbox page used to test the <i>ContentEdit</i>
+                library.
+            </h1>
+            <p>
+                Working towards basic text editing support.
+            </p>
+<pre><code class="markup">&lt;head&gt;
+    &lt;title&gt;My page&lt;/title&gt;
+    &lt;link rel="stylesheet" type="text/css" href="assets/content-tools.min.css"&gt;
+    ...
+&lt;/head&gt;
+&lt;body&gt;
+    ...
+    &lt;script src="assets/content-tools.min.js"&gt;&lt;/script&gt;
+    &lt;script src="assets/editor.js"&gt;&lt;/script&gt;
+&lt;/body&gt;</code></pre>
+            <a href="http://www.getme.co.uk" data-ce-tag="img"><img
+                src="example.png"
+                alt="Example image"
+                data-ce-max-width="600"
+                ></a>
+            <h2>Below me is a table</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Chair</td>
+                        <td>Helen Troughton</td>
+                    </tr>
+                    <tr>
+                        <td>Vice-chair</td>
+                        <td>Sarah Stone</td>
+                    </tr>
+                    <tr>
+                        <td>Secretary</td>
+                        <td>Bridget Brickley</td>
+                    </tr>
+                    <tr>
+                        <td>Treasurer</td>
+                        <td>Sarahann Holmes</td>
+                    </tr>
+                    <tr>
+                        <td>Publicity officer</td>
+                        <td>Zillah Cimmock</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h2>Above me is a table</h2>
+            <p>
+                The item <a href="http://www.getme.co.uk">below this</a> is
+                static.
+            </p>
+            <div>
+                <div class="leave-alone">
+                    I am a static item
+                </div>
+            </div>
+            <iframe
+                width="480"
+                height="360"
+                src="www.youtube.com/embed/soC-Iy8Anso?rel=0"
+                frameborder="0"
+                allowfullscreen
+                ></iframe>
+            <p>
+                Now starting to add support for dragging text elements <b>around. </b>
+            </p>
+            <ol>
+                <li>
+                    Item A
+                    <b>Something bold</b>
+                    <ul>
+                        <li>Sub item no. 1</li>
+                        <li>Sub item no. 2</li>
+                    </ul>
+                </li>
+                <li>
+                    Item B
+                    <ul>
+                        <li>Sub item no. 3</li>
+                        <li>Sub item no. 4</li>
+                    </ul>
+                </li>
+                <li>
+                    Item C
+                    <ul>
+                        <li>Sub item no. 5</li>
+                        <li>Sub item no. 6</li>
+                        <li>Sub item no. 7</li>
+                        <li>Sub item no. 8</li>
+                    </ul>
+                </li>
+                <li>
+                    Item &lt;b&gt; D
+                </li>
+            </ol>
+            <p>
+                End of one region
+            </p>
+        </div>
+
+        <div class="edit-me">
+            <p>
+                Start of another region
+            </p>
+        </div>
+
+        <script type="text/javascript" src="../build/content-edit.js"></script>
+        <script type="text/javascript" src="sandbox.js"></script>
+    </body>
+</html>
