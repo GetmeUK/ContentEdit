@@ -30,3 +30,9 @@ Then open `ContentEdit/SpecRunner.html` in a browser to run the tests.
 
 ## Documentation
 Full documentation is available at http://getcontenttools.com/api/content-edit
+
+## Browser support
+
+- Chrome
+- Firefox
+- IE9+
