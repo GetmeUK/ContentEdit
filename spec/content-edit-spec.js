@@ -1239,10 +1239,18 @@
   });
 
   describe('`ContentEdit.Static.cssTypeName()`', function() {
-    return it('should return \'text\'', function() {
+    return it('should return \'static\'', function() {
       var staticElm;
       staticElm = new ContentEdit.Static('div', {}, '<div></div>');
       return expect(staticElm.cssTypeName()).toBe('static');
+    });
+  });
+
+  describe('`ContentEdit.Static.typeName()`', function() {
+    return it('should return \'Static\'', function() {
+      var staticElm;
+      staticElm = new ContentEdit.Static('div', {}, '<div></div>');
+      return expect(staticElm.typeName()).toBe('Static');
     });
   });
 
@@ -1854,6 +1862,16 @@
     });
   });
 
+  describe('`ContentEdit.Image.typeName()`', function() {
+    return it('should return \'Image\'', function() {
+      var image;
+      image = new ContentEdit.Image({
+        'src': '/foo.jpg'
+      });
+      return expect(image.typeName()).toBe('Image');
+    });
+  });
+
   describe('`ContentEdit.Image.createDraggingDOMElement()`', function() {
     return it('should create a helper DOM element', function() {
       var helper, image, region;
@@ -2372,6 +2390,14 @@
     });
   });
 
+  describe('`ContentEdit.List.typeName()`', function() {
+    return it('should return \'List\'', function() {
+      var list;
+      list = new ContentEdit.List('ul');
+      return expect(list.typeName()).toBe('List');
+    });
+  });
+
   describe('`ContentEdit.List.fromDOMElement()`', function() {
     return it('should convert the following DOM elements into a list element: <ol>, <ul>', function() {
       var INDENT, domOl, domUl, ol, ul;
@@ -2667,6 +2693,14 @@
     });
   });
 
+  describe('`ContentEdit.ListItemText.typeName()`', function() {
+    return it('should return \'List item\'', function() {
+      var listItemText;
+      listItemText = new ContentEdit.ListItemText('foo');
+      return expect(listItemText.typeName()).toBe('List item');
+    });
+  });
+
   describe('`ContentEdit.ListItemText.blur()`', function() {
     var region, root;
     root = ContentEdit.Root.get();
@@ -2865,6 +2899,14 @@
       var table;
       table = new ContentEdit.Table();
       return expect(table.cssTypeName()).toBe('table');
+    });
+  });
+
+  describe('`ContentEdit.Table.typeName()`', function() {
+    return it('should return \'table\'', function() {
+      var table;
+      table = new ContentEdit.Table();
+      return expect(table.typeName()).toBe('Table');
     });
   });
 
@@ -3155,6 +3197,14 @@
       var tableRow;
       tableRow = new ContentEdit.TableRow();
       return expect(tableRow.cssTypeName()).toBe('table-row');
+    });
+  });
+
+  describe('`ContentEdit.TableRow.typeName()`', function() {
+    return it('should return \'Table row\'', function() {
+      var tableRow;
+      tableRow = new ContentEdit.TableRow();
+      return expect(tableRow.typeName()).toBe('Table row');
     });
   });
 

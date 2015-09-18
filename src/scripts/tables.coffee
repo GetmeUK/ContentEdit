@@ -12,6 +12,10 @@ class ContentEdit.Table extends ContentEdit.ElementCollection
         # (e.g ce-element--type-table).
         return 'table'
 
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'Table'
+
     firstSection: () ->
         # Return the first table section associted with the table (if there is
         # one).
@@ -195,6 +199,10 @@ class ContentEdit.TableRow extends ContentEdit.ElementCollection
         # Return the CSS type modifier name for the element
         # (e.g ce-element--type-table-row).
         return 'table-row'
+
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'Table row'
 
     # Event handlers
 

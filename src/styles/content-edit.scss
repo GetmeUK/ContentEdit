@@ -244,7 +244,7 @@ $image-path-prefix: 'images/';
     &:before {
         background: #2980b9;
         color: white;
-        content: 'Element';
+        content: attr(data-ce-type);
         display: block;
         font-family: arial, sans-serif;
         font-size: 10px;
@@ -255,8 +255,8 @@ $image-path-prefix: 'images/';
         top: 0;
     }
 
-    /* Assign labels for each type of element that can be dragged */
-    &--type-image           { &:before { content: 'Image';    } }
+    /* Assign labels for each type of element that can be dragged
+    &--type-image           {  }
     &--type-list            { &:before { content: 'List';     } }
     &--type-list-item-text  { &:before { content: 'Item';     } }
     &--type-pre-text        { &:before { content: 'Pre-text'; } }
@@ -264,6 +264,7 @@ $image-path-prefix: 'images/';
     &--type-table-row       { &:before { content: 'Row';      } }
     &--type-text            { &:before { content: 'Text';     } }
     &--type-video           { &:before { content: 'Video';    } }
+    */
 
     /**
      * For elements that have text content displayed within the helper we clip

@@ -10,6 +10,10 @@ class ContentEdit.List extends ContentEdit.ElementCollection
     cssTypeName: () ->
         return 'list'
 
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'List'
+
     # Event handlers
 
     _onMouseOver: (ev) ->
@@ -349,6 +353,10 @@ class ContentEdit.ListItemText extends ContentEdit.Text
         # Return the CSS type modifier name for the element
         # (e.g ce-element--type-list-item-text).
         return 'list-item-text'
+
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'List item'
 
     # Methods
 

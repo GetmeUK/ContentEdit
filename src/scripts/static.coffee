@@ -31,6 +31,10 @@ class ContentEdit.Static extends ContentEdit.Element
     cssTypeName: () ->
         return 'static'
 
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'Static'
+
     # Methods
 
     html: (indent='') ->

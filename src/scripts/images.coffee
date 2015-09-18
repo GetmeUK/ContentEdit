@@ -20,6 +20,10 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
     cssTypeName: () ->
         return 'image'
 
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'Image'
+
     # Methods
 
     createDraggingDOMElement: () ->

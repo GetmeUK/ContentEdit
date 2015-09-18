@@ -10,10 +10,18 @@ describe '`ContentEdit.Static()`', () ->
 
 describe '`ContentEdit.Static.cssTypeName()`', () ->
 
-    it 'should return \'text\'', () ->
+    it 'should return \'static\'', () ->
 
         staticElm = new ContentEdit.Static('div', {}, '<div></div>')
         expect(staticElm.cssTypeName()).toBe 'static'
+
+
+describe '`ContentEdit.Static.typeName()`', () ->
+
+    it 'should return \'Static\'', () ->
+
+        staticElm = new ContentEdit.Static('div', {}, '<div></div>')
+        expect(staticElm.typeName()).toBe 'Static'
 
 
 describe 'ContentEdit.Static.html()', () ->

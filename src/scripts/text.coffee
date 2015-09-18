@@ -21,6 +21,10 @@ class ContentEdit.Text extends ContentEdit.Element
         # (e.g ce-element--type-text).
         return 'text'
 
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'Text'
+
     # Methods
 
     blur: () ->
@@ -436,6 +440,10 @@ class ContentEdit.PreText extends ContentEdit.Text
         # Return the CSS type modifier name for the element
         # (e.g ce-element--type-text).
         return 'pre-text'
+
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'Preformatted'
 
     # Methods
 

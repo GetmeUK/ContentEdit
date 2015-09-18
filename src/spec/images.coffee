@@ -20,6 +20,13 @@ describe '`ContentEdit.Image.cssTypeName()`', () ->
         expect(image.cssTypeName()).toBe 'image'
 
 
+describe '`ContentEdit.Image.typeName()`', () ->
+
+    it 'should return \'Image\'', () ->
+        image = new ContentEdit.Image({'src': '/foo.jpg'})
+        expect(image.typeName()).toBe 'Image'
+
+
 describe '`ContentEdit.Image.createDraggingDOMElement()`', () ->
 
     it 'should create a helper DOM element', () ->

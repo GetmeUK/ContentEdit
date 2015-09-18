@@ -14,6 +14,13 @@ describe '`ContentEdit.Table.cssTypeName()`', () ->
         expect(table.cssTypeName()).toBe 'table'
 
 
+describe '`ContentEdit.Table.typeName()`', () ->
+
+    it 'should return \'table\'', () ->
+        table = new ContentEdit.Table()
+        expect(table.typeName()).toBe 'Table'
+
+
 describe '`ContentEdit.Table.firstSection()`', () ->
 
     it 'should return the first section in the table (their position as children
@@ -446,6 +453,13 @@ describe '`ContentEdit.TableRow.cssTypeName()`', () ->
     it 'should return \'table-row\'', () ->
         tableRow = new ContentEdit.TableRow()
         expect(tableRow.cssTypeName()).toBe 'table-row'
+
+
+describe '`ContentEdit.TableRow.typeName()`', () ->
+
+    it 'should return \'Table row\'', () ->
+        tableRow = new ContentEdit.TableRow()
+        expect(tableRow.typeName()).toBe 'Table row'
 
 
 describe '`ContentEdit.TableRow.fromDOMElement()`', () ->

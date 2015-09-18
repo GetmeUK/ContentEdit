@@ -14,6 +14,13 @@ describe '`ContentEdit.List.cssTypeName()`', () ->
         expect(list.cssTypeName()).toBe 'list'
 
 
+describe '`ContentEdit.List.typeName()`', () ->
+
+    it 'should return \'List\'', () ->
+        list = new ContentEdit.List('ul')
+        expect(list.typeName()).toBe 'List'
+
+
 describe '`ContentEdit.List.fromDOMElement()`', () ->
 
     it 'should convert the following DOM elements into a list element: \
@@ -639,6 +646,13 @@ describe '`ContentEdit.ListItemText.cssTypeName()`', () ->
     it 'should return \'list-item-text\'', () ->
         listItemText = new ContentEdit.ListItemText('foo')
         expect(listItemText.cssTypeName()).toBe 'list-item-text'
+
+
+describe '`ContentEdit.ListItemText.typeName()`', () ->
+
+    it 'should return \'List item\'', () ->
+        listItemText = new ContentEdit.ListItemText('foo')
+        expect(listItemText.typeName()).toBe 'List item'
 
 
 describe '`ContentEdit.ListItemText.blur()`', () ->

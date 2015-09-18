@@ -2120,6 +2120,10 @@
       return this._domElement !== null;
     };
 
+    Element.prototype.typeName = function() {
+      return 'Element';
+    };
+
     Element.prototype.addCSSClass = function(className) {
       var modified;
       modified = false;
@@ -2166,6 +2170,7 @@
       }
       helper = document.createElement('div');
       helper.setAttribute('class', "ce-drag-helper ce-drag-helper--type-" + (this.cssTypeName()));
+      helper.setAttribute('data-ce-type', this.typeName());
       return helper;
     };
 
@@ -3043,6 +3048,10 @@
       return 'static';
     };
 
+    Static.prototype.typeName = function() {
+      return 'Static';
+    };
+
     Static.prototype.html = function(indent) {
       if (indent == null) {
         indent = '';
@@ -3095,6 +3104,10 @@
 
     Text.prototype.cssTypeName = function() {
       return 'text';
+    };
+
+    Text.prototype.typeName = function() {
+      return 'Text';
     };
 
     Text.prototype.blur = function() {
@@ -3436,6 +3449,10 @@
       return 'pre-text';
     };
 
+    PreText.prototype.typeName = function() {
+      return 'Preformatted';
+    };
+
     PreText.prototype.html = function(indent) {
       var content;
       if (indent == null) {
@@ -3504,6 +3521,10 @@
 
     Image.prototype.cssTypeName = function() {
       return 'image';
+    };
+
+    Image.prototype.typeName = function() {
+      return 'Image';
     };
 
     Image.prototype.createDraggingDOMElement = function() {
@@ -3628,6 +3649,10 @@
       return 'video';
     };
 
+    Video.prototype.typeName = function() {
+      return 'Video';
+    };
+
     Video.prototype._title = function() {
       var src;
       src = '';
@@ -3743,6 +3768,10 @@
 
     List.prototype.cssTypeName = function() {
       return 'list';
+    };
+
+    List.prototype.typeName = function() {
+      return 'List';
     };
 
     List.prototype._onMouseOver = function(ev) {
@@ -4010,6 +4039,10 @@
       return 'list-item-text';
     };
 
+    ListItemText.prototype.typeName = function() {
+      return 'List item';
+    };
+
     ListItemText.prototype.blur = function() {
       if (this.content.isWhitespace()) {
         this.parent().remove();
@@ -4220,6 +4253,10 @@
       return 'table';
     };
 
+    Table.prototype.typeName = function() {
+      return 'Table';
+    };
+
     Table.prototype.firstSection = function() {
       var section;
       if (section = this.thead()) {
@@ -4393,6 +4430,10 @@
 
     TableRow.prototype.cssTypeName = function() {
       return 'table-row';
+    };
+
+    TableRow.prototype.typeName = function() {
+      return 'Table row';
     };
 
     TableRow.prototype._onMouseOver = function(ev) {

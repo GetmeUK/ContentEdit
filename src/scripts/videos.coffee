@@ -25,6 +25,10 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
     cssTypeName: () ->
         return 'video'
 
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'Video'
+
     _title: () ->
         # Return a title (based on the source) for the video. This is intended
         # for internal use only.

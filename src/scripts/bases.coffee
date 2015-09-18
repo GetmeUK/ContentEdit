@@ -398,6 +398,10 @@ class ContentEdit.Element extends ContentEdit.Node
         # Return true if the node is mounted in the DOM
         return @_domElement != null
 
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'Element'
+
     # Methods
 
     addCSSClass: (className) ->
@@ -460,6 +464,7 @@ class ContentEdit.Element extends ContentEdit.Node
             'class',
             "ce-drag-helper ce-drag-helper--type-#{ @cssTypeName() }"
             )
+        helper.setAttribute('data-ce-type', @typeName());
 
         return helper
 
