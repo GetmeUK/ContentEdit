@@ -56,9 +56,9 @@ window.ContentEdit =
         return s
 
     addTranslations: (language, translations) ->
-        # Add a translation where `language` is a 2 digit ISO_639-1 code and
+        # Add translations where `language` is a 2 digit ISO_639-1 code and
         # `translations` is an object containing a map of English strings and
-        # their translated counter parts e.g {'Hello': 'Bonjour'}.
+        # their translated counterparts e.g {'Hello': 'Bonjour'}.
         ContentEdit._translations[language] = translations
 
     # Utility functions
