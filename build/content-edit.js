@@ -1629,7 +1629,20 @@
     DROP_EDGE_SIZE: 50,
     HELPER_CHAR_LIMIT: 250,
     INDENT: '    ',
+    LANGUAGE: 'en',
     RESIZE_CORNER_SIZE: 15,
+    _translations: {},
+    _: function(s) {
+      var lang;
+      lang = ContentEdit.LANGUAGE;
+      if (ContentEdit._translations[lang] && ContentEdit._translations[lang][s]) {
+        return ContentEdit._translations[lang][s];
+      }
+      return s;
+    },
+    addTranslations: function(language, translations) {
+      return ContentEdit._translations[language] = translations;
+    },
     addCSSClass: function(domElement, className) {
       var c, classAttr, classNames;
       if (domElement.classList) {
@@ -2170,7 +2183,7 @@
       }
       helper = document.createElement('div');
       helper.setAttribute('class', "ce-drag-helper ce-drag-helper--type-" + (this.cssTypeName()));
-      helper.setAttribute('data-ce-type', this.typeName());
+      helper.setAttribute('data-ce-type', ContentEdit._(this.typeName()));
       return helper;
     };
 

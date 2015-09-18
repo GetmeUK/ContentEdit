@@ -10,7 +10,34 @@ describe 'ContentEdit', () ->
         expect(ContentEdit.DROP_EDGE_SIZE).toBe 50
         expect(ContentEdit.HELPER_CHAR_LIMIT).toBe 250
         expect(ContentEdit.INDENT).toBe '    '
+        expect(ContentEdit.LANGUAGE).toBe 'en'
         expect(ContentEdit.RESIZE_CORNER_SIZE).toBe 15
+
+
+describe 'ContentEdit._', () ->
+
+    # Note: This covers testing the `addTranslations` method also
+
+    it 'should return a translated string for the current language', () ->
+        # Add translations for French
+        ContentEdit.addTranslations('fr', {'hello': 'bonjour'})
+        ContentEdit.addTranslations('de', {'hello': 'hallo'})
+
+        # Check that the English translation is returned by default
+        expect(ContentEdit._('hello')).toBe 'hello'
+
+        # Check that the French translation is returned when the current
+        # language is switched to 'fr'.
+        ContentEdit.LANGUAGE = 'fr'
+        expect(ContentEdit._('hello')).toBe 'bonjour'
+
+        ContentEdit.LANGUAGE = 'de'
+        expect(ContentEdit._('hello')).toBe 'hallo'
+
+        # Check that a non translated string is returned as is
+        expect(ContentEdit._('goodbye')).toBe 'goodbye'
+
+        ContentEdit.LANGUAGE = 'en'
 
 
 describe 'ContentEdit.addCSSClass()', () ->

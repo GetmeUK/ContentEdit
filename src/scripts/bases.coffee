@@ -464,7 +464,7 @@ class ContentEdit.Element extends ContentEdit.Node
             'class',
             "ce-drag-helper ce-drag-helper--type-#{ @cssTypeName() }"
             )
-        helper.setAttribute('data-ce-type', @typeName());
+        helper.setAttribute('data-ce-type', ContentEdit._(@typeName()));
 
         return helper
 

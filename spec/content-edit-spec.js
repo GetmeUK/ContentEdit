@@ -7,7 +7,26 @@
       expect(ContentEdit.DROP_EDGE_SIZE).toBe(50);
       expect(ContentEdit.HELPER_CHAR_LIMIT).toBe(250);
       expect(ContentEdit.INDENT).toBe('    ');
+      expect(ContentEdit.LANGUAGE).toBe('en');
       return expect(ContentEdit.RESIZE_CORNER_SIZE).toBe(15);
+    });
+  });
+
+  describe('ContentEdit._', function() {
+    return it('should return a translated string for the current language', function() {
+      ContentEdit.addTranslations('fr', {
+        'hello': 'bonjour'
+      });
+      ContentEdit.addTranslations('de', {
+        'hello': 'hallo'
+      });
+      expect(ContentEdit._('hello')).toBe('hello');
+      ContentEdit.LANGUAGE = 'fr';
+      expect(ContentEdit._('hello')).toBe('bonjour');
+      ContentEdit.LANGUAGE = 'de';
+      expect(ContentEdit._('hello')).toBe('hallo');
+      expect(ContentEdit._('goodbye')).toBe('goodbye');
+      return ContentEdit.LANGUAGE = 'en';
     });
   });
 

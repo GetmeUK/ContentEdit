@@ -30,6 +30,9 @@ window.ContentEdit =
     # `\t`.
     INDENT: '    '
 
+    # The current language. Must be a a 2 digit ISO_639-1 code.
+    LANGUAGE: 'en'
+
     # The size (in pixels) of the corner region used to detect a resize event
     # against an element. To resize an element (for example an image or video)
     # the user must click in a corner region of an element. The size is
@@ -37,6 +40,26 @@ window.ContentEdit =
     # more than a 1/4 of the total size.
     RESIZE_CORNER_SIZE: 15
 
+    # Translation - the ContentEdit library provides basic translation support
+    # which is used both by the library itself and the associated ContentTools
+    # library.
+    _translations: {}
+
+    _: (s) ->
+        # Look for a translation of the given string and return it, or if no
+        # translation is found return the string unchanged.
+        lang = ContentEdit.LANGUAGE
+        if ContentEdit._translations[lang] and
+                ContentEdit._translations[lang][s]
+
+            return ContentEdit._translations[lang][s]
+        return s
+
+    addTranslations: (language, translations) ->
+        # Add a translation where `language` is a 2 digit ISO_639-1 code and
+        # `translations` is an object containing a map of English strings and
+        # their translated counter parts e.g {'Hello': 'Bonjour'}.
+        ContentEdit._translations[language] = translations
 
     # Utility functions
 
