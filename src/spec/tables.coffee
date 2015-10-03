@@ -301,6 +301,21 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         table.drop(staticElm, ['above', 'center'])
         expect(table.nextSibling()).toBe staticElm
 
+    it 'should support being dropped on by `moveable` Static', () ->
+        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        region.attach(staticElm, 0)
+
+        # Check the initial order
+        expect(staticElm.nextSibling()).toBe table
+
+        # Check the order after dropping the element below
+        staticElm.drop(table, ['below', 'center'])
+        expect(table.nextSibling()).toBe staticElm
+
+        # Check the order after dropping the element above
+        staticElm.drop(table, ['above', 'center'])
+        expect(staticElm.nextSibling()).toBe table
+
     it 'should support dropping on Table', () ->
         otherTable = new ContentEdit.Table()
         region.attach(otherTable)

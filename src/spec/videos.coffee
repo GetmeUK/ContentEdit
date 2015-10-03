@@ -297,6 +297,21 @@ describe '`ContentEdit.Video` drop interactions`', () ->
         video.drop(staticElm, ['above', 'center'])
         expect(video.nextSibling()).toBe staticElm
 
+    it 'should support being dropped on by `moveable` Static', () ->
+        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        region.attach(staticElm, 0)
+
+        # Check the initial order
+        expect(staticElm.nextSibling()).toBe video
+
+        # Check the order after dropping the element below
+        staticElm.drop(video, ['below', 'center'])
+        expect(video.nextSibling()).toBe staticElm
+
+        # Check the order after dropping the element above
+        staticElm.drop(video, ['above', 'center'])
+        expect(staticElm.nextSibling()).toBe video
+
     it 'should support dropping on Text', () ->
         text = new ContentEdit.Text('p')
         region.attach(text)

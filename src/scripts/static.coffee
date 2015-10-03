@@ -37,6 +37,28 @@ class ContentEdit.Static extends ContentEdit.Element
 
     # Methods
 
+    createDraggingDOMElement: () ->
+        # Create a DOM element that visually aids the user in dragging the
+        # element to a new location in the editiable tree structure.
+        unless @isMounted()
+            return
+
+        helper = super()
+
+        # Use the body of the node to create the helper but limit the text to
+        # something sensible.
+
+        # HACK: This is really a best guess at displaying something appropriate
+        # in the helper since we have no idea what's contained in a static
+        # element.
+        text = @_domElement.textContent
+        if text.length > ContentEdit.HELPER_CHAR_LIMIT
+            text = text.substr(0, ContentEdit.HELPER_CHAR_LIMIT)
+
+        helper.innerHTML = text
+
+        return helper
+
     html: (indent='') ->
         # Return a HTML string for the node
         return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>" +
@@ -64,11 +86,40 @@ class ContentEdit.Static extends ContentEdit.Element
 
     # Event handlers
 
+    _onMouseDown: (ev) ->
+        # Give the element focus
+        super()
+
+        # If the static element has the moveable flag set then allow it to be
+        # dragged to a new position.
+        if @attr('data-ce-moveable') != undefined
+
+            # We add a small delay to prevent drag engaging instantly
+            clearTimeout(@_dragTimeout)
+            @_dragTimeout = setTimeout(
+                () =>
+                    @drag(ev.pageX, ev.pageY)
+                150
+                )
+
     _onMouseOver: (ev) ->
         super(ev)
 
         # Don't highlight that we're over the element
         @_removeCSSClass('ce-element--over')
+
+    _onMouseUp: (ev) ->
+        super()
+
+        # If we're waiting to see if the user wants to drag the element, stop
+        # waiting they don't.
+        if @_dragTimeout
+            clearTimeout(@_dragTimeout)
+
+    # Class properties
+
+    @droppers:
+        'Static': ContentEdit.Element._dropVert
 
     # Class methods
 

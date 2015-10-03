@@ -16,6 +16,22 @@ describe '`ContentEdit.Static.cssTypeName()`', () ->
         expect(staticElm.cssTypeName()).toBe 'static'
 
 
+describe '`ContentEdit.Static.createDraggingDOMElement()`', () ->
+
+    it 'should create a helper DOM element', () ->
+        # Mount an image to a region
+        staticElm = new ContentEdit.Static('div', {}, 'foo <b>bar</b>')
+        region = new ContentEdit.Region(document.createElement('div'))
+        region.attach(staticElm)
+
+        # Get the helper DOM element
+        helper = staticElm.createDraggingDOMElement()
+
+        expect(helper).not.toBe null
+        expect(helper.tagName.toLowerCase()).toBe 'div'
+        expect(helper.innerHTML).toBe 'foo bar'
+
+
 describe '`ContentEdit.Static.typeName()`', () ->
 
     it 'should return \'Static\'', () ->
@@ -88,3 +104,40 @@ describe '`ContentEdit.Static.fromDOMElement()`', () ->
         region.attach(staticElm)
 
         expect(staticElm.domElement().innerHTML).toBe '<div><b>foo</b></div>'
+
+
+# Droppers
+
+describe '`ContentEdit.Static` drop interactions if `data-ce-moveable` is
+        set', () ->
+
+    staticElm = null
+    region = null
+
+    beforeEach ->
+        region = new ContentEdit.Region(document.createElement('div'))
+        staticElm = new ContentEdit.Static(
+            'div',
+            {'data-ce-moveable': ''},
+            'foo'
+            )
+        region.attach(staticElm)
+
+    it 'should support dropping on Text', () ->
+        otherStaticElm = new ContentEdit.Static(
+            'div',
+            {'data-ce-moveable': ''},
+            'bar'
+            )
+        region.attach(otherStaticElm)
+
+        # Check the initial order
+        expect(staticElm.nextSibling()).toBe otherStaticElm
+
+        # Check the order after dropping the element after
+        staticElm.drop(otherStaticElm, ['below', 'center'])
+        expect(otherStaticElm.nextSibling()).toBe staticElm
+
+        # Check the order after dropping the element before
+        staticElm.drop(otherStaticElm, ['above', 'center'])
+        expect(staticElm.nextSibling()).toBe otherStaticElm

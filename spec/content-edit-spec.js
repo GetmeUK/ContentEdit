@@ -1265,6 +1265,19 @@
     });
   });
 
+  describe('`ContentEdit.Static.createDraggingDOMElement()`', function() {
+    return it('should create a helper DOM element', function() {
+      var helper, region, staticElm;
+      staticElm = new ContentEdit.Static('div', {}, 'foo <b>bar</b>');
+      region = new ContentEdit.Region(document.createElement('div'));
+      region.attach(staticElm);
+      helper = staticElm.createDraggingDOMElement();
+      expect(helper).not.toBe(null);
+      expect(helper.tagName.toLowerCase()).toBe('div');
+      return expect(helper.innerHTML).toBe('foo bar');
+    });
+  });
+
   describe('`ContentEdit.Static.typeName()`', function() {
     return it('should return \'Static\'', function() {
       var staticElm;
@@ -1322,6 +1335,31 @@
       staticElm = ContentEdit.Static.fromDOMElement(domElement);
       region.attach(staticElm);
       return expect(staticElm.domElement().innerHTML).toBe('<div><b>foo</b></div>');
+    });
+  });
+
+  describe('`ContentEdit.Static` drop interactions if `data-ce-moveable` is set', function() {
+    var region, staticElm;
+    staticElm = null;
+    region = null;
+    beforeEach(function() {
+      region = new ContentEdit.Region(document.createElement('div'));
+      staticElm = new ContentEdit.Static('div', {
+        'data-ce-moveable': ''
+      }, 'foo');
+      return region.attach(staticElm);
+    });
+    return it('should support dropping on Text', function() {
+      var otherStaticElm;
+      otherStaticElm = new ContentEdit.Static('div', {
+        'data-ce-moveable': ''
+      }, 'bar');
+      region.attach(otherStaticElm);
+      expect(staticElm.nextSibling()).toBe(otherStaticElm);
+      staticElm.drop(otherStaticElm, ['below', 'center']);
+      expect(otherStaticElm.nextSibling()).toBe(staticElm);
+      staticElm.drop(otherStaticElm, ['above', 'center']);
+      return expect(staticElm.nextSibling()).toBe(otherStaticElm);
     });
   });
 
@@ -1691,7 +1729,7 @@
       text.drop(otherText, ['above', 'center']);
       return expect(text.nextSibling()).toBe(otherText);
     });
-    return it('should support dropping on Static', function() {
+    it('should support dropping on Static', function() {
       var staticElm;
       staticElm = ContentEdit.Static.fromDOMElement(document.createElement('div'));
       region.attach(staticElm);
@@ -1700,6 +1738,18 @@
       expect(staticElm.nextSibling()).toBe(text);
       text.drop(staticElm, ['above', 'center']);
       return expect(text.nextSibling()).toBe(staticElm);
+    });
+    return it('should support being dropped on by `moveable` Static', function() {
+      var staticElm;
+      staticElm = new ContentEdit.Static('div', {
+        'data-ce-moveable': 'data-ce-moveable'
+      }, 'foo');
+      region.attach(staticElm, 0);
+      expect(staticElm.nextSibling()).toBe(text);
+      staticElm.drop(text, ['below', 'center']);
+      expect(text.nextSibling()).toBe(staticElm);
+      staticElm.drop(text, ['above', 'center']);
+      return expect(staticElm.nextSibling()).toBe(text);
     });
   });
 
@@ -1832,6 +1882,18 @@
       expect(staticElm.nextSibling()).toBe(preText);
       preText.drop(staticElm, ['above', 'center']);
       return expect(preText.nextSibling()).toBe(staticElm);
+    });
+    it('should support being dropped on by `moveable` Static', function() {
+      var staticElm;
+      staticElm = new ContentEdit.Static('div', {
+        'data-ce-moveable': 'data-ce-moveable'
+      }, 'foo');
+      region.attach(staticElm, 0);
+      expect(staticElm.nextSibling()).toBe(preText);
+      staticElm.drop(preText, ['below', 'center']);
+      expect(preText.nextSibling()).toBe(staticElm);
+      staticElm.drop(preText, ['above', 'center']);
+      return expect(staticElm.nextSibling()).toBe(preText);
     });
     it('should support dropping on Text', function() {
       var text;
@@ -1992,7 +2054,7 @@
     });
   });
 
-  describe('`ContentEdit.Image` drop interactions`', function() {
+  describe('`ContentEdit.Image` drop interactions', function() {
     var image, region;
     image = null;
     region = null;
@@ -2071,6 +2133,18 @@
       expect(staticElm.nextSibling()).toBe(image);
       image.drop(staticElm, ['above', 'center']);
       return expect(image.nextSibling()).toBe(staticElm);
+    });
+    it('should support being dropped on by `moveable` Static', function() {
+      var staticElm;
+      staticElm = new ContentEdit.Static('div', {
+        'data-ce-moveable': 'data-ce-moveable'
+      }, 'foo');
+      region.attach(staticElm, 0);
+      expect(staticElm.nextSibling()).toBe(image);
+      staticElm.drop(image, ['below', 'center']);
+      expect(image.nextSibling()).toBe(staticElm);
+      staticElm.drop(image, ['above', 'center']);
+      return expect(staticElm.nextSibling()).toBe(image);
     });
     it('should support dropping on Text', function() {
       var text;
@@ -2341,6 +2415,18 @@
       video.drop(staticElm, ['above', 'center']);
       return expect(video.nextSibling()).toBe(staticElm);
     });
+    it('should support being dropped on by `moveable` Static', function() {
+      var staticElm;
+      staticElm = new ContentEdit.Static('div', {
+        'data-ce-moveable': 'data-ce-moveable'
+      }, 'foo');
+      region.attach(staticElm, 0);
+      expect(staticElm.nextSibling()).toBe(video);
+      staticElm.drop(video, ['below', 'center']);
+      expect(video.nextSibling()).toBe(staticElm);
+      staticElm.drop(video, ['above', 'center']);
+      return expect(staticElm.nextSibling()).toBe(video);
+    });
     it('should support dropping on Text', function() {
       var text;
       text = new ContentEdit.Text('p');
@@ -2515,6 +2601,18 @@
       expect(staticElm.nextSibling()).toBe(list);
       list.drop(staticElm, ['above', 'center']);
       return expect(list.nextSibling()).toBe(staticElm);
+    });
+    it('should support being dropped on by `moveable` Static', function() {
+      var staticElm;
+      staticElm = new ContentEdit.Static('div', {
+        'data-ce-moveable': 'data-ce-moveable'
+      }, 'foo');
+      region.attach(staticElm, 0);
+      expect(staticElm.nextSibling()).toBe(list);
+      staticElm.drop(list, ['below', 'center']);
+      expect(list.nextSibling()).toBe(staticElm);
+      staticElm.drop(list, ['above', 'center']);
+      return expect(staticElm.nextSibling()).toBe(list);
     });
     it('should support dropping on Text', function() {
       var text;
@@ -3104,6 +3202,18 @@
       expect(staticElm.nextSibling()).toBe(table);
       table.drop(staticElm, ['above', 'center']);
       return expect(table.nextSibling()).toBe(staticElm);
+    });
+    it('should support being dropped on by `moveable` Static', function() {
+      var staticElm;
+      staticElm = new ContentEdit.Static('div', {
+        'data-ce-moveable': 'data-ce-moveable'
+      }, 'foo');
+      region.attach(staticElm, 0);
+      expect(staticElm.nextSibling()).toBe(table);
+      staticElm.drop(table, ['below', 'center']);
+      expect(table.nextSibling()).toBe(staticElm);
+      staticElm.drop(table, ['above', 'center']);
+      return expect(staticElm.nextSibling()).toBe(table);
     });
     it('should support dropping on Table', function() {
       var otherTable;

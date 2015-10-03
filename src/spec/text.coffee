@@ -456,6 +456,21 @@ describe '`ContentEdit.Text` drop interactions`', () ->
         text.drop(staticElm, ['above', 'center'])
         expect(text.nextSibling()).toBe staticElm
 
+    it 'should support being dropped on by `moveable` Static', () ->
+        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        region.attach(staticElm, 0)
+
+        # Check the initial order
+        expect(staticElm.nextSibling()).toBe text
+
+        # Check the order after dropping the element below
+        staticElm.drop(text, ['below', 'center'])
+        expect(text.nextSibling()).toBe staticElm
+
+        # Check the order after dropping the element above
+        staticElm.drop(text, ['above', 'center'])
+        expect(staticElm.nextSibling()).toBe text
+
 
 # Mergers
 
@@ -612,6 +627,21 @@ describe '`ContentEdit.PreText` drop interactions`', () ->
         # Check the order after dropping the element before
         preText.drop(staticElm, ['above', 'center'])
         expect(preText.nextSibling()).toBe staticElm
+
+    it 'should support being dropped on by `moveable` Static', () ->
+        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        region.attach(staticElm, 0)
+
+        # Check the initial order
+        expect(staticElm.nextSibling()).toBe preText
+
+        # Check the order after dropping the element below
+        staticElm.drop(preText, ['below', 'center'])
+        expect(preText.nextSibling()).toBe staticElm
+
+        # Check the order after dropping the element above
+        staticElm.drop(preText, ['above', 'center'])
+        expect(staticElm.nextSibling()).toBe preText
 
     it 'should support dropping on Text', () ->
         text = new ContentEdit.Text('p')

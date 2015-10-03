@@ -161,7 +161,7 @@ describe '`ContentEdit.Image.fromDOMElement()`', () ->
 
 # Droppers
 
-describe '`ContentEdit.Image` drop interactions`', () ->
+describe '`ContentEdit.Image` drop interactions', () ->
 
     image = null
     region = null
@@ -271,6 +271,21 @@ describe '`ContentEdit.Image` drop interactions`', () ->
         # Check the order after dropping the element above
         image.drop(staticElm, ['above', 'center'])
         expect(image.nextSibling()).toBe staticElm
+
+    it 'should support being dropped on by `moveable` Static', () ->
+        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        region.attach(staticElm, 0)
+
+        # Check the initial order
+        expect(staticElm.nextSibling()).toBe image
+
+        # Check the order after dropping the element below
+        staticElm.drop(image, ['below', 'center'])
+        expect(image.nextSibling()).toBe staticElm
+
+        # Check the order after dropping the element above
+        staticElm.drop(image, ['above', 'center'])
+        expect(staticElm.nextSibling()).toBe image
 
     it 'should support dropping on Text', () ->
         text = new ContentEdit.Text('p')
