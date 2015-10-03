@@ -1061,7 +1061,7 @@
 
     _Parser.prototype.preprocess = function(html) {
       html = html.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-      html = html.replace(/<!--[\s\S]-->/g, '');
+      html = html.replace(/<!--[\s\S]*?-->/g, '');
       if (!this._preserveWhitespace) {
         html = html.replace(/\s+/g, ' ');
       }

@@ -1061,7 +1061,7 @@
 
     _Parser.prototype.preprocess = function(html) {
       html = html.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-      html = html.replace(/<!--[\s\S]-->/g, '');
+      html = html.replace(/<!--[\s\S]*?-->/g, '');
       if (!this._preserveWhitespace) {
         html = html.replace(/\s+/g, ' ');
       }
@@ -1325,7 +1325,6 @@
   })();
 
 }).call(this);
-
 (function() {
   var SELF_CLOSING_NODE_NAMES, _containedBy, _getChildNodeAndOffset, _getNodeRange, _getOffsetOfChildNode,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
