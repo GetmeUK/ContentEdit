@@ -473,7 +473,9 @@ class ContentEdit.Element extends ContentEdit.Node
         unless @isMounted()
             return
 
-        ContentEdit.Root.get().startDragging(this, x, y)
+        root = ContentEdit.Root.get()
+        root.startDragging(this, x, y)
+        root.trigger('drag', this)
 
     drop: (element, placement) ->
         # Drop the element into a new position in the editable structure, if no
@@ -487,12 +489,14 @@ class ContentEdit.Element extends ContentEdit.Node
             element._removeCSSClass("ce-element--drop-#{ placement[1] }")
 
             # Determine if either elements class supports the drop
+            root = ContentEdit.Root.get()
             if @constructor.droppers[element.constructor.name]
                 @constructor.droppers[element.constructor.name](
                     this,
                     element,
                     placement
                     )
+                root.trigger('drop', this, element, placement)
 
             else if element.constructor.droppers[@constructor.name]
                 element.constructor.droppers[@constructor.name](
@@ -500,6 +504,7 @@ class ContentEdit.Element extends ContentEdit.Node
                     element,
                     placement
                     )
+                root.trigger('drop', this, element, placement)
 
     focus: (supressDOMFocus) ->
         # Focus the element

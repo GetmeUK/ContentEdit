@@ -606,7 +606,7 @@
   });
 
   describe('ContentEdit.Element.drag()', function() {
-    return it('should call `startDragging` against the root element', function() {
+    it('should call `startDragging` against the root element', function() {
       var element, region, root;
       element = new ContentEdit.Element('div');
       region = new ContentEdit.Region(document.createElement('div'));
@@ -614,12 +614,28 @@
       root = ContentEdit.Root.get();
       spyOn(root, 'startDragging');
       element.drag(0, 0);
-      return expect(root.startDragging).toHaveBeenCalledWith(element, 0, 0);
+      expect(root.startDragging).toHaveBeenCalledWith(element, 0, 0);
+      return root.cancelDragging();
+    });
+    return it('should trigger the `drag` event against the root', function() {
+      var element, foo, region, root;
+      element = new ContentEdit.Element('div');
+      region = new ContentEdit.Region(document.createElement('div'));
+      region.attach(element);
+      foo = {
+        handleFoo: function() {}
+      };
+      spyOn(foo, 'handleFoo');
+      root = ContentEdit.Root.get();
+      root.bind('drag', foo.handleFoo);
+      element.drag(0, 0);
+      expect(foo.handleFoo).toHaveBeenCalledWith(element);
+      return root.cancelDragging();
     });
   });
 
   describe('ContentEdit.Element.drop()', function() {
-    return it('should select a function from the elements droppers map for the element being dropped on to this element', function() {
+    it('should select a function from the elements droppers map for the element being dropped on to this element', function() {
       var imageA, imageB, region;
       region = new ContentEdit.Region(document.createElement('div'));
       imageA = new ContentEdit.Image();
@@ -629,6 +645,22 @@
       spyOn(ContentEdit.Image.droppers, 'Image');
       imageA.drop(imageB, ['below', 'center']);
       return expect(ContentEdit.Image.droppers['Image']).toHaveBeenCalledWith(imageA, imageB, ['below', 'center']);
+    });
+    return it('should trigger the `drop` event against the root', function() {
+      var foo, imageA, imageB, region, root;
+      region = new ContentEdit.Region(document.createElement('div'));
+      imageA = new ContentEdit.Image();
+      region.attach(imageA);
+      imageB = new ContentEdit.Image();
+      region.attach(imageB);
+      foo = {
+        handleFoo: function() {}
+      };
+      spyOn(foo, 'handleFoo');
+      root = ContentEdit.Root.get();
+      root.bind('drop', foo.handleFoo);
+      imageA.drop(imageB, ['below', 'center']);
+      return expect(foo.handleFoo).toHaveBeenCalledWith(imageA, imageB, ['below', 'center']);
     });
   });
 

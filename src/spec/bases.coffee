@@ -690,6 +690,31 @@ describe 'ContentEdit.Element.drag()', () ->
         element.drag(0, 0)
 
         expect(root.startDragging).toHaveBeenCalledWith(element, 0, 0)
+        root.cancelDragging()
+
+    it 'should trigger the `drag` event against the root', () ->
+
+        element = new ContentEdit.Element('div')
+
+        # Mount the element
+        region = new ContentEdit.Region(document.createElement('div'))
+        region.attach(element)
+
+        # Create a function to call when the event is triggered
+        foo = {
+            handleFoo: () ->
+                return
+        }
+        spyOn(foo, 'handleFoo')
+
+        # Bind the function to the root for the unmount event
+        root = ContentEdit.Root.get()
+        root.bind('drag', foo.handleFoo)
+
+        # Mount the element
+        element.drag(0, 0)
+        expect(foo.handleFoo).toHaveBeenCalledWith(element)
+        root.cancelDragging()
 
 
 describe 'ContentEdit.Element.drop()', () ->
@@ -716,6 +741,38 @@ describe 'ContentEdit.Element.drop()', () ->
         expect(
             ContentEdit.Image.droppers['Image']
             ).toHaveBeenCalledWith(imageA, imageB, ['below', 'center'])
+
+    it 'should trigger the `drop` event against the root', () ->
+
+        # Mount the element
+        region = new ContentEdit.Region(document.createElement('div'))
+
+        # Create 2 elements that can be dropped on each other (we can't use
+        # Element instances so we use Image elements instead).
+        imageA = new ContentEdit.Image()
+        region.attach(imageA)
+
+        imageB = new ContentEdit.Image()
+        region.attach(imageB)
+
+        # Create a function to call when the event is triggered
+        foo = {
+            handleFoo: () ->
+                return
+        }
+        spyOn(foo, 'handleFoo')
+
+        # Bind the function to the root for the unmount event
+        root = ContentEdit.Root.get()
+        root.bind('drop', foo.handleFoo)
+
+        # Drop the image
+        imageA.drop(imageB, ['below', 'center'])
+        expect(foo.handleFoo).toHaveBeenCalledWith(
+            imageA,
+            imageB,
+            ['below', 'center']
+            )
 
 
 describe 'ContentEdit.Element.focus()', () ->
