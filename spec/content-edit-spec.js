@@ -660,7 +660,9 @@
       root = ContentEdit.Root.get();
       root.bind('drop', foo.handleFoo);
       imageA.drop(imageB, ['below', 'center']);
-      return expect(foo.handleFoo).toHaveBeenCalledWith(imageA, imageB, ['below', 'center']);
+      expect(foo.handleFoo).toHaveBeenCalledWith(imageA, imageB, ['below', 'center']);
+      imageA.drop(null, ['below', 'center']);
+      return expect(foo.handleFoo).toHaveBeenCalledWith(imageA, null, null);
     });
   });
 

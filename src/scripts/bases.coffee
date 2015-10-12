@@ -482,6 +482,7 @@ class ContentEdit.Element extends ContentEdit.Node
         # element is provided, or a method to manage the drop isn't defined the
         # drop is cancelled.
 
+        root = ContentEdit.Root.get()
         if element
             # Remove the drop class from the element
             element._removeCSSClass('ce-element--drop')
@@ -489,7 +490,6 @@ class ContentEdit.Element extends ContentEdit.Node
             element._removeCSSClass("ce-element--drop-#{ placement[1] }")
 
             # Determine if either elements class supports the drop
-            root = ContentEdit.Root.get()
             if @constructor.droppers[element.constructor.name]
                 @constructor.droppers[element.constructor.name](
                     this,
@@ -497,6 +497,7 @@ class ContentEdit.Element extends ContentEdit.Node
                     placement
                     )
                 root.trigger('drop', this, element, placement)
+                return
 
             else if element.constructor.droppers[@constructor.name]
                 element.constructor.droppers[@constructor.name](
@@ -505,6 +506,11 @@ class ContentEdit.Element extends ContentEdit.Node
                     placement
                     )
                 root.trigger('drop', this, element, placement)
+                return
+
+        # The drop was unsuccessful so trigger drop event without target or
+        # placement.
+        root.trigger('drop', this, null, null)
 
     focus: (supressDOMFocus) ->
         # Focus the element

@@ -766,13 +766,17 @@ describe 'ContentEdit.Element.drop()', () ->
         root = ContentEdit.Root.get()
         root.bind('drop', foo.handleFoo)
 
-        # Drop the image
+        # Drop the image on valid target
         imageA.drop(imageB, ['below', 'center'])
         expect(foo.handleFoo).toHaveBeenCalledWith(
             imageA,
             imageB,
             ['below', 'center']
             )
+
+        # Drop the image on invalid target
+        imageA.drop(null, ['below', 'center'])
+        expect(foo.handleFoo).toHaveBeenCalledWith(imageA, null, null)
 
 
 describe 'ContentEdit.Element.focus()', () ->
