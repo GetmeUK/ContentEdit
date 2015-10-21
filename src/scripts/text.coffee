@@ -351,9 +351,14 @@ class ContentEdit.Text extends ContentEdit.Element
     _atEnd: (selection) ->
         # Determine if the cursor/caret starts at the end of the content
         atEnd = selection.get()[0] == @content.length()
+
+        # Catch scenario where the string length is longer than the browser
+        # reports the selection range to be (see issue #54). This occurs when
+        # the last character in an element is a linebreak `<br>` tag.
         if selection.get()[0] == @content.length() - 1 and
                 @content.characters[@content.characters.length - 1].isTag('br')
             atEnd = true
+
         return atEnd
 
     _flagIfEmpty: () ->
@@ -464,12 +469,46 @@ class ContentEdit.PreText extends ContentEdit.Text
         return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>" +
             "#{ @_cached }</#{ @_tagName }>"
 
+    updateInnerHTML: () ->
+        # Update the inner HTML of the DOM element with the elements content
+
+        # HACK: Append an additional newline character to the DOM elements inner
+        # HTML to ensure the caret position moves when a newline is added to the
+        # end of the content (e.g if the user hits the return key - see issue
+        # #54).
+        html = @content.html()
+        html += '\n'
+        @_domElement.innerHTML = html
+
+        ContentSelect.Range.prepareElement(@_domElement)
+        @_flagIfEmpty()
+
+    # Event handlers
+
+    _onKeyUp: (ev) ->
+        # Keep the content in sync with the HTML and check if it's been modified
+        # by the key events.
+        snapshot = @content.html()
+
+        # HACK: Remove the extra newline character added (see updateHTML)
+        html = @_domElement.innerHTML.replace(/[\n]$/, '')
+
+        # Update the content for the element
+        @content = new HTMLString.String(html, @content.preserveWhitespace())
+
+        # If the snap-shot has changed mark the node as modified
+        newSnaphot = @content.html()
+        if snapshot != newSnaphot
+            @taint()
+
+        @_flagIfEmpty()
+
     # Key events
 
     _keyReturn: (ev) ->
         ev.preventDefault()
 
-        # Insert a <br> tag at the current position
+        # Insert a `\n` character at the current position
         selection = ContentSelect.Range.query(@_domElement)
         cursor = selection.get()[0] + 1
 
