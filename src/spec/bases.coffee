@@ -1,3 +1,9 @@
+# Add a DOM element used to anchor editable content against during the tests
+testDomElement = document.createElement('div')
+testDomElement.setAttribute('id', 'test')
+document.body.appendChild(testDomElement)
+
+
 # Node
 
 describe 'ContentEdit.Node()', () ->

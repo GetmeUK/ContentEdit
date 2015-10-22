@@ -1,4 +1,6 @@
 (function() {
+  var testDomElement;
+
   describe('ContentEdit', function() {
     return it('should have correct default settings', function() {
       expect(ContentEdit.DEFAULT_MAX_ELEMENT_WIDTH).toBe(800);
@@ -73,6 +75,12 @@
       return expect(domElement.getAttribute('class')).toBe('foo bar');
     });
   });
+
+  testDomElement = document.createElement('div');
+
+  testDomElement.setAttribute('id', 'test');
+
+  document.body.appendChild(testDomElement);
 
   describe('ContentEdit.Node()', function() {
     return it('should create `ContentEdit.Node` instance', function() {
