@@ -83,7 +83,7 @@ module.exports = (grunt) ->
             build: ['src/tmp']
 
         jasmine:
-            fsm:
+            build:
                 src: ['build/content-edit.js']
                 options:
                     specs: 'spec/content-edit-spec.js'
