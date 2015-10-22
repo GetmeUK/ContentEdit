@@ -406,15 +406,20 @@ class ContentEdit.Element extends ContentEdit.Node
 
     addCSSClass: (className) ->
         # Add a CSS class to the element
-
+        
+        #convert string className to array - tvaliasek
+        classNameArr = className.split(' ')
+        
         # Check if we need to add the class
         modified = false
-        unless @hasCSSClass(className)
+        
+        for _class in classNameArr
+          unless @hasCSSClass(_class)
             modified = true
             if @attr('class')
-                @attr('class', "#{ @attr('class') } #{ className }")
+                @attr('class', "#{ @attr('class') } #{ _class }")
             else
-                @attr('class', className)
+                @attr('class', _class)
 
         # Add the CSS class to the DOM element
         @_addCSSClass(className)
@@ -536,15 +541,20 @@ class ContentEdit.Element extends ContentEdit.Node
 
     hasCSSClass: (className) ->
         # Return true if the element has the specified CSS class
-
+        # Convert className to array - tvaliasek
+        classNameArr = className.split(' ')
+        classesFound = 0
         if @attr('class')
             # Convert class attribute to a list of class names
             classNames = (c for c in @attr('class').split(' '))
 
             # If the class name isn't in the list add it
-            if classNames.indexOf(className) > -1
-                return true
-
+            # If all classes are found, return true / add them - tvaliasek
+            for _class in classNameArr
+              if classNames.indexOf(_class) > -1
+                  classesFound++
+            if classesFound == classNameArr.length
+              return true
         return false
 
     merge: (element) ->
@@ -618,15 +628,19 @@ class ContentEdit.Element extends ContentEdit.Node
 
     removeCSSClass: (className) ->
         # Remove a CSS class from the element
+        # Convert className to array - tvaliasek
+        classNameArr = className.split(' ') 
         if not @hasCSSClass(className)
-            return
+          return
 
         # Remove the CSS class
         classNames = (c for c in @attr('class').split(' '))
 
         # If the class name is in the list remove it
-        classNameIndex = classNames.indexOf(className)
-        if classNameIndex > -1
+        # Do it for each className in classNameArr - tvaliasek
+        for _class in classNameArr
+          classNameIndex = classNames.indexOf(_class)
+          if classNameIndex > -1
             classNames.splice(classNameIndex, 1)
 
         # If there are not classes left remove the attribute
@@ -791,8 +805,10 @@ class ContentEdit.Element extends ContentEdit.Node
         # element, not the elements `class` attribute.
         unless @isMounted()
             return
-
-        ContentEdit.addCSSClass(@_domElement, className)
+        #convert className to array and do it for all className in classNameArr - tvaliasek
+        classNameArr = className.split(' ')
+        for _class in classNameArr
+          ContentEdit.addCSSClass(@_domElement, _class)
 
     _attributesToString: () ->
         # Return the attributes for the element as a string
@@ -806,8 +822,10 @@ class ContentEdit.Element extends ContentEdit.Node
         # from the DOM element, not the elements `class` attribute.
         unless @isMounted()
             return
-
-        ContentEdit.removeCSSClass(@_domElement, className)
+        #convert className to array and do it for all className in classNameArr - tvaliasek
+        classNameArr = className.split(' ')
+        for _class in classNameArr
+          ContentEdit.removeCSSClass(@_domElement, _class)
 
     # Class properties
 

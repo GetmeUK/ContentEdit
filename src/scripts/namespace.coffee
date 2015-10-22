@@ -65,10 +65,12 @@ window.ContentEdit =
 
     addCSSClass: (domElement, className) ->
         # Add a CSS class to a DOM element
-
+        # Convert className to array - tvaliasek
+        classNameArr = className.split(' ')
         # Add the class using classList if possible
         if domElement.classList
-            domElement.classList.add(className)
+            for _class in classNameArr
+              domElement.classList.add(_class)
             return
 
         # As there isn't universal support for the classList attribute, fallback
@@ -79,14 +81,16 @@ window.ContentEdit =
             classNames = (c for c in classAttr.split(' '))
 
             # If the class name isn't in the list add it
-            if classNames.indexOf(className) == -1
-                domElement.setAttribute(
-                    'class',
-                    "#{ classAttr } #{ className }"
-                    )
+            # Do it for every class in classNameArr - tvaliasek
+            for _class in classNameArr
+              if classNames.indexOf(_class) == -1
+                  domElement.setAttribute(
+                      'class',
+                      "#{ classAttr } #{ _class }"
+                      )
 
         else
-            domElement.setAttribute('class', className)
+            domElement.setAttribute('class', classNameArr.join(' '))
 
     attributesToString: (attributes) ->
         # Convert a dictionary of attributes into a string (e.g key="value")
@@ -110,10 +114,13 @@ window.ContentEdit =
 
     removeCSSClass: (domElement, className) ->
         # Remove a CSS class from a DOM element
-
+        # Convert className to array - tvaliasek
+        classNameArr = className.split(' ')
         # Remove the class using classList if possible
+        # Do it for every className in classNameArr
         if domElement.classList
-            domElement.classList.remove(className)
+            for _class in classNameArr
+              domElement.classList.remove(_class)
 
             if domElement.classList.length == 0
                 domElement.removeAttribute('class')
@@ -129,9 +136,11 @@ window.ContentEdit =
             classNames = (c for c in classAttr.split(' '))
 
             # If the class name is in the list remove it
-            classNameIndex = classNames.indexOf(className)
-            if classNameIndex > -1
-                classNames.splice(classNameIndex, 1)
+            # Do it for every className in classNameArr - tvaliasek
+            for _class in classNameArr
+              classNameIndex = classNames.indexOf(_class)
+              if classNameIndex > -1
+                  classNames.splice(classNameIndex, 1)
 
                 if classNames.length
                     domElement.setAttribute(
@@ -142,7 +151,7 @@ window.ContentEdit =
                     domElement.removeAttribute('class')
 
         else
-            domElement.setAttribute('class', className)
+            domElement.setAttribute('class', classNameArr.join(' '))
 
 
 # HACK: Add constructor name property to IE9+, code based on the stackoverflow
