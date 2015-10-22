@@ -37,7 +37,14 @@ class ContentEdit.Text extends ContentEdit.Element
 
         else if @isMounted()
             # Blur the DOM element
-            @_domElement.blur()
+            try
+                @_domElement.blur()
+            catch error
+                # HACK: Do nothing if this fails, internet explorer doesn't
+                # allow blur to be triggered against the contentediable element
+                # programatically and will trigger the following error:
+                #
+                # `Unexpected call to method or property access.`
 
             # Stop the element from being editable
             @_domElement.removeAttribute('contenteditable')
@@ -388,7 +395,6 @@ class ContentEdit.Text extends ContentEdit.Element
 
             # Update the targets HTML
             if target.isMounted()
-                target._domElement.innerHTML = target.content.html()
                 target.updateInnerHTML()
 
             # Focus the target and set the text caret position
