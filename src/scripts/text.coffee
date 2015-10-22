@@ -389,6 +389,7 @@ class ContentEdit.Text extends ContentEdit.Element
             # Update the targets HTML
             if target.isMounted()
                 target._domElement.innerHTML = target.content.html()
+                target.updateInnerHTML()
 
             # Focus the target and set the text caret position
             target.focus()
