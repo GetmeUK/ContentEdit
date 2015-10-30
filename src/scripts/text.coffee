@@ -30,6 +30,11 @@ class ContentEdit.Text extends ContentEdit.Element
     blur: () ->
         # Remove editing focus from this element
 
+        # Last chance - check for changes in the content not captured before
+        # this point.
+        if @isMounted()
+            @_syncContent()
+
         if @content.isWhitespace()
             # Detatch element from parent if empty
             if @parent()
@@ -183,20 +188,7 @@ class ContentEdit.Text extends ContentEdit.Element
             when 13 then @_keyReturn(ev)
 
     _onKeyUp: (ev) ->
-        # Keep the content in sync with the HTML and check if it's been modified
-        # by the key events.
-        snapshot = @content.html()
-        @content = new HTMLString.String(
-            @_domElement.innerHTML,
-            @content.preserveWhitespace()
-            )
-
-        # If the snap-shot has changed mark the node as modified
-        newSnaphot = @content.html()
-        if snapshot != newSnaphot
-            @taint()
-
-        @_flagIfEmpty()
+        @_syncContent()
 
     _onMouseDown: (ev) ->
         # Give the element focus
@@ -374,6 +366,22 @@ class ContentEdit.Text extends ContentEdit.Element
             @_addCSSClass('ce-element--empty')
         else
             @_removeCSSClass('ce-element--empty')
+
+    _syncContent: (ev) ->
+        # Keep the content in sync with the HTML and check if it's been modified
+        # by the key events.
+        snapshot = @content.html()
+        @content = new HTMLString.String(
+            @_domElement.innerHTML,
+            @content.preserveWhitespace()
+            )
+
+        # If the snap-shot has changed mark the node as modified
+        newSnaphot = @content.html()
+        if snapshot != newSnaphot
+            @taint()
+
+        @_flagIfEmpty()
 
     # Class properties
 

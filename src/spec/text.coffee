@@ -35,6 +35,7 @@ describe 'ContentEdit.Text.blur()', () ->
         expect(text.isFocused()).toBe false
 
     it 'should remove the text element if it\'s just whitespace', () ->
+        text.domElement().innerHTML = ''
         text.content = new HTMLString.String('')
         text.blur()
         expect(text.parent()).toBe null

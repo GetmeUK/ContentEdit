@@ -1440,6 +1440,7 @@
       return expect(text.isFocused()).toBe(false);
     });
     it('should remove the text element if it\'s just whitespace', function() {
+      text.domElement().innerHTML = '';
       text.content = new HTMLString.String('');
       text.blur();
       return expect(text.parent()).toBe(null);
