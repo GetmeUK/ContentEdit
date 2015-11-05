@@ -239,6 +239,11 @@ class ContentEdit.Text extends ContentEdit.Element
         # If we're at the start of the element attempt to find the previous text
         # element and merge with it.
         previous = @previousContent()
+
+        # We need to sync the content as this event can occur without a
+        # corresponding key up event (e.g the back key was held down).
+        @_syncContent()
+
         if previous
             previous.merge(this)
 
