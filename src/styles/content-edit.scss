@@ -98,9 +98,8 @@ $image-path-prefix: 'images/';
     &--type-video {
         background:
             #333
-            url($image-path-prefix + 'video.png')
-            center
-            center
+            url($image-path-prefix + 'video.svg')
+            center / auto 48px
             no-repeat;
 
         &:after {
