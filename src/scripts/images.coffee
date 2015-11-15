@@ -57,13 +57,16 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
         # Create the DOM element to mount
         @_domElement = document.createElement('div')
 
-        # Set the classes for the image, we use the wrapping <a> tag's class if
-        # it exists, else we use the class applied to the image.
+        # Set the classes for the image, we combine classes from both the outer
+        # link tag (if there is one) and image element.
+        classes = ''
         if @a and @a['class']
-            @_domElement.setAttribute('class', @a['class'])
+            classes += ' ' + @a['class']
 
-        else if @_attributes['class']
-            @_domElement.setAttribute('class', @_attributes['class'])
+        if @_attributes['class']
+            classes += ' ' + @_attributes['class']
+
+        @_domElement.setAttribute('class', classes)
 
         # Set the background image for the
         style = if @_attributes['style'] then @_attributes['style'] else ''
