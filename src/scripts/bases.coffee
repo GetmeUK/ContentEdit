@@ -712,6 +712,12 @@ class ContentEdit.Element extends ContentEdit.Node
         @_domElement.addEventListener 'paste', (ev) =>
             @_onPaste(ev)
 
+        @_domElement.addEventListener 'dragover', (ev) =>
+            ev.preventDefault()
+
+        @_domElement.addEventListener 'drop', (ev) =>
+            @_onNativeDrop(ev)
+
     _onKeyDown: (ev) ->
         # No default behaviour
 
@@ -726,7 +732,8 @@ class ContentEdit.Element extends ContentEdit.Node
             @focus(true)
 
     _onMouseMove: (ev) ->
-        # No default behaviour
+        # No default behaviour (mirror mouse over)
+        @_onMouseOver()
 
     _onMouseOver: (ev) ->
         @_addCSSClass('ce-element--over')
@@ -770,6 +777,13 @@ class ContentEdit.Element extends ContentEdit.Node
 
     _onMouseUp: (ev) ->
         # No default behaviour
+
+    _onNativeDrop: (ev) ->
+        # By default we don't support native drop events and external libraries
+        # are expected to handle native drop support.
+        ev.preventDefault()
+        ev.stopPropagation()
+        ContentEdit.Root.get().trigger('native-drop', this, ev)
 
     _onPaste: (ev) ->
         # By default we don't support paste events and external libraries
