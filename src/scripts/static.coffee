@@ -61,6 +61,11 @@ class ContentEdit.Static extends ContentEdit.Element
 
     html: (indent='') ->
         # Return a HTML string for the node
+
+        # Check if element is a self closing tag
+        if HTMLString.Tag.SELF_CLOSING[@_tagName]
+            return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>"
+
         return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>" +
             "#{ @_content }" +
             "#{ indent }</#{ @_tagName }>"
