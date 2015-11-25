@@ -732,33 +732,10 @@ class ContentEdit.Element extends ContentEdit.Node
             @focus(true)
 
     _onMouseMove: (ev) ->
-        # No default behaviour (mirror mouse over)
-        @_onMouseOver()
+        @_onOver(ev)
 
     _onMouseOver: (ev) ->
-        @_addCSSClass('ce-element--over')
-
-        # Check an elment is currently being dragged
-        root = ContentEdit.Root.get()
-        dragging = root.dragging()
-        unless dragging
-            return
-
-        # Check the dragged element isn't this element (can't drop on self)
-        unless dragging != this
-            return
-
-        # Check we don't already have a drop target
-        if root._dropTarget
-            return
-
-        # Check the dragged element can be dragged on to this element
-        if @constructor.droppers[dragging.constructor.name] \
-                or dragging.constructor.droppers[@constructor.name]
-
-            # Mark the element as a drop target
-            @_addCSSClass('ce-element--drop')
-            root._dropTarget = @
+        @_onOver(ev)
 
     _onMouseOut: (ev) ->
         @_removeCSSClass('ce-element--over')
@@ -791,6 +768,31 @@ class ContentEdit.Element extends ContentEdit.Node
         ev.preventDefault()
         ev.stopPropagation()
         ContentEdit.Root.get().trigger('paste', this, ev)
+
+    _onOver: (ev) ->
+        @_addCSSClass('ce-element--over')
+
+        # Check an elment is currently being dragged
+        root = ContentEdit.Root.get()
+        dragging = root.dragging()
+        unless dragging
+            return
+
+        # Check the dragged element isn't this element (can't drop on self)
+        unless dragging != this
+            return
+
+        # Check we don't already have a drop target
+        if root._dropTarget
+            return
+
+        # Check the dragged element can be dragged on to this element
+        if @constructor.droppers[dragging.constructor.name] \
+                or dragging.constructor.droppers[@constructor.name]
+
+            # Mark the element as a drop target
+            @_addCSSClass('ce-element--drop')
+            root._dropTarget = @
 
     _removeDOMEventListeners: () ->
         # The method is called before the element is removed from the DOM,
