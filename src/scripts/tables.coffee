@@ -435,7 +435,18 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         if @_isInLastRow()
             row = cell.parent()
             lastCell = row.children[row.children.length - 1].tableCellText()
-            lastCell.nextContent().focus()
+            next = lastCell.nextContent()
+
+            if next
+                next.focus()
+            else
+                # If no next element was found this must be the last content
+                # node found so trigger an event for external code to manage a
+                # region switch.
+                ContentEdit.Root.get().trigger(
+                    'next-region',
+                    @closest (node) -> node.constructor.name == 'Region'
+                    )
 
         # ...else move down vertically
         else
@@ -495,7 +506,18 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         # If this is the first row in the table move out of the section...
         if @_isInFirstRow()
             row = cell.parent()
-            row.children[0].previousContent().focus()
+            previous = row.children[0].previousContent()
+
+            if previous
+                previous.focus()
+            else
+                # If no previous element was found this must be the first
+                # content node found so trigger an event for external code to
+                # manage a region switch.
+                ContentEdit.Root.get().trigger(
+                    'previous-region',
+                    @closest (node) -> node.constructor.name == 'Region'
+                    )
 
         # ...else move up vertically
         else
