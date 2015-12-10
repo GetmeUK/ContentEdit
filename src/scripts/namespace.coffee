@@ -141,9 +141,6 @@ window.ContentEdit =
                 else
                     domElement.removeAttribute('class')
 
-        else
-            domElement.setAttribute('class', className)
-
 
 # HACK: Add constructor name property to IE9+, code based on the stackoverflow
 # response http://stackoverflow.com/a/17056530
