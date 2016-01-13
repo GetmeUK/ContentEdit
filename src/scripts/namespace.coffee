@@ -140,16 +140,3 @@ window.ContentEdit =
                         )
                 else
                     domElement.removeAttribute('class')
-
-
-# HACK: Add constructor name property to IE9+, code based on the stackoverflow
-# response http://stackoverflow.com/a/17056530
-if not (class C).name
-    Object.defineProperty Function.prototype, 'name', {
-        get: () ->
-            name = @toString().match(/^\s*function\s*(\S*)\s*\(/)[1]
-            # For better performance only parse once, and then cache the
-            # result through a new accessor for repeated access.
-            Object.defineProperty(this, 'name', { value: name })
-            return name
-        }

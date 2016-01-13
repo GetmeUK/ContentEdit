@@ -70,7 +70,7 @@ class ContentEdit.Text extends ContentEdit.Element
 
         # Use the body of the node to create the helper but limit the text to
         # something sensible.
-        text = @_domElement.textContent
+        text = HTMLString.String.encode(@_domElement.textContent)
         if text.length > ContentEdit.HELPER_CHAR_LIMIT
             text = text.substr(0, ContentEdit.HELPER_CHAR_LIMIT)
 
@@ -290,7 +290,7 @@ class ContentEdit.Text extends ContentEdit.Element
             # so trigger an event for external code to manage a region switch.
             ContentEdit.Root.get().trigger(
                 'previous-region',
-                @closest (node) -> node.constructor == ContentEdit.Region
+                @closest (node) -> node.type() is 'Region'
                 )
 
     _keyReturn: (ev) ->
@@ -345,7 +345,7 @@ class ContentEdit.Text extends ContentEdit.Element
             # so trigger an event for external code to manage a region switch.
             ContentEdit.Root.get().trigger(
                 'next-region',
-                @closest (node) -> node.constructor == ContentEdit.Region
+                @closest (node) -> node.type() is 'Region'
                 )
 
     _keyTab: (ev) ->

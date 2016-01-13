@@ -465,13 +465,13 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # region switch.
                 ContentEdit.Root.get().trigger(
                     'next-region',
-                    @closest (node) -> node.constructor == ContentEdit.Region
+                    @closest (node) -> node.type() is 'Region'
                     )
 
         # ...else move down vertically
         else
             nextRow = cell.parent().nextWithTest (node) ->
-                return node.constructor == ContentEdit.TableRow
+                return node.type() is 'TableRow'
 
             cellIndex = cell.parent().children.indexOf(cell)
             cellIndex = Math.min(cellIndex, nextRow.children.length)
@@ -509,7 +509,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
 
                 # Add the new row to the section
                 section = @closest (node) ->
-                    return node.constructor == ContentEdit.TableSection
+                    return node.type() is 'TableSection'
                 section.attach(row)
 
                 # Move the focus to the first cell in the new row
@@ -536,13 +536,13 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # manage a region switch.
                 ContentEdit.Root.get().trigger(
                     'previous-region',
-                    @closest (node) -> node.constructor == ContentEdit.Region
+                    @closest (node) -> node is 'Region'
                     )
 
         # ...else move up vertically
         else
             previousRow = cell.parent().previousWithTest (node) ->
-                return node.constructor == ContentEdit.TableRow
+                return node.type() is 'TableRow'
 
             cellIndex = cell.parent().children.indexOf(cell)
             cellIndex = Math.min(cellIndex, previousRow.children.length)

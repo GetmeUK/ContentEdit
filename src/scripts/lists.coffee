@@ -22,7 +22,7 @@ class ContentEdit.List extends ContentEdit.ElementCollection
 
     _onMouseOver: (ev) ->
         # Only support dropping on to the element if it sits at the top level
-        if @parent().constructor == ContentEdit.ListItem
+        if @parent().type() is 'ListItem'
             return
 
         super(ev)
@@ -173,7 +173,7 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
             parent.children.length
             )
 
-        if grandParent.constructor == ContentEdit.ListItem
+        if grandParent.type() is 'ListItem'
             # Move the item to the same level as it's parent
             @listItemText().storeState()
 
@@ -426,7 +426,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
 
                 # Find the list root and start dragging it
                 listRoot = @closest (node) ->
-                    return node.parent().constructor == ContentEdit.Region
+                    return node.parent().type() == 'Region'
                 listRoot.drag(ev.pageX, ev.pageY)
 
             else
@@ -555,7 +555,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
 
         'Text': (element, target, placement) ->
             # Text > ListItem
-            if element.constructor == ContentEdit.Text
+            if element.type() is 'Text'
                 targetParent = target.parent()
 
                 # Remove the text element
@@ -642,7 +642,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
             new ContentSelect.Range(offset, offset).select(target._domElement)
 
             # Text > ListItemText - just remove the existing text element
-            if element.constructor == ContentEdit.Text
+            if element.type() == 'Text'
                 if element.parent()
                     element.parent().detach(element)
 

@@ -1600,7 +1600,7 @@
 }).call(this);
 
 (function() {
-  var C, _Root, _TagNames, _mergers,
+  var _Root, _TagNames, _mergers,
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
@@ -1712,24 +1712,6 @@
       }
     }
   };
-
-  if (!(C = (function() {
-    function C() {}
-
-    return C;
-
-  })()).name) {
-    Object.defineProperty(Function.prototype, 'name', {
-      get: function() {
-        var name;
-        name = this.toString().match(/^\s*function\s*(\S*)\s*\(/)[1];
-        Object.defineProperty(this, 'name', {
-          value: name
-        });
-        return name;
-      }
-    });
-  }
 
   _TagNames = (function() {
     function _TagNames() {
@@ -3240,7 +3222,7 @@
         return;
       }
       helper = Text.__super__.createDraggingDOMElement.call(this);
-      text = this._domElement.textContent;
+      text = HTMLString.String.encode(this._domElement.textContent);
       if (text.length > ContentEdit.HELPER_CHAR_LIMIT) {
         text = text.substr(0, ContentEdit.HELPER_CHAR_LIMIT);
       }
@@ -3431,7 +3413,7 @@
         return selection.select(previous.domElement());
       } else {
         return ContentEdit.Root.get().trigger('previous-region', this.closest(function(node) {
-          return node.constructor === ContentEdit.Region;
+          return node.type() === 'Region';
         }));
       }
     };
@@ -3475,7 +3457,7 @@
         return selection.select(next.domElement());
       } else {
         return ContentEdit.Root.get().trigger('next-region', this.closest(function(node) {
-          return node.constructor === ContentEdit.Region;
+          return node.type() === 'Region';
         }));
       }
     };
@@ -3932,7 +3914,7 @@
     };
 
     List.prototype._onMouseOver = function(ev) {
-      if (this.parent().constructor === ContentEdit.ListItem) {
+      if (this.parent().type() === 'ListItem') {
         return;
       }
       List.__super__._onMouseOver.call(this, ev);
@@ -4065,7 +4047,7 @@
       parent = this.parent();
       grandParent = parent.parent();
       siblings = parent.children.slice(parent.children.indexOf(this) + 1, parent.children.length);
-      if (grandParent.constructor === ContentEdit.ListItem) {
+      if (grandParent.type() === 'ListItem') {
         this.listItemText().storeState();
         parent.detach(this);
         grandParent.parent().attach(this, grandParent.parent().children.indexOf(grandParent) + 1);
@@ -4241,7 +4223,7 @@
           if (ContentEdit.Root.get().dragging() === _this) {
             ContentEdit.Root.get().cancelDragging();
             listRoot = _this.closest(function(node) {
-              return node.parent().constructor === ContentEdit.Region;
+              return node.parent().type() === 'Region';
             });
             return listRoot.drag(ev.pageX, ev.pageY);
           } else {
@@ -4336,7 +4318,7 @@
       },
       'Text': function(element, target, placement) {
         var cssClass, insertIndex, listItem, targetParent, text;
-        if (element.constructor === ContentEdit.Text) {
+        if (element.type() === 'Text') {
           targetParent = target.parent();
           element.parent().detach(element);
           cssClass = element.attr('class');
@@ -4388,7 +4370,7 @@
         }
         target.focus();
         new ContentSelect.Range(offset, offset).select(target._domElement);
-        if (element.constructor === ContentEdit.Text) {
+        if (element.type() === 'Text') {
           if (element.parent()) {
             element.parent().detach(element);
           }
@@ -4822,12 +4804,12 @@
           return next.focus();
         } else {
           return ContentEdit.Root.get().trigger('next-region', this.closest(function(node) {
-            return node.constructor === ContentEdit.Region;
+            return node.type() === 'Region';
           }));
         }
       } else {
         nextRow = cell.parent().nextWithTest(function(node) {
-          return node.constructor === ContentEdit.TableRow;
+          return node.type() === 'TableRow';
         });
         cellIndex = cell.parent().children.indexOf(cell);
         cellIndex = Math.min(cellIndex, nextRow.children.length);
@@ -4857,7 +4839,7 @@
             row.attach(newCell);
           }
           section = this.closest(function(node) {
-            return node.constructor === ContentEdit.TableSection;
+            return node.type() === 'TableSection';
           });
           section.attach(row);
           return row.children[0].tableCellText().focus();
@@ -4878,12 +4860,12 @@
           return previous.focus();
         } else {
           return ContentEdit.Root.get().trigger('previous-region', this.closest(function(node) {
-            return node.constructor === ContentEdit.Region;
+            return node === 'Region';
           }));
         }
       } else {
         previousRow = cell.parent().previousWithTest(function(node) {
-          return node.constructor === ContentEdit.TableRow;
+          return node.type() === 'TableRow';
         });
         cellIndex = cell.parent().children.indexOf(cell);
         cellIndex = Math.min(cellIndex, previousRow.children.length);
