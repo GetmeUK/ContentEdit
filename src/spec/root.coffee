@@ -5,9 +5,6 @@ describe '`ContentEdit.Root.get()`', () ->
     it 'should return a singleton instance of Root`', () ->
         root = new ContentEdit.Root.get()
 
-        # Check it returns an instance of the local private _Root class
-        expect(root.constructor.name).toBe '_Root'
-
         # Check the instance returned is a singleton
         expect(root).toBe ContentEdit.Root.get()
 

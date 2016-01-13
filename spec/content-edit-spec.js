@@ -1102,7 +1102,6 @@
     return it('should return a singleton instance of TagNames`', function() {
       var tagNames;
       tagNames = new ContentEdit.TagNames.get();
-      expect(tagNames.constructor.name).toBe('_TagNames');
       return expect(tagNames).toBe(ContentEdit.TagNames.get());
     });
   });
@@ -1170,7 +1169,6 @@
     return it('should return a singleton instance of Root`', function() {
       var root;
       root = new ContentEdit.Root.get();
-      expect(root.constructor.name).toBe('_Root');
       return expect(root).toBe(ContentEdit.Root.get());
     });
   });

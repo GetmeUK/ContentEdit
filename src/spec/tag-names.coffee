@@ -5,9 +5,6 @@ describe '`ContentEdit.TagNames.get()`', () ->
     it 'should return a singleton instance of TagNames`', () ->
         tagNames = new ContentEdit.TagNames.get()
 
-        # Check it returns an instance of the local private _TagNames class
-        expect(tagNames.constructor.name).toBe '_TagNames'
-
         # Check the instance returned is a singleton
         expect(tagNames).toBe ContentEdit.TagNames.get()
 

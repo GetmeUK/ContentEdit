@@ -64,7 +64,7 @@ module.exports = (grunt) ->
         uglify:
             options:
                 banner: '/*! <%= pkg.name %> v<%= pkg.version %> by <%= pkg.author.name %> <<%= pkg.author.email %>> (<%= pkg.author.url %>) */\n'
-                mangle: false
+                mangle: true
 
             build:
                 src: 'build/content-edit.js'

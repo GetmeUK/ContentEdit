@@ -21,6 +21,10 @@ class ContentEdit.Text extends ContentEdit.Element
         # (e.g ce-element--type-text).
         return 'text'
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'Text'
+
     typeName: () ->
         # Return the name of the element type (e.g Image, List item)
         return 'Text'
@@ -286,7 +290,7 @@ class ContentEdit.Text extends ContentEdit.Element
             # so trigger an event for external code to manage a region switch.
             ContentEdit.Root.get().trigger(
                 'previous-region',
-                @closest (node) -> node.constructor.name == 'Region'
+                @closest (node) -> node.constructor == ContentEdit.Region
                 )
 
     _keyReturn: (ev) ->
@@ -341,7 +345,7 @@ class ContentEdit.Text extends ContentEdit.Element
             # so trigger an event for external code to manage a region switch.
             ContentEdit.Root.get().trigger(
                 'next-region',
-                @closest (node) -> node.constructor.name == 'Region'
+                @closest (node) -> node.constructor == ContentEdit.Region
                 )
 
     _keyTab: (ev) ->
@@ -461,10 +465,15 @@ class ContentEdit.PreText extends ContentEdit.Text
         ContentEdit.Element.call(this, tagName, attributes)
 
     # Read-only properties
+
     cssTypeName: () ->
         # Return the CSS type modifier name for the element
         # (e.g ce-element--type-text).
         return 'pre-text'
+
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'PreText'
 
     typeName: () ->
         # Return the name of the element type (e.g Image, List item)

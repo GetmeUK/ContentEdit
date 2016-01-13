@@ -84,7 +84,7 @@
 }).call(this);
 
 (function() {
-  var ALPHA_CHARS, ALPHA_NUMERIC_CHARS, ATTR_DELIM, ATTR_ENTITY_DOUBLE_DELIM, ATTR_ENTITY_NO_DELIM, ATTR_ENTITY_SINGLE_DELIM, ATTR_NAME, ATTR_NAME_FIND_VALUE, ATTR_OR_TAG_END, ATTR_VALUE_DOUBLE_DELIM, ATTR_VALUE_NO_DELIM, ATTR_VALUE_SINGLE_DELIM, CHAR_OR_ENTITY_OR_TAG, CLOSING_TAG, ENTITY, ENTITY_CHARS, OPENING_TAG, OPENNING_OR_CLOSING_TAG, TAG_NAME_CLOSING, TAG_NAME_MUST_CLOSE, TAG_NAME_OPENING, TAG_OPENING_SELF_CLOSING, _Parser,
+  var ALPHA_CHARS, ALPHA_NUMERIC_CHARS, ATTR_DELIM, ATTR_ENTITY_DOUBLE_DELIM, ATTR_ENTITY_NO_DELIM, ATTR_ENTITY_SINGLE_DELIM, ATTR_NAME, ATTR_NAME_FIND_VALUE, ATTR_OR_TAG_END, ATTR_VALUE_DOUBLE_DELIM, ATTR_VALUE_NO_DELIM, ATTR_VALUE_SINGLE_DELIM, CHAR_OR_ENTITY_OR_TAG, CLOSING_TAG, ENTITY, ENTITY_CHARS, OPENING_TAG, OPENNING_OR_CLOSING_TAG, TAG_NAME_CHARS, TAG_NAME_CLOSING, TAG_NAME_MUST_CLOSE, TAG_NAME_OPENING, TAG_OPENING_SELF_CLOSING, _Parser,
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -791,6 +791,8 @@
 
   ENTITY_CHARS = ALPHA_NUMERIC_CHARS.concat(['#']);
 
+  TAG_NAME_CHARS = ALPHA_NUMERIC_CHARS.concat([':']);
+
   CHAR_OR_ENTITY_OR_TAG = 1;
 
   ENTITY = 2;
@@ -858,7 +860,7 @@
       this.fsm.addTransitions(ALPHA_CHARS, CLOSING_TAG, TAG_NAME_CLOSING, function() {
         return this._back();
       });
-      this.fsm.addTransitions(ALPHA_NUMERIC_CHARS, TAG_NAME_OPENING, null, function(c) {
+      this.fsm.addTransitions(TAG_NAME_CHARS, TAG_NAME_OPENING, null, function(c) {
         return this.tagName += c;
       });
       this.fsm.addTransitions([' ', '\n'], TAG_NAME_OPENING, ATTR_OR_TAG_END);
@@ -882,7 +884,7 @@
       this.fsm.addTransitions(ALPHA_CHARS, ATTR_OR_TAG_END, ATTR_NAME, function() {
         return this._back();
       });
-      this.fsm.addTransitions(ALPHA_NUMERIC_CHARS, TAG_NAME_CLOSING, null, function(c) {
+      this.fsm.addTransitions(TAG_NAME_CHARS, TAG_NAME_CLOSING, null, function(c) {
         return this.tagName += c;
       });
       this.fsm.addTransitions([' ', '\n'], TAG_NAME_CLOSING, TAG_NAME_MUST_CLOSE);
@@ -1797,6 +1799,10 @@
       return parents;
     };
 
+    Node.prototype.type = function() {
+      return 'Node';
+    };
+
     Node.prototype.html = function(indent) {
       if (indent == null) {
         indent = '';
@@ -2030,6 +2036,10 @@
       return false;
     };
 
+    NodeCollection.prototype.type = function() {
+      return 'NodeCollection';
+    };
+
     NodeCollection.prototype.attach = function(node, index) {
       if (node.parent()) {
         node.parent().detach(node);
@@ -2114,6 +2124,10 @@
       return this._domElement !== null;
     };
 
+    Element.prototype.type = function() {
+      return 'Element';
+    };
+
     Element.prototype.typeName = function() {
       return 'Element';
     };
@@ -2185,12 +2199,12 @@
         element._removeCSSClass('ce-element--drop');
         element._removeCSSClass("ce-element--drop-" + placement[0]);
         element._removeCSSClass("ce-element--drop-" + placement[1]);
-        if (this.constructor.droppers[element.constructor.name]) {
-          this.constructor.droppers[element.constructor.name](this, element, placement);
+        if (this.constructor.droppers[element.type()]) {
+          this.constructor.droppers[element.type()](this, element, placement);
           root.trigger('drop', this, element, placement);
           return;
-        } else if (element.constructor.droppers[this.constructor.name]) {
-          element.constructor.droppers[this.constructor.name](this, element, placement);
+        } else if (element.constructor.droppers[this.type()]) {
+          element.constructor.droppers[this.type()](this, element, placement);
           root.trigger('drop', this, element, placement);
           return;
         }
@@ -2236,10 +2250,10 @@
     };
 
     Element.prototype.merge = function(element) {
-      if (this.constructor.mergers[element.constructor.name]) {
-        return this.constructor.mergers[element.constructor.name](element, this);
-      } else if (element.constructor.mergers[this.constructor.name]) {
-        return element.constructor.mergers[this.constructor.name](element, this);
+      if (this.constructor.mergers[element.type()]) {
+        return this.constructor.mergers[element.type()](element, this);
+      } else if (element.constructor.mergers[this.type()]) {
+        return element.constructor.mergers[this.type()](element, this);
       }
     };
 
@@ -2453,7 +2467,7 @@
       if (root._dropTarget) {
         return;
       }
-      if (this.constructor.droppers[dragging.constructor.name] || dragging.constructor.droppers[this.constructor.name]) {
+      if (this.constructor.droppers[dragging.type()] || dragging.constructor.droppers[this.type()]) {
         this._addCSSClass('ce-element--drop');
         return root._dropTarget = this;
       }
@@ -2591,6 +2605,10 @@
       return this._domElement !== null;
     };
 
+    ElementCollection.prototype.type = function() {
+      return 'ElementCollection';
+    };
+
     ElementCollection.prototype.createDraggingDOMElement = function() {
       var helper, text;
       if (!this.isMounted()) {
@@ -2697,6 +2715,10 @@
       }
       minWidth = Math.min(minWidth, this.size()[0]);
       return [minWidth, minWidth * this.aspectRatio()];
+    };
+
+    ResizableElement.prototype.type = function() {
+      return 'ResizableElement';
     };
 
     ResizableElement.prototype.mount = function() {
@@ -2858,6 +2880,10 @@
       return true;
     };
 
+    Region.prototype.type = function() {
+      return 'Region';
+    };
+
     Region.prototype.html = function(indent) {
       var c;
       if (indent == null) {
@@ -2910,6 +2936,10 @@
 
     _Root.prototype.resizing = function() {
       return this._resizing;
+    };
+
+    _Root.prototype.type = function() {
+      return 'Root';
     };
 
     _Root.prototype.cancelDragging = function() {
@@ -3074,6 +3104,10 @@
       return 'static';
     };
 
+    Static.prototype.type = function() {
+      return 'Static';
+    };
+
     Static.prototype.typeName = function() {
       return 'Static';
     };
@@ -3170,6 +3204,10 @@
 
     Text.prototype.cssTypeName = function() {
       return 'text';
+    };
+
+    Text.prototype.type = function() {
+      return 'Text';
     };
 
     Text.prototype.typeName = function() {
@@ -3393,7 +3431,7 @@
         return selection.select(previous.domElement());
       } else {
         return ContentEdit.Root.get().trigger('previous-region', this.closest(function(node) {
-          return node.constructor.name === 'Region';
+          return node.constructor === ContentEdit.Region;
         }));
       }
     };
@@ -3437,7 +3475,7 @@
         return selection.select(next.domElement());
       } else {
         return ContentEdit.Root.get().trigger('next-region', this.closest(function(node) {
-          return node.constructor.name === 'Region';
+          return node.constructor === ContentEdit.Region;
         }));
       }
     };
@@ -3526,6 +3564,10 @@
 
     PreText.prototype.cssTypeName = function() {
       return 'pre-text';
+    };
+
+    PreText.prototype.type = function() {
+      return 'PreText';
     };
 
     PreText.prototype.typeName = function() {
@@ -3621,6 +3663,10 @@
 
     Image.prototype.cssTypeName = function() {
       return 'image';
+    };
+
+    Image.prototype.type = function() {
+      return 'Image';
     };
 
     Image.prototype.typeName = function() {
@@ -3752,6 +3798,10 @@
       return 'video';
     };
 
+    Video.prototype.type = function() {
+      return 'Video';
+    };
+
     Video.prototype.typeName = function() {
       return 'Video';
     };
@@ -3873,12 +3923,16 @@
       return 'list';
     };
 
+    List.prototype.type = function() {
+      return 'List';
+    };
+
     List.prototype.typeName = function() {
       return 'List';
     };
 
     List.prototype._onMouseOver = function(ev) {
-      if (this.parent().constructor.name === 'ListItem') {
+      if (this.parent().constructor === ContentEdit.ListItem) {
         return;
       }
       List.__super__._onMouseOver.call(this, ev);
@@ -3954,6 +4008,10 @@
       return null;
     };
 
+    ListItem.prototype.type = function() {
+      return 'ListItem';
+    };
+
     ListItem.prototype.html = function(indent) {
       var lines;
       if (indent == null) {
@@ -4007,7 +4065,7 @@
       parent = this.parent();
       grandParent = parent.parent();
       siblings = parent.children.slice(parent.children.indexOf(this) + 1, parent.children.length);
-      if (grandParent.constructor.name === 'ListItem') {
+      if (grandParent.constructor === ContentEdit.ListItem) {
         this.listItemText().storeState();
         parent.detach(this);
         grandParent.parent().attach(this, grandParent.parent().children.indexOf(grandParent) + 1);
@@ -4142,6 +4200,10 @@
       return 'list-item-text';
     };
 
+    ListItemText.prototype.type = function() {
+      return 'ListItemText';
+    };
+
     ListItemText.prototype.typeName = function() {
       return 'List item';
     };
@@ -4179,7 +4241,7 @@
           if (ContentEdit.Root.get().dragging() === _this) {
             ContentEdit.Root.get().cancelDragging();
             listRoot = _this.closest(function(node) {
-              return node.parent().constructor.name === 'Region';
+              return node.parent().constructor === ContentEdit.Region;
             });
             return listRoot.drag(ev.pageX, ev.pageY);
           } else {
@@ -4274,7 +4336,7 @@
       },
       'Text': function(element, target, placement) {
         var cssClass, insertIndex, listItem, targetParent, text;
-        if (element.constructor.name === 'Text') {
+        if (element.constructor === ContentEdit.Text) {
           targetParent = target.parent();
           element.parent().detach(element);
           cssClass = element.attr('class');
@@ -4326,7 +4388,7 @@
         }
         target.focus();
         new ContentSelect.Range(offset, offset).select(target._domElement);
-        if (element.constructor.name === 'Text') {
+        if (element.constructor === ContentEdit.Text) {
           if (element.parent()) {
             element.parent().detach(element);
           }
@@ -4357,6 +4419,10 @@
     };
 
     Table.prototype.typeName = function() {
+      return 'Table';
+    };
+
+    Table.prototype.type = function() {
       return 'Table';
     };
 
@@ -4489,6 +4555,10 @@
       return 'table-section';
     };
 
+    TableSection.prototype.type = function() {
+      return 'TableSection';
+    };
+
     TableSection.prototype._onMouseOver = function(ev) {
       TableSection.__super__._onMouseOver.call(this, ev);
       return this._removeCSSClass('ce-element--over');
@@ -4533,6 +4603,10 @@
 
     TableRow.prototype.cssTypeName = function() {
       return 'table-row';
+    };
+
+    TableRow.prototype.type = function() {
+      return 'TableRow';
     };
 
     TableRow.prototype.typeName = function() {
@@ -4597,6 +4671,10 @@
       return null;
     };
 
+    TableCell.prototype.type = function() {
+      return 'TableCell';
+    };
+
     TableCell.prototype.html = function(indent) {
       var lines;
       if (indent == null) {
@@ -4640,6 +4718,10 @@
 
     TableCellText.prototype.cssTypeName = function() {
       return 'table-cell-text';
+    };
+
+    TableCellText.prototype.type = function() {
+      return 'TableCellText';
     };
 
     TableCellText.prototype._isInFirstRow = function() {
@@ -4740,12 +4822,12 @@
           return next.focus();
         } else {
           return ContentEdit.Root.get().trigger('next-region', this.closest(function(node) {
-            return node.constructor.name === 'Region';
+            return node.constructor === ContentEdit.Region;
           }));
         }
       } else {
         nextRow = cell.parent().nextWithTest(function(node) {
-          return node.constructor.name === 'TableRow';
+          return node.constructor === ContentEdit.TableRow;
         });
         cellIndex = cell.parent().children.indexOf(cell);
         cellIndex = Math.min(cellIndex, nextRow.children.length);
@@ -4775,7 +4857,7 @@
             row.attach(newCell);
           }
           section = this.closest(function(node) {
-            return node.constructor.name === 'TableSection';
+            return node.constructor === ContentEdit.TableSection;
           });
           section.attach(row);
           return row.children[0].tableCellText().focus();
@@ -4796,12 +4878,12 @@
           return previous.focus();
         } else {
           return ContentEdit.Root.get().trigger('previous-region', this.closest(function(node) {
-            return node.constructor.name === 'Region';
+            return node.constructor === ContentEdit.Region;
           }));
         }
       } else {
         previousRow = cell.parent().previousWithTest(function(node) {
-          return node.constructor.name === 'TableRow';
+          return node.constructor === ContentEdit.TableRow;
         });
         cellIndex = cell.parent().children.indexOf(cell);
         cellIndex = Math.min(cellIndex, previousRow.children.length);

@@ -49,6 +49,10 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
         # Return true if the node is mounted in the DOM.
         return true
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'Region'
+
     # Methods
 
     html: (indent='') ->

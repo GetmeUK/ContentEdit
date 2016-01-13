@@ -44,6 +44,10 @@ class _Root extends ContentEdit.Node
         # Return the element that currently is being resized (if any)
         return @_resizing
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'Root'
+
     # Dragging methods
 
     cancelDragging: () ->

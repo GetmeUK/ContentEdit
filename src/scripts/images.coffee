@@ -20,6 +20,10 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
     cssTypeName: () ->
         return 'image'
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'Image'
+
     typeName: () ->
         # Return the name of the element type (e.g Image, List item)
         return 'Image'

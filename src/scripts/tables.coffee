@@ -16,6 +16,10 @@ class ContentEdit.Table extends ContentEdit.ElementCollection
         # Return the name of the element type (e.g Image, List item)
         return 'Table'
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'Table'
+
     firstSection: () ->
         # Return the first table section associted with the table (if there is
         # one).
@@ -147,6 +151,10 @@ class ContentEdit.TableSection extends ContentEdit.ElementCollection
         # (e.g ce-element--type-table-section).
         return 'table-section'
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'TableSection'
+
     # Event handlers
 
     _onMouseOver: (ev) ->
@@ -199,6 +207,10 @@ class ContentEdit.TableRow extends ContentEdit.ElementCollection
         # Return the CSS type modifier name for the element
         # (e.g ce-element--type-table-row).
         return 'table-row'
+
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'TableRow'
 
     typeName: () ->
         # Return the name of the element type (e.g Image, List item)
@@ -265,6 +277,10 @@ class ContentEdit.TableCell extends ContentEdit.ElementCollection
             return @children[0]
         return null
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'TableCell'
+
     # Methods
 
     html: (indent='') ->
@@ -320,6 +336,10 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         # Return the CSS type modifier name for the element
         # (e.g ce-element--type-table-cell-text).
         return 'table-cell-text'
+
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'TableCellText'
 
     _isInFirstRow: () ->
         cell = @parent()
@@ -445,13 +465,13 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # region switch.
                 ContentEdit.Root.get().trigger(
                     'next-region',
-                    @closest (node) -> node.constructor.name == 'Region'
+                    @closest (node) -> node.constructor == ContentEdit.Region
                     )
 
         # ...else move down vertically
         else
             nextRow = cell.parent().nextWithTest (node) ->
-                return node.constructor.name == 'TableRow'
+                return node.constructor == ContentEdit.TableRow
 
             cellIndex = cell.parent().children.indexOf(cell)
             cellIndex = Math.min(cellIndex, nextRow.children.length)
@@ -489,7 +509,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
 
                 # Add the new row to the section
                 section = @closest (node) ->
-                    return node.constructor.name == 'TableSection'
+                    return node.constructor == ContentEdit.TableSection
                 section.attach(row)
 
                 # Move the focus to the first cell in the new row
@@ -516,13 +536,13 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # manage a region switch.
                 ContentEdit.Root.get().trigger(
                     'previous-region',
-                    @closest (node) -> node.constructor.name == 'Region'
+                    @closest (node) -> node.constructor == ContentEdit.Region
                     )
 
         # ...else move up vertically
         else
             previousRow = cell.parent().previousWithTest (node) ->
-                return node.constructor.name == 'TableRow'
+                return node.constructor == ContentEdit.TableRow
 
             cellIndex = cell.parent().children.indexOf(cell)
             cellIndex = Math.min(cellIndex, previousRow.children.length)

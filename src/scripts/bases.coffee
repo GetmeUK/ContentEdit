@@ -36,6 +36,10 @@ class ContentEdit.Node
 
         return parents
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'Node'
+
     # Methods
 
     html: (indent='') ->
@@ -291,6 +295,10 @@ class ContentEdit.NodeCollection extends ContentEdit.Node
         # Return true if the node is mounted in the DOM
         return false
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'NodeCollection'
+
     # Methods
 
     attach: (node, index) ->
@@ -398,6 +406,10 @@ class ContentEdit.Element extends ContentEdit.Node
         # Return true if the node is mounted in the DOM
         return @_domElement != null
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'Element'
+
     typeName: () ->
         # Return the name of the element type (e.g Image, List item)
         return 'Element'
@@ -490,8 +502,8 @@ class ContentEdit.Element extends ContentEdit.Node
             element._removeCSSClass("ce-element--drop-#{ placement[1] }")
 
             # Determine if either elements class supports the drop
-            if @constructor.droppers[element.constructor.name]
-                @constructor.droppers[element.constructor.name](
+            if @constructor.droppers[element.type()]
+                @constructor.droppers[element.type()](
                     this,
                     element,
                     placement
@@ -499,8 +511,8 @@ class ContentEdit.Element extends ContentEdit.Node
                 root.trigger('drop', this, element, placement)
                 return
 
-            else if element.constructor.droppers[@constructor.name]
-                element.constructor.droppers[@constructor.name](
+            else if element.constructor.droppers[@type()]
+                element.constructor.droppers[@type()](
                     this,
                     element,
                     placement
@@ -557,11 +569,11 @@ class ContentEdit.Element extends ContentEdit.Node
         # handle merging in either direction.
 
         # Determine if either elements class supports the merge
-        if @constructor.mergers[element.constructor.name]
-            @constructor.mergers[element.constructor.name](element, this)
+        if @constructor.mergers[element.type()]
+            @constructor.mergers[element.type()](element, this)
 
-        else if element.constructor.mergers[@constructor.name]
-            element.constructor.mergers[@constructor.name](element, this)
+        else if element.constructor.mergers[@type()]
+            element.constructor.mergers[@type()](element, this)
 
     mount: () ->
         # Mount the element on to the DOM, this method is not designed to be
@@ -787,8 +799,8 @@ class ContentEdit.Element extends ContentEdit.Node
             return
 
         # Check the dragged element can be dragged on to this element
-        if @constructor.droppers[dragging.constructor.name] \
-                or dragging.constructor.droppers[@constructor.name]
+        if @constructor.droppers[dragging.type()] \
+                or dragging.constructor.droppers[@type()]
 
             # Mark the element as a drop target
             @_addCSSClass('ce-element--drop')
@@ -962,6 +974,10 @@ class ContentEdit.ElementCollection extends ContentEdit.Element
         # Return true if the element collection is mounted
         return @_domElement != null
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'ElementCollection'
+
     # Methods
 
     createDraggingDOMElement: () ->
@@ -1091,6 +1107,10 @@ class ContentEdit.ResizableElement extends ContentEdit.Element
         minWidth = Math.min(minWidth, @size()[0])
 
         return [minWidth, minWidth * @aspectRatio()]
+
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'ResizableElement'
 
     # Methods
 

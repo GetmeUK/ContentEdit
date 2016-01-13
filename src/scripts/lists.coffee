@@ -10,6 +10,10 @@ class ContentEdit.List extends ContentEdit.ElementCollection
     cssTypeName: () ->
         return 'list'
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'List'
+
     typeName: () ->
         # Return the name of the element type (e.g Image, List item)
         return 'List'
@@ -18,7 +22,7 @@ class ContentEdit.List extends ContentEdit.ElementCollection
 
     _onMouseOver: (ev) ->
         # Only support dropping on to the element if it sits at the top level
-        if @parent().constructor.name == 'ListItem'
+        if @parent().constructor == ContentEdit.ListItem
             return
 
         super(ev)
@@ -104,6 +108,10 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
             return @children[0]
         return null
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'ListItem'
+
     # Methods
 
     html: (indent='') ->
@@ -165,7 +173,7 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
             parent.children.length
             )
 
-        if grandParent.constructor.name == 'ListItem'
+        if grandParent.constructor == ContentEdit.ListItem
             # Move the item to the same level as it's parent
             @listItemText().storeState()
 
@@ -354,6 +362,10 @@ class ContentEdit.ListItemText extends ContentEdit.Text
         # (e.g ce-element--type-list-item-text).
         return 'list-item-text'
 
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'ListItemText'
+
     typeName: () ->
         # Return the name of the element type (e.g Image, List item)
         return 'List item'
@@ -414,7 +426,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
 
                 # Find the list root and start dragging it
                 listRoot = @closest (node) ->
-                    return node.parent().constructor.name == 'Region'
+                    return node.parent().constructor == ContentEdit.Region
                 listRoot.drag(ev.pageX, ev.pageY)
 
             else
@@ -543,7 +555,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
 
         'Text': (element, target, placement) ->
             # Text > ListItem
-            if element.constructor.name == 'Text'
+            if element.constructor == ContentEdit.Text
                 targetParent = target.parent()
 
                 # Remove the text element
@@ -630,7 +642,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
             new ContentSelect.Range(offset, offset).select(target._domElement)
 
             # Text > ListItemText - just remove the existing text element
-            if element.constructor.name == 'Text'
+            if element.constructor == ContentEdit.Text
                 if element.parent()
                     element.parent().detach(element)
 
