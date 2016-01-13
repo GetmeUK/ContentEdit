@@ -83,6 +83,13 @@ describe '`ContentEdit.Root.dropTarget()`', () ->
         region.detach(elementB)
 
 
+describe '`ContentEdit.Root.type()`', () ->
+
+    it 'should return \'Region\'', () ->
+        root = new ContentEdit.Root.get()
+        expect(root.type()).toBe 'Root'
+
+
 describe '`ContentEdit.Root.startDragging()`', () ->
 
     it 'should start a drag interaction', () ->

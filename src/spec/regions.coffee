@@ -22,6 +22,13 @@ describe '`ContentEdit.Region.isMounted()`', () ->
         expect(region.isMounted()).toBe true
 
 
+describe '`ContentEdit.Region.type()`', () ->
+
+    it 'should return \'Region\'', () ->
+        region = new ContentEdit.Region(document.createElement('div'))
+        expect(region.type()).toBe 'Region'
+
+
 describe '`ContentEdit.Region.html()`', () ->
 
     it 'should return a HTML string for the region', () ->

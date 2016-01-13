@@ -18,6 +18,13 @@ describe '`ContentEdit.List.typeName()`', () ->
 
     it 'should return \'List\'', () ->
         list = new ContentEdit.List('ul')
+        expect(list.type()).toBe 'List'
+
+
+describe '`ContentEdit.List.typeName()`', () ->
+
+    it 'should return \'List\'', () ->
+        list = new ContentEdit.List('ul')
         expect(list.typeName()).toBe 'List'
 
 
@@ -293,6 +300,13 @@ describe '`ContentEdit.ListItem.listItemText()`', () ->
         listItemText = new ContentEdit.ListItemText('foo')
         listItem.attach(listItemText)
         expect(listItem.listItemText()).toBe listItemText
+
+
+describe '`ContentEdit.ListItem.type()`', () ->
+
+    it 'should return \'ListItem\'', () ->
+        listItem = new ContentEdit.ListItem()
+        expect(listItem.type()).toBe 'ListItem'
 
 
 describe 'ContentEdit.ListItem.html()', () ->
@@ -661,6 +675,13 @@ describe '`ContentEdit.ListItemText.cssTypeName()`', () ->
     it 'should return \'list-item-text\'', () ->
         listItemText = new ContentEdit.ListItemText('foo')
         expect(listItemText.cssTypeName()).toBe 'list-item-text'
+
+
+describe '`ContentEdit.ListItemText.type()`', () ->
+
+    it 'should return \'ListItemText\'', () ->
+        listItemText = new ContentEdit.ListItemText()
+        expect(listItemText.type()).toBe 'ListItemText'
 
 
 describe '`ContentEdit.ListItemText.typeName()`', () ->

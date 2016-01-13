@@ -20,6 +20,13 @@ describe '`ContentEdit.Image.cssTypeName()`', () ->
         expect(image.cssTypeName()).toBe 'image'
 
 
+describe '`ContentEdit.Image.type()`', () ->
+
+    it 'should return \'Image\'', () ->
+        image = new ContentEdit.Image({'src': '/foo.jpg'})
+        expect(image.type()).toBe 'Image'
+
+
 describe '`ContentEdit.Image.typeName()`', () ->
 
     it 'should return \'Image\'', () ->

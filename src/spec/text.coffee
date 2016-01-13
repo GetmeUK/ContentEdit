@@ -14,6 +14,20 @@ describe '`ContentEdit.Text.cssTypeName()`', () ->
         expect(text.cssTypeName()).toBe 'text'
 
 
+describe '`ContentEdit.Text.type()`', () ->
+
+    it 'should return \'Text\'', () ->
+        text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>')
+        expect(text.type()).toBe 'Text'
+
+
+describe '`ContentEdit.Text.typeName()`', () ->
+
+    it 'should return \'Text\'', () ->
+        text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>')
+        expect(text.typeName()).toBe 'Text'
+
+
 describe 'ContentEdit.Text.blur()', () ->
 
     root = ContentEdit.Root.get()
@@ -513,6 +527,20 @@ describe '`ContentEdit.PreText.cssTypeName()`', () ->
     it 'should return \'pre-text\'', () ->
         preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>')
         expect(preText.cssTypeName()).toBe 'pre-text'
+
+
+describe '`ContentEdit.PreText.type()`', () ->
+
+    it 'should return \'PreText\'', () ->
+        preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>')
+        expect(preText.type()).toBe 'PreText'
+
+
+describe '`ContentEdit.PreText.typeName()`', () ->
+
+    it 'should return \'Preformatted\'', () ->
+        preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>')
+        expect(preText.typeName()).toBe 'Preformatted'
 
 
 describe 'ContentEdit.PreText.html()', () ->

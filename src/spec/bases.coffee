@@ -60,6 +60,16 @@ describe 'ContentEdit.Node.html()', () ->
         expect(node.html).toThrow new Error('`html` not implemented')
 
 
+describe 'ContentEdit.Node.type()', () ->
+
+    it 'should return \'Node\'', () ->
+
+        # Create a collection and add a node to it
+        node = new ContentEdit.Node()
+
+        expect(node.type()).toBe 'Node'
+
+
 describe 'ContentEdit.Node.bind()', () ->
 
     it 'should bind a function so that it\'s called whenever the event is \
@@ -410,6 +420,16 @@ describe 'ContentEdit.NodeCollection.isMounted()', () ->
         expect(collection.isMounted()).toBe false
 
 
+describe 'ContentEdit.NodeCollection.type()', () ->
+
+    it 'should return \'NodeCollection\'', () ->
+
+        # Create a collection and add a node to it
+        collection = new ContentEdit.NodeCollection()
+
+        expect(collection.type()).toBe 'NodeCollection'
+
+
 describe 'ContentEdit.NodeCollection.attach()', () ->
 
     it 'should attach a node to a node collection', () ->
@@ -606,6 +626,23 @@ describe 'ContentEdit.Element.isMounted()', () ->
         region.attach(element)
 
         expect(element.isMounted()).toBe true
+
+
+describe 'ContentEdit.Element.type()', () ->
+
+    it 'should return \'Element\'', () ->
+
+        # Create a collection and add a node to it
+        element = new ContentEdit.Element('div', {'class': 'foo'})
+
+        expect(element.type()).toBe 'Element'
+
+
+describe '`ContentEdit.Element.typeName()`', () ->
+
+    it 'should return \'Element\'', () ->
+        element = new ContentEdit.Element('div', {'class': 'foo'})
+        expect(element.typeName()).toBe 'Element'
 
 
 describe 'ContentEdit.Element.addCSSClass()', () ->
@@ -1032,6 +1069,13 @@ describe 'ContentEdit.ElementCollection.html()', () ->
             )
 
 
+describe '`ContentEdit.ElementCollection.type()`', () ->
+
+    it 'should return \'ElementCollection\'', () ->
+        collection = new ContentEdit.ElementCollection('div', {'class': 'foo'})
+        expect(collection.type()).toBe 'ElementCollection'
+
+
 describe 'ContentEdit.ElementCollection.createDraggingDOMElement()', () ->
 
     it 'should create a helper DOM element', () ->
@@ -1233,6 +1277,13 @@ describe 'ContentEdit.ResizableElement.minSize()', () ->
     it 'should return the specified minimum element size for an element', () ->
         element.attr('data-ce-min-width', 100)
         expect(element.minSize()).toEqual [100, 100]
+
+
+describe '`ContentEdit.ResizableElement.type()`', () ->
+
+    it 'should return \'ResizableElement\'', () ->
+        element = new ContentEdit.ResizableElement('div', {'class': 'foo'})
+        expect(element.type()).toBe 'ResizableElement'
 
 
 describe 'ContentEdit.ResizableElement.mount()', () ->

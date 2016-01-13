@@ -14,6 +14,13 @@ describe '`ContentEdit.Table.cssTypeName()`', () ->
         expect(table.cssTypeName()).toBe 'table'
 
 
+describe '`ContentEdit.Table.type()`', () ->
+
+    it 'should return \'Table\'', () ->
+        table = new ContentEdit.Table()
+        expect(table.type()).toBe 'Table'
+
+
 describe '`ContentEdit.Table.typeName()`', () ->
 
     it 'should return \'table\'', () ->
@@ -421,6 +428,13 @@ describe '`ContentEdit.TableSection.cssTypeName()`', () ->
         expect(tableSection.cssTypeName()).toBe 'table-section'
 
 
+describe '`ContentEdit.TableSection.type()`', () ->
+
+    it 'should return \'TableSection\'', () ->
+        tableSection = new ContentEdit.TableSection('tbody', {})
+        expect(tableSection.type()).toBe 'TableSection'
+
+
 describe '`ContentEdit.TableSection.fromDOMElement()`', () ->
 
     it 'should convert a <tbody>, <tfoot> or <thead> DOM element into a table \
@@ -468,6 +482,13 @@ describe '`ContentEdit.TableRow.cssTypeName()`', () ->
     it 'should return \'table-row\'', () ->
         tableRow = new ContentEdit.TableRow()
         expect(tableRow.cssTypeName()).toBe 'table-row'
+
+
+describe '`ContentEdit.TableRow.typeName()`', () ->
+
+    it 'should return \'TableRow\'', () ->
+        tableRow = new ContentEdit.TableRow()
+        expect(tableRow.type()).toBe 'TableRow'
 
 
 describe '`ContentEdit.TableRow.typeName()`', () ->
@@ -578,6 +599,13 @@ describe '`ContentEdit.TableCell.tableCellText()`', () ->
         expect(tableCell.tableCellText()).toBe tableCellText
 
 
+describe '`ContentEdit.TableCell.type()`', () ->
+
+    it 'should return \'table-cell\'', () ->
+        tableCell = new ContentEdit.TableCell('td', {})
+        expect(tableCell.type()).toBe 'TableCell'
+
+
 describe '`ContentEdit.TableCell.html()`', () ->
 
     it 'should return a HTML string for the table cell element', () ->
@@ -634,6 +662,13 @@ describe '`ContentEdit.TableCellText.cssTypeName()`', () ->
     it 'should return \'table-cell-text\'', () ->
         tableCellText = new ContentEdit.TableCellText('foo')
         expect(tableCellText.cssTypeName()).toBe 'table-cell-text'
+
+
+describe '`ContentEdit.TableCellText.type()`', () ->
+
+    it 'should return \'TableCellText\'', () ->
+        tableCellText = new ContentEdit.TableCellText('foo')
+        expect(tableCellText.type()).toBe 'TableCellText'
 
 
 describe 'ContentEdit.TableCellText.blur()', () ->

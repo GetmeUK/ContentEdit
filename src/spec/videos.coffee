@@ -14,6 +14,20 @@ describe '`ContentEdit.Video.cssTypeName()`', () ->
         expect(video.cssTypeName()).toBe 'video'
 
 
+describe '`ContentEdit.Video.type()`', () ->
+
+    it 'should return \'video\'', () ->
+        video = new ContentEdit.Video('video', {}, [])
+        expect(video.type()).toBe 'Video'
+
+
+describe '`ContentEdit.Video.typeName()`', () ->
+
+    it 'should return \'video\'', () ->
+        video = new ContentEdit.Video('video', {}, [])
+        expect(video.typeName()).toBe 'Video'
+
+
 describe '`ContentEdit.Video.createDraggingDOMElement()`', () ->
 
     region = null

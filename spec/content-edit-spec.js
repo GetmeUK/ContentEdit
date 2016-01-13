@@ -130,6 +130,14 @@
     });
   });
 
+  describe('ContentEdit.Node.type()', function() {
+    return it('should return \'Node\'', function() {
+      var node;
+      node = new ContentEdit.Node();
+      return expect(node.type()).toBe('Node');
+    });
+  });
+
   describe('ContentEdit.Node.bind()', function() {
     return it('should bind a function so that it\'s called whenever the event is triggered', function() {
       var foo, node;
@@ -399,6 +407,14 @@
     });
   });
 
+  describe('ContentEdit.NodeCollection.type()', function() {
+    return it('should return \'NodeCollection\'', function() {
+      var collection;
+      collection = new ContentEdit.NodeCollection();
+      return expect(collection.type()).toBe('NodeCollection');
+    });
+  });
+
   describe('ContentEdit.NodeCollection.attach()', function() {
     it('should attach a node to a node collection', function() {
       var collection, node;
@@ -554,6 +570,26 @@
       region = new ContentEdit.Region(document.createElement('div'));
       region.attach(element);
       return expect(element.isMounted()).toBe(true);
+    });
+  });
+
+  describe('ContentEdit.Element.type()', function() {
+    return it('should return \'Element\'', function() {
+      var element;
+      element = new ContentEdit.Element('div', {
+        'class': 'foo'
+      });
+      return expect(element.type()).toBe('Element');
+    });
+  });
+
+  describe('`ContentEdit.Element.typeName()`', function() {
+    return it('should return \'Element\'', function() {
+      var element;
+      element = new ContentEdit.Element('div', {
+        'class': 'foo'
+      });
+      return expect(element.typeName()).toBe('Element');
     });
   });
 
@@ -868,6 +904,16 @@
     });
   });
 
+  describe('`ContentEdit.ElementCollection.type()`', function() {
+    return it('should return \'ElementCollection\'', function() {
+      var collection;
+      collection = new ContentEdit.ElementCollection('div', {
+        'class': 'foo'
+      });
+      return expect(collection.type()).toBe('ElementCollection');
+    });
+  });
+
   describe('ContentEdit.ElementCollection.createDraggingDOMElement()', function() {
     return it('should create a helper DOM element', function() {
       var collection, element, helper, region;
@@ -1036,6 +1082,16 @@
     });
   });
 
+  describe('`ContentEdit.ResizableElement.type()`', function() {
+    return it('should return \'ResizableElement\'', function() {
+      var element;
+      element = new ContentEdit.ResizableElement('div', {
+        'class': 'foo'
+      });
+      return expect(element.type()).toBe('ResizableElement');
+    });
+  });
+
   describe('ContentEdit.ResizableElement.mount()', function() {
     var element, region;
     element = null;
@@ -1154,6 +1210,14 @@
     });
   });
 
+  describe('`ContentEdit.Region.type()`', function() {
+    return it('should return \'Region\'', function() {
+      var region;
+      region = new ContentEdit.Region(document.createElement('div'));
+      return expect(region.type()).toBe('Region');
+    });
+  });
+
   describe('`ContentEdit.Region.html()`', function() {
     return it('should return a HTML string for the region', function() {
       var region;
@@ -1219,6 +1283,14 @@
       expect(root.dropTarget()).toBe(null);
       region.detach(elementA);
       return region.detach(elementB);
+    });
+  });
+
+  describe('`ContentEdit.Root.type()`', function() {
+    return it('should return \'Region\'', function() {
+      var root;
+      root = new ContentEdit.Root.get();
+      return expect(root.type()).toBe('Root');
     });
   });
 
@@ -1315,6 +1387,14 @@
       expect(helper).not.toBe(null);
       expect(helper.tagName.toLowerCase()).toBe('div');
       return expect(helper.innerHTML).toBe('foo bar');
+    });
+  });
+
+  describe('`ContentEdit.Static.type()`', function() {
+    return it('should return \'Static\'', function() {
+      var staticElm;
+      staticElm = new ContentEdit.Static('div', {}, '<div></div>');
+      return expect(staticElm.type()).toBe('Static');
     });
   });
 
@@ -1416,6 +1496,22 @@
       var text;
       text = new ContentEdit.Text('p', {}, 'foo');
       return expect(text.cssTypeName()).toBe('text');
+    });
+  });
+
+  describe('`ContentEdit.Text.type()`', function() {
+    return it('should return \'Text\'', function() {
+      var text;
+      text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>');
+      return expect(text.type()).toBe('Text');
+    });
+  });
+
+  describe('`ContentEdit.Text.typeName()`', function() {
+    return it('should return \'Text\'', function() {
+      var text;
+      text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>');
+      return expect(text.typeName()).toBe('Text');
     });
   });
 
@@ -1839,6 +1935,22 @@
     });
   });
 
+  describe('`ContentEdit.PreText.type()`', function() {
+    return it('should return \'PreText\'', function() {
+      var preText;
+      preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>');
+      return expect(preText.type()).toBe('PreText');
+    });
+  });
+
+  describe('`ContentEdit.PreText.typeName()`', function() {
+    return it('should return \'Preformatted\'', function() {
+      var preText;
+      preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>');
+      return expect(preText.typeName()).toBe('Preformatted');
+    });
+  });
+
   describe('ContentEdit.PreText.html()', function() {
     return it('should return a HTML string for the pre-text element', function() {
       var I, preText;
@@ -1981,6 +2093,16 @@
         'src': '/foo.jpg'
       });
       return expect(image.cssTypeName()).toBe('image');
+    });
+  });
+
+  describe('`ContentEdit.Image.type()`', function() {
+    return it('should return \'Image\'', function() {
+      var image;
+      image = new ContentEdit.Image({
+        'src': '/foo.jpg'
+      });
+      return expect(image.type()).toBe('Image');
     });
   });
 
@@ -2231,6 +2353,22 @@
       var video;
       video = new ContentEdit.Video('video', {}, []);
       return expect(video.cssTypeName()).toBe('video');
+    });
+  });
+
+  describe('`ContentEdit.Video.type()`', function() {
+    return it('should return \'video\'', function() {
+      var video;
+      video = new ContentEdit.Video('video', {}, []);
+      return expect(video.type()).toBe('Video');
+    });
+  });
+
+  describe('`ContentEdit.Video.typeName()`', function() {
+    return it('should return \'video\'', function() {
+      var video;
+      video = new ContentEdit.Video('video', {}, []);
+      return expect(video.typeName()).toBe('Video');
     });
   });
 
@@ -2540,6 +2678,14 @@
     return it('should return \'List\'', function() {
       var list;
       list = new ContentEdit.List('ul');
+      return expect(list.type()).toBe('List');
+    });
+  });
+
+  describe('`ContentEdit.List.typeName()`', function() {
+    return it('should return \'List\'', function() {
+      var list;
+      list = new ContentEdit.List('ul');
       return expect(list.typeName()).toBe('List');
     });
   });
@@ -2751,6 +2897,14 @@
     });
   });
 
+  describe('`ContentEdit.ListItem.type()`', function() {
+    return it('should return \'ListItem\'', function() {
+      var listItem;
+      listItem = new ContentEdit.ListItem();
+      return expect(listItem.type()).toBe('ListItem');
+    });
+  });
+
   describe('ContentEdit.ListItem.html()', function() {
     return it('should return a HTML string for the list element', function() {
       var listItem, listItemText;
@@ -2848,6 +3002,14 @@
       var listItemText;
       listItemText = new ContentEdit.ListItemText('foo');
       return expect(listItemText.cssTypeName()).toBe('list-item-text');
+    });
+  });
+
+  describe('`ContentEdit.ListItemText.type()`', function() {
+    return it('should return \'ListItemText\'', function() {
+      var listItemText;
+      listItemText = new ContentEdit.ListItemText();
+      return expect(listItemText.type()).toBe('ListItemText');
     });
   });
 
@@ -3057,6 +3219,14 @@
       var table;
       table = new ContentEdit.Table();
       return expect(table.cssTypeName()).toBe('table');
+    });
+  });
+
+  describe('`ContentEdit.Table.type()`', function() {
+    return it('should return \'Table\'', function() {
+      var table;
+      table = new ContentEdit.Table();
+      return expect(table.type()).toBe('Table');
     });
   });
 
@@ -3337,6 +3507,14 @@
     });
   });
 
+  describe('`ContentEdit.TableSection.type()`', function() {
+    return it('should return \'TableSection\'', function() {
+      var tableSection;
+      tableSection = new ContentEdit.TableSection('tbody', {});
+      return expect(tableSection.type()).toBe('TableSection');
+    });
+  });
+
   describe('`ContentEdit.TableSection.fromDOMElement()`', function() {
     return it('should convert a <tbody>, <tfoot> or <thead> DOM element into a table section element', function() {
       var I, domTableSection, sectionName, tableSection, _i, _len, _ref, _results;
@@ -3367,6 +3545,14 @@
       var tableRow;
       tableRow = new ContentEdit.TableRow();
       return expect(tableRow.cssTypeName()).toBe('table-row');
+    });
+  });
+
+  describe('`ContentEdit.TableRow.typeName()`', function() {
+    return it('should return \'TableRow\'', function() {
+      var tableRow;
+      tableRow = new ContentEdit.TableRow();
+      return expect(tableRow.type()).toBe('TableRow');
     });
   });
 
@@ -3440,6 +3626,14 @@
     });
   });
 
+  describe('`ContentEdit.TableCell.type()`', function() {
+    return it('should return \'table-cell\'', function() {
+      var tableCell;
+      tableCell = new ContentEdit.TableCell('td', {});
+      return expect(tableCell.type()).toBe('TableCell');
+    });
+  });
+
   describe('`ContentEdit.TableCell.html()`', function() {
     return it('should return a HTML string for the table cell element', function() {
       var tableCell, tableCellText;
@@ -3480,6 +3674,14 @@
       var tableCellText;
       tableCellText = new ContentEdit.TableCellText('foo');
       return expect(tableCellText.cssTypeName()).toBe('table-cell-text');
+    });
+  });
+
+  describe('`ContentEdit.TableCellText.type()`', function() {
+    return it('should return \'TableCellText\'', function() {
+      var tableCellText;
+      tableCellText = new ContentEdit.TableCellText('foo');
+      return expect(tableCellText.type()).toBe('TableCellText');
     });
   });
 

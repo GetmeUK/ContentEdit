@@ -32,6 +32,13 @@ describe '`ContentEdit.Static.createDraggingDOMElement()`', () ->
         expect(helper.innerHTML).toBe 'foo bar'
 
 
+describe '`ContentEdit.Static.type()`', () ->
+
+    it 'should return \'Static\'', () ->
+        staticElm = new ContentEdit.Static('div', {}, '<div></div>')
+        expect(staticElm.type()).toBe 'Static'
+
+
 describe '`ContentEdit.Static.typeName()`', () ->
 
     it 'should return \'Static\'', () ->
