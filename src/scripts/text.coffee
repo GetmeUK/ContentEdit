@@ -311,11 +311,22 @@ class ContentEdit.Text extends ContentEdit.Element
         if ev.shiftKey
             insertAt = selection.get()[0]
 
+            # Check if this is the last character in the row
+            lineBreakStr = '<br>'
+            if @content.length() == insertAt
+                # HACK: If this is the last character then we'll need to insert
+                # two `<br>` if the current last character is not a `<br>`. This
+                # appears to be the only way to get the browsers to consistently
+                # provide the expected behaviour (see issue #101 on
+                # ContentTools).
+                if not @content.characters[insertAt - 1].isTag('br')
+                    lineBreakStr = '<br><br>'
+
             # Rejoin the content with a line-break
             @content = @content.insert(
                 insertAt,
-                new HTMLString.String('<br>', true),
-                insertAt != @content.length()
+                new HTMLString.String(lineBreakStr, true),
+                true
                 )
             @updateInnerHTML()
 
