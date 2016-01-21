@@ -1836,7 +1836,7 @@
       text._keyBack(ev);
       return expect(region.children[0].content.text()).toBe('foobar');
     });
-    return it('should support return splitting the element into 2', function() {
+    it('should support return splitting the element into 2', function() {
       var text;
       text = region.children[0];
       text.focus();
@@ -1844,6 +1844,15 @@
       text._keyReturn(ev);
       expect(region.children[0].content.text()).toBe('fo');
       return expect(region.children[1].content.text()).toBe('o');
+    });
+    return it('should support shift+return inserting a line break', function() {
+      var text;
+      text = region.children[0];
+      text.focus();
+      new ContentSelect.Range(2, 2).select(text.domElement());
+      ev.shiftKey = true;
+      text._keyReturn(ev);
+      return expect(region.children[0].content.html()).toBe('fo<br>o');
     });
   });
 

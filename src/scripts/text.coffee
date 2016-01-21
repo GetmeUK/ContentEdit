@@ -306,6 +306,26 @@ class ContentEdit.Text extends ContentEdit.Element
         tip = @content.substring(0, selection.get()[0])
         tail = @content.substring(selection.get()[1])
 
+        # If the shift key is held down then insert a line-break instead of
+        # creating a new paragraph
+        if ev.shiftKey
+            insertAt = selection.get()[0]
+
+            # Rejoin the content with a line-break
+            @content = @content.insert(
+                insertAt,
+                new HTMLString.String('<br>', true),
+                insertAt != @content.length()
+                )
+            @updateInnerHTML()
+
+            # Reset the caret's position
+            insertAt += 1
+            selection = new ContentSelect.Range(insertAt, insertAt)
+            selection.select(@domElement())
+
+            return
+
         # Update the contents of this element
         @content = tip.trim()
         @updateInnerHTML()

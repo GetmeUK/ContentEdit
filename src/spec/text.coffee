@@ -426,6 +426,15 @@ describe '`ContentEdit.Text` key events`', () ->
         expect(region.children[0].content.text()).toBe 'fo'
         expect(region.children[1].content.text()).toBe 'o'
 
+    it 'should support shift+return inserting a line break', () ->
+        text = region.children[0]
+        text.focus()
+        new ContentSelect.Range(2, 2).select(text.domElement())
+        ev.shiftKey = true
+        text._keyReturn(ev)
+
+        expect(region.children[0].content.html()).toBe 'fo<br>o'
+
 
 # Droppers
 
