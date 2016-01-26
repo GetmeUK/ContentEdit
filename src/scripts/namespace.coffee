@@ -104,6 +104,13 @@ window.ContentEdit =
             if value is ''
                 attributeStrings.push(name)
             else
+                # Escape the contents of the attribute
+                value = HTMLString.String.encode(value)
+
+                # We also need to escape quotes (") as the value will
+                # sit within quotes.
+                value = value.replace(/"/g, '&quot;')
+
                 attributeStrings.push("#{ name }=\"#{ value }\"")
 
         return attributeStrings.join(' ')
