@@ -144,6 +144,12 @@ class ContentEdit.Text extends ContentEdit.Element
 
         @_domElement.setAttribute('contenteditable', '')
         @_addCSSClass('ce-element--focused')
+
+        # If we're restoring the selection state then we need to make sure the
+        # element has focus.
+        if not document.activeElement != @domElement()
+            @domElement().focus()
+
         @_savedSelection.select(@_domElement)
         @_savedSelection = undefined
 
