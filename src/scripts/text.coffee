@@ -147,7 +147,7 @@ class ContentEdit.Text extends ContentEdit.Element
 
         # If we're restoring the selection state then we need to make sure the
         # element has focus.
-        if not document.activeElement != @domElement()
+        if document.activeElement != @domElement()
             @domElement().focus()
 
         @_savedSelection.select(@_domElement)
