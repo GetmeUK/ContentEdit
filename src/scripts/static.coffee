@@ -97,7 +97,7 @@ class ContentEdit.Static extends ContentEdit.Element
 
     _onMouseDown: (ev) ->
         # Give the element focus
-        super()
+        super(ev)
 
         # If the static element has the moveable flag set then allow it to be
         # dragged to a new position.
@@ -118,7 +118,7 @@ class ContentEdit.Static extends ContentEdit.Element
         @_removeCSSClass('ce-element--over')
 
     _onMouseUp: (ev) ->
-        super()
+        super(ev)
 
         # If we're waiting to see if the user wants to drag the element, stop
         # waiting they don't.

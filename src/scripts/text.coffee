@@ -192,11 +192,12 @@ class ContentEdit.Text extends ContentEdit.Element
             when 13 then @_keyReturn(ev)
 
     _onKeyUp: (ev) ->
+        super(ev)
         @_syncContent()
 
     _onMouseDown: (ev) ->
         # Give the element focus
-        super()
+        super(ev)
 
         # If the user holds the mouse down for an extended period then start
         # dragging the element.
@@ -207,13 +208,20 @@ class ContentEdit.Text extends ContentEdit.Element
             ContentEdit.DRAG_HOLD_DURATION
             )
 
+        # HACK: If the content of the element is empty and it already has focus
+        # then supress the event to stop odd behaviour in FireFox.
+        #
+        # Anthony Blackshaw <ant@getme.co.uk>, 2016-01-30
+        if @content.length() == 0 and ContentEdit.Root.get().focused() is this
+            ev.preventDefault()
+
     _onMouseMove: (ev) ->
         # If we're waiting to see if the user wants to drag the element, stop
         # waiting they don't.
         if @_dragTimeout
             clearTimeout(@_dragTimeout)
 
-        super()
+        super(ev)
 
     _onMouseOut: (ev) ->
         # If we're waiting to see if the user wants to drag the element, stop
@@ -221,7 +229,7 @@ class ContentEdit.Text extends ContentEdit.Element
         if @_dragTimeout
             clearTimeout(@_dragTimeout)
 
-        super()
+        super(ev)
 
     _onMouseUp: (ev) ->
         # If we're waiting to see if the user wants to drag the element, stop
@@ -229,7 +237,7 @@ class ContentEdit.Text extends ContentEdit.Element
         if @_dragTimeout
             clearTimeout(@_dragTimeout)
 
-        super()
+        super(ev)
 
     # Key handlers
 

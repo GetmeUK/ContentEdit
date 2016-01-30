@@ -1169,7 +1169,7 @@ class ContentEdit.ResizableElement extends ContentEdit.Element
     # Event handlers
 
     _onMouseDown: (ev) ->
-        super()
+        super(ev)
 
         # Drag or Resize the element
         corner = @_getResizeCorner(ev.clientX, ev.clientY)
