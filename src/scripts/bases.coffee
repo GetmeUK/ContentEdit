@@ -342,6 +342,9 @@ class ContentEdit.NodeCollection extends ContentEdit.Node
     detach: (node) ->
         # Detach the specified node from the collection
 
+        # Set the parent to null
+        node._parent = null
+
         # Find the node in the collection (if not found return)
         nodeIndex = @children.indexOf(node)
         if nodeIndex == -1
@@ -353,9 +356,6 @@ class ContentEdit.NodeCollection extends ContentEdit.Node
 
         # Remove the element from the collection
         @children.splice(nodeIndex, 1)
-
-        # Set the parent to null
-        node._parent = null
 
         # Mark the collection as modified
         @taint()
@@ -675,8 +675,10 @@ class ContentEdit.Element extends ContentEdit.Node
     unmount: () ->
         # Unmount the element from the DOM
         @_removeDOMEventListeners()
+
         if @_domElement.parentNode
             @_domElement.parentNode.removeChild(@_domElement)
+
         @_domElement = null
         ContentEdit.Root.get().trigger('unmount', this)
 
@@ -685,7 +687,10 @@ class ContentEdit.Element extends ContentEdit.Node
     _addDOMEventListeners: () ->
         # Add all event bindings for the DOM element in this method
 
-        # Drag events
+        # Focus events
+        @_domElement.addEventListener 'blur', (ev) =>
+            @_onBlur()
+
         @_domElement.addEventListener 'focus', (ev) =>
             ev.preventDefault()
 
@@ -729,6 +734,9 @@ class ContentEdit.Element extends ContentEdit.Node
 
         @_domElement.addEventListener 'drop', (ev) =>
             @_onNativeDrop(ev)
+
+    _onBlur: (ev) ->
+        # No default behaviour
 
     _onKeyDown: (ev) ->
         # No default behaviour
