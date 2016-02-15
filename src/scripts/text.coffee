@@ -179,6 +179,32 @@ class ContentEdit.Text extends ContentEdit.Element
 
     # Event handlers
 
+    _addDOMEventListeners: () ->
+        # Add all event bindings for the DOM element in this method
+        super()
+
+        # Blur events
+        @_domElement.addEventListener 'blur', (ev) =>
+
+            # Blur events can be temporary, as in an action will be performed
+            # and then the focus returned, however they may occur simply because
+            # the user has clicked away from the element.
+            #
+            # To cater for both scenarios we put a small delay in calling the
+            # blur method against the editable element when the DOM element is
+            # blurred. We then check that the element is still mounted and has
+            # not reverted to the active element before calling the blur method.
+            _blur = () =>
+                if not @isMounted()
+                    return
+
+                if @_domElement == document.activeElement
+                    return
+
+                @blur()
+
+            setTimeout(_blur, 25)
+
     _onKeyDown: (ev) ->
         # Handle special key events
         switch ev.keyCode
