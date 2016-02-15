@@ -93,7 +93,7 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
         else if @_attributes['class']
             @_domElement.setAttribute('class', @_attributes['class'])
 
-        # Apply any existing styles
+        # Set the background image for the
         style = if @_attributes['style'] then @_attributes['style'] else ''
 
         # Set the size using style

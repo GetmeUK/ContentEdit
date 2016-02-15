@@ -31,7 +31,7 @@ class ContentEdit.Text extends ContentEdit.Element
 
     # Methods
 
-    blur: (a) ->
+    blur: () ->
         # Remove editing focus from this element
 
         # Last chance - check for changes in the content not captured before
@@ -138,7 +138,7 @@ class ContentEdit.Text extends ContentEdit.Element
         unless @_savedSelection
             return
 
-        unless @isMounted()
+        unless @isMounted() and @isFocused()
             @_savedSelection = undefined
             return
 
@@ -178,10 +178,6 @@ class ContentEdit.Text extends ContentEdit.Element
         @_flagIfEmpty()
 
     # Event handlers
-
-    _onBlur: (ev) ->
-        super(ev)
-        @blur(true)
 
     _onKeyDown: (ev) ->
         # Handle special key events
