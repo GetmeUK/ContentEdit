@@ -221,6 +221,8 @@ class ContentEdit.Text extends ContentEdit.Element
         # Anthony Blackshaw <ant@getme.co.uk>, 2016-01-30
         if @content.length() == 0 and ContentEdit.Root.get().focused() is this
             ev.preventDefault()
+            if document.activeElement != this._domElement
+                this._domElement.focus()
             new ContentSelect.Range(0, 0).select(this._domElement)
 
     _onMouseMove: (ev) ->

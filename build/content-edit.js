@@ -3353,6 +3353,9 @@
       })(this), ContentEdit.DRAG_HOLD_DURATION);
       if (this.content.length() === 0 && ContentEdit.Root.get().focused() === this) {
         ev.preventDefault();
+        if (document.activeElement !== this._domElement) {
+          this._domElement.focus();
+        }
         return new ContentSelect.Range(0, 0).select(this._domElement);
       }
     };
