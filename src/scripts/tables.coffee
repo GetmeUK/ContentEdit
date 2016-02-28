@@ -394,7 +394,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         if not @_lastCached or @_lastCached < @_modified
 
             # Optimize the content for output
-            content = @content.copy()
+            content = @content.copy().trim()
             content.optimize()
 
             @_lastCached = Date.now()
