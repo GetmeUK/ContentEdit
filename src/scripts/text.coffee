@@ -435,8 +435,8 @@ class ContentEdit.Text extends ContentEdit.Element
             )
 
         # If the snap-shot has changed mark the node as modified
-        newSnaphot = @content.html()
-        if snapshot != newSnaphot
+        newSnapshot = @content.html()
+        if snapshot != newSnapshot
             @taint()
 
         @_flagIfEmpty()
