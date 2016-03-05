@@ -208,6 +208,14 @@ class ContentEdit.TableRow extends ContentEdit.ElementCollection
         # (e.g ce-element--type-table-row).
         return 'table-row'
 
+    isEmpty: () ->
+        # Return true if the row is empty of content
+        for cell in @children
+            text = cell.tableCellText()
+            if text and text.content.length() > 0
+                return false
+        return true
+
     type: () ->
         # Return the type of element (this should be the same as the class name)
         return 'TableRow'
@@ -377,6 +385,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         # Remove focus from the element
 
         if @isMounted()
+
             # Blur the DOM element
             @_domElement.blur()
 
@@ -443,9 +452,49 @@ class ContentEdit.TableCellText extends ContentEdit.Text
 
     # Key handlers
 
-    _keyReturn: (ev) ->
+    _keyBack: (ev) ->
+        selection = ContentSelect.Range.query(@_domElement)
+        unless selection.get()[0] == 0 and selection.isCollapsed()
+            return
+
         ev.preventDefault()
-        @_keyTab({'shiftKey': false, 'preventDefault': () ->})
+
+        # If this is the first cell in the row and the user the cell is empty
+        # check to see if the whole row is empty and if so remove it.
+        cell = @parent()
+        row = cell.parent()
+        if @content.length() == 0 and row.children.indexOf(cell) == 0
+            if row.isEmpty()
+
+                # Move the focus to the previous text element
+                previous = @previousContent()
+                if previous
+                    previous.focus()
+                    selection = new ContentSelect.Range(
+                        previous.content.length(),
+                        previous.content.length()
+                        )
+                    selection.select(previous.domElement())
+
+                # Remove the row
+                row.parent().detach(row)
+
+    _keyDelete: (ev) ->
+        # Check if the row is empty and if it is delete it
+        row = @parent().parent()
+        if row.isEmpty()
+            ev.preventDefault()
+
+            # Move the cursor to either the next row (if available) or the
+            # next content element.
+            lastChild = row.children[row.children.length - 1]
+            nextElement = lastChild.tableCellText().nextContent()
+
+            if nextElement
+                nextElement.focus()
+                selection = new ContentSelect.Range(0, 0)
+                selection.select(nextElement.domElement())
+
 
     _keyDown: (ev) ->
         ev.preventDefault()
@@ -477,6 +526,10 @@ class ContentEdit.TableCellText extends ContentEdit.Text
             cellIndex = Math.min(cellIndex, nextRow.children.length)
 
             nextRow.children[cellIndex].tableCellText().focus()
+
+    _keyReturn: (ev) ->
+        ev.preventDefault()
+        @_keyTab({'shiftKey': false, 'preventDefault': () ->})
 
     _keyTab: (ev) ->
         ev.preventDefault()
