@@ -40,6 +40,12 @@ window.ContentEdit =
     # more than a 1/4 of the total size.
     RESIZE_CORNER_SIZE: 15
 
+    # The default behaviour is to start a new <p> tag whenever the Enter(Return) key is pressed.
+    # Ctrl+Enter creates a line break inside the current element instead.
+    # By toggling this setting to `true`, this behaviour is flipped: Enter will create line breaks,
+    # while Ctrl+Enter will start a new <p> tag.
+    PREFER_LINE_BREAKS: false 
+
     # Translation - the ContentEdit library provides basic translation support
     # which is used both by the library itself and the associated ContentTools
     # library.

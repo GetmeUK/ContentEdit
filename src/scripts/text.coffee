@@ -326,7 +326,7 @@ class ContentEdit.Text extends ContentEdit.Element
 
         # If the shift key is held down then insert a line-break instead of
         # creating a new paragraph
-        if ev.shiftKey
+        if ev.shiftKey ^ ContentEdit.PREFER_LINE_BREAKS
             insertAt = selection.get()[0]
 
             # Check if this is the last character in the row
