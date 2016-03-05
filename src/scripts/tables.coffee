@@ -495,6 +495,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 selection = new ContentSelect.Range(0, 0)
                 selection.select(nextElement.domElement())
 
+            row.parent().detach(row)
 
     _keyDown: (ev) ->
         ev.preventDefault()

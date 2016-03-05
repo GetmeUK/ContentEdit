@@ -4858,8 +4858,9 @@
         if (nextElement) {
           nextElement.focus();
           selection = new ContentSelect.Range(0, 0);
-          return selection.select(nextElement.domElement());
+          selection.select(nextElement.domElement());
         }
+        return row.parent().detach(row);
       }
     };
 
