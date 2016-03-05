@@ -3557,7 +3557,24 @@
     });
   });
 
-  describe('`ContentEdit.TableRow.typeName()`', function() {
+  describe('`ContentEdit.TableRow.isEmpty()`', function() {
+    it('should return true if the table row is empty', function() {
+      var domTableRow, tableRow;
+      domTableRow = document.createElement('tr');
+      domTableRow.innerHTML = '<td></td><td></td>';
+      tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow);
+      return expect(tableRow.isEmpty()).toBe(true);
+    });
+    return it('should return true false the table contains content', function() {
+      var domTableRow, tableRow;
+      domTableRow = document.createElement('tr');
+      domTableRow.innerHTML = '<td>foo</td><td></td>';
+      tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow);
+      return expect(tableRow.isEmpty()).toBe(false);
+    });
+  });
+
+  describe('`ContentEdit.TableRow.type()`', function() {
     return it('should return \'TableRow\'', function() {
       var tableRow;
       tableRow = new ContentEdit.TableRow();
@@ -3581,6 +3598,65 @@
       domTableRow.innerHTML = '<td>foo</td>\n<td>bar</td>';
       tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow);
       return expect(tableRow.html()).toBe("<tr>\n" + I + "<td>\n" + I + I + "foo\n" + I + "</td>\n" + I + "<td>\n" + I + I + "bar\n" + I + "</td>\n</tr>");
+    });
+  });
+
+  describe('`ContentEdit.TableRow` key events`', function() {
+    var emptyTableRow, ev, region, root, tableRow;
+    ev = {
+      preventDefault: function() {}
+    };
+    emptyTableRow = null;
+    region = null;
+    root = ContentEdit.Root.get();
+    tableRow = null;
+    beforeEach(function() {
+      var domTable, table;
+      region = new ContentEdit.Region(document.createElement('div'));
+      domTable = document.createElement('table');
+      domTable.innerHTML = '<tbody>\n<tr><td></td><td>foo</td></tr>\n<tr><td></td><td></td></tr>\n</tbody>';
+      table = ContentEdit.Table.fromDOMElement(domTable);
+      tableRow = table.children[0].children[0];
+      emptyTableRow = table.children[0].children[1];
+      return region.attach(table);
+    });
+    afterEach(function() {
+      var child, _i, _len, _ref, _results;
+      _ref = region.children.slice();
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child = _ref[_i];
+        _results.push(region.detach(child));
+      }
+      return _results;
+    });
+    it('should support delete removing empty rows', function() {
+      var parent, text;
+      text = emptyTableRow.children[1].tableCellText();
+      text.focus();
+      new ContentSelect.Range(0, 0).select(text.domElement());
+      text._keyDelete(ev);
+      expect(emptyTableRow.parent()).toBe(null);
+      parent = tableRow.parent();
+      text = tableRow.children[1].tableCellText();
+      text.focus();
+      new ContentSelect.Range(0, 0).select(text.domElement());
+      text._keyDelete(ev);
+      return expect(parent).toBe(tableRow.parent());
+    });
+    return it('should support backspace in first cell removing empty rows', function() {
+      var parent, text;
+      text = emptyTableRow.children[0].tableCellText();
+      text.focus();
+      new ContentSelect.Range(0, 0).select(text.domElement());
+      text._keyBack(ev);
+      expect(emptyTableRow.parent()).toBe(null);
+      parent = tableRow.parent();
+      text = tableRow.children[0].tableCellText();
+      text.focus();
+      new ContentSelect.Range(0, 0).select(text.domElement());
+      text._keyBack(ev);
+      return expect(parent).toBe(tableRow.parent());
     });
   });
 

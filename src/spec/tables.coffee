@@ -484,7 +484,28 @@ describe '`ContentEdit.TableRow.cssTypeName()`', () ->
         expect(tableRow.cssTypeName()).toBe 'table-row'
 
 
-describe '`ContentEdit.TableRow.typeName()`', () ->
+describe '`ContentEdit.TableRow.isEmpty()`', () ->
+
+    it 'should return true if the table row is empty', () ->
+
+        # tr
+        domTableRow = document.createElement('tr')
+        domTableRow.innerHTML = '<td></td><td></td>'
+        tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow)
+
+        expect(tableRow.isEmpty()).toBe true
+
+    it 'should return true false the table contains content', () ->
+
+        # tr
+        domTableRow = document.createElement('tr')
+        domTableRow.innerHTML = '<td>foo</td><td></td>'
+        tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow)
+
+        expect(tableRow.isEmpty()).toBe false
+
+
+describe '`ContentEdit.TableRow.type()`', () ->
 
     it 'should return \'TableRow\'', () ->
         tableRow = new ContentEdit.TableRow()
@@ -504,7 +525,7 @@ describe '`ContentEdit.TableRow.fromDOMElement()`', () ->
 
         I = ContentEdit.INDENT
 
-        # tbody
+        # tr
         domTableRow = document.createElement('tr')
         domTableRow.innerHTML = '''
 <td>foo</td>
@@ -522,6 +543,66 @@ describe '`ContentEdit.TableRow.fromDOMElement()`', () ->
 #{ I }</td>
 </tr>
 """
+
+describe '`ContentEdit.TableRow` key events`', () ->
+
+    ev = {preventDefault: () -> return}
+    emptyTableRow = null
+    region = null
+    root = ContentEdit.Root.get()
+    tableRow = null
+
+    beforeEach ->
+        region = new ContentEdit.Region(document.createElement('div'))
+        domTable = document.createElement('table')
+        domTable.innerHTML = '''<tbody>
+            <tr><td></td><td>foo</td></tr>
+            <tr><td></td><td></td></tr>
+            </tbody>'''
+        table = ContentEdit.Table.fromDOMElement(domTable)
+        tableRow = table.children[0].children[0]
+        emptyTableRow = table.children[0].children[1]
+        region.attach(table)
+
+    afterEach ->
+        for child in region.children.slice()
+            region.detach(child)
+
+    it 'should support delete removing empty rows', () ->
+        # Remove empty rows
+        text = emptyTableRow.children[1].tableCellText()
+        text.focus()
+        new ContentSelect.Range(0, 0).select(text.domElement())
+        text._keyDelete(ev)
+
+        expect(emptyTableRow.parent()).toBe null
+
+        # Retain populated rows
+        parent = tableRow.parent()
+        text = tableRow.children[1].tableCellText()
+        text.focus()
+        new ContentSelect.Range(0, 0).select(text.domElement())
+        text._keyDelete(ev)
+
+        expect(parent).toBe tableRow.parent()
+
+    it 'should support backspace in first cell removing empty rows', () ->
+        # Remove empty rows
+        text = emptyTableRow.children[0].tableCellText()
+        text.focus()
+        new ContentSelect.Range(0, 0).select(text.domElement())
+        text._keyBack(ev)
+
+        expect(emptyTableRow.parent()).toBe null
+
+        # Retain populated rows
+        parent = tableRow.parent()
+        text = tableRow.children[0].tableCellText()
+        text.focus()
+        new ContentSelect.Range(0, 0).select(text.domElement())
+        text._keyBack(ev)
+
+        expect(parent).toBe tableRow.parent()
 
 
 # Droppers
