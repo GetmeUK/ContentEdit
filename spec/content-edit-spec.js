@@ -1856,6 +1856,57 @@
     });
   });
 
+  describe('`ContentEdit.Text` key events`', function() {
+    var INDENT, ev, region, root;
+    INDENT = ContentEdit.INDENT;
+    ev = {
+      preventDefault: function() {}
+    };
+    region = null;
+    root = ContentEdit.Root.get();
+    beforeEach(function() {
+      var content, _i, _len, _ref, _results;
+      ContentEdit.PREFER_LINE_BREAKS = true;
+      region = new ContentEdit.Region(document.getElementById('test'));
+      _ref = ['foo', 'bar', 'zee'];
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        content = _ref[_i];
+        _results.push(region.attach(new ContentEdit.Text('p', {}, content)));
+      }
+      return _results;
+    });
+    afterEach(function() {
+      var child, _i, _len, _ref, _results;
+      ContentEdit.PREFER_LINE_BREAKS = false;
+      _ref = region.children.slice();
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child = _ref[_i];
+        _results.push(region.detach(child));
+      }
+      return _results;
+    });
+    it('should support return inserting a line break', function() {
+      var text;
+      text = region.children[0];
+      text.focus();
+      new ContentSelect.Range(2, 2).select(text.domElement());
+      text._keyReturn(ev);
+      return expect(region.children[0].content.html()).toBe('fo<br>o');
+    });
+    return it('should support shift+return splitting the element into 2', function() {
+      var text;
+      text = region.children[0];
+      text.focus();
+      new ContentSelect.Range(2, 2).select(text.domElement());
+      ev.shiftKey = true;
+      text._keyReturn(ev);
+      expect(region.children[0].content.text()).toBe('fo');
+      return expect(region.children[1].content.text()).toBe('o');
+    });
+  });
+
   describe('`ContentEdit.Text` drop interactions`', function() {
     var region, text;
     region = null;

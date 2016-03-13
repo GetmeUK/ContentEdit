@@ -435,6 +435,45 @@ describe '`ContentEdit.Text` key events`', () ->
 
         expect(region.children[0].content.html()).toBe 'fo<br>o'
 
+# Test the behaviour of the return key if the `PREFER_LINE_BREAKS` has been
+# set to true.
+
+describe '`ContentEdit.Text` key events`', () ->
+
+    INDENT = ContentEdit.INDENT
+    ev = {preventDefault: () -> return}
+    region = null
+    root = ContentEdit.Root.get()
+
+    beforeEach ->
+        ContentEdit.PREFER_LINE_BREAKS = true
+        region = new ContentEdit.Region(document.getElementById('test'))
+        for content in ['foo', 'bar', 'zee']
+            region.attach(new ContentEdit.Text('p', {}, content))
+
+    afterEach ->
+        ContentEdit.PREFER_LINE_BREAKS = false
+        for child in region.children.slice()
+            region.detach(child)
+
+    it 'should support return inserting a line break', () ->
+        text = region.children[0]
+        text.focus()
+        new ContentSelect.Range(2, 2).select(text.domElement())
+        text._keyReturn(ev)
+
+        expect(region.children[0].content.html()).toBe 'fo<br>o'
+
+    it 'should support shift+return splitting the element into 2', () ->
+        text = region.children[0]
+        text.focus()
+        new ContentSelect.Range(2, 2).select(text.domElement())
+        ev.shiftKey = true
+        text._keyReturn(ev)
+
+        expect(region.children[0].content.text()).toBe 'fo'
+        expect(region.children[1].content.text()).toBe 'o'
+
 
 # Droppers
 

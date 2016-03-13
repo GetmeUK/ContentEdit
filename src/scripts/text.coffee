@@ -324,9 +324,10 @@ class ContentEdit.Text extends ContentEdit.Element
         tip = @content.substring(0, selection.get()[0])
         tail = @content.substring(selection.get()[1])
 
-        # If the shift key is held down then insert a line-break instead of
-        # creating a new paragraph
-        if ev.shiftKey
+        # If the shift key is held down or if the preference is to insert
+        # line-breaks over new paragraphs then insert a line-break instead of
+        # creating a new paragraph.
+        if ev.shiftKey ^ ContentEdit.PREFER_LINE_BREAKS
             insertAt = selection.get()[0]
 
             # Check if this is the last character in the row
