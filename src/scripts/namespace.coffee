@@ -33,10 +33,10 @@ window.ContentEdit =
     # The current language. Must be a a 2 digit ISO_639-1 code.
     LANGUAGE: 'en'
 
-    # By default the a new paragraph `<p>` is created when the enter/return key
-    # is pressed, to insert a line-break `<br>` the shift key can be held down
-    # when pressing enter. This behaviour can be reversed by setting the
-    # preference to be for line breaks.
+    # By default a new paragraph `<p>` is created when the enter/return key is
+    # pressed, to insert a line-break `<br>` the shift key can be held down when
+    # pressing enter. This behaviour can be reversed by setting the preference
+    # to be for line-breaks.
     PREFER_LINE_BREAKS: false
 
     # The size (in pixels) of the corner region used to detect a resize event
