@@ -498,6 +498,10 @@ class ContentEdit.TableCellText extends ContentEdit.Text
             row.parent().detach(row)
 
     _keyDown: (ev) ->
+        selection = ContentSelect.Range.query(@_domElement)
+        unless @_atEnd(selection) and selection.isCollapsed()
+            return
+
         ev.preventDefault()
         cell = @parent()
 
@@ -574,6 +578,10 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 @nextContent().focus()
 
     _keyUp: (ev) ->
+        selection = ContentSelect.Range.query(@_domElement)
+        unless selection.get()[0] == 0 and selection.isCollapsed()
+            return
+
         ev.preventDefault()
         cell = @parent()
 

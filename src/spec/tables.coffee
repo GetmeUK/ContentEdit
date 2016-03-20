@@ -869,6 +869,7 @@ describe '`ContentEdit.TableCellText` key events`', () ->
         expect(root.focused()).toBe otherTableCellText
 
         # Next content element
+        new ContentSelect.Range(3, 3).select(otherTableCellText.domElement())
         root.focused()._keyDown(ev)
         expect(root.focused()).toBe region.children[2]
 
@@ -878,7 +879,7 @@ describe '`ContentEdit.TableCellText` key events`', () ->
         # Previous cell up
         tableCellText = tbody.children[1].children[0].tableCellText()
         tableCellText.focus()
-        new ContentSelect.Range(3, 3).select(tableCellText.domElement())
+        new ContentSelect.Range(0, 0).select(tableCellText.domElement())
         tableCellText._keyUp(ev)
 
         otherTableCellText = tbody.children[0].children[0].tableCellText()
