@@ -39,6 +39,9 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
             if element
                 @attach(element)
 
+            # Trigger a ready event for the region
+            ContentEdit.Root.get().trigger('ready', this)
+
     # Read-only properties
 
     domElement: () ->
