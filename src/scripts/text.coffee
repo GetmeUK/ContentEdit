@@ -545,6 +545,10 @@ class ContentEdit.PreText extends ContentEdit.Text
             @_lastCached = Date.now()
             @_cached = content.html()
 
+            # Trim the last new line from the output string (see
+            # updateInnerHTML hack re. issue #54).
+            @_cached = @_cached.replace(/\n$/gm, '')
+
         return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>" +
             "#{ @_cached }</#{ @_tagName }>"
 

@@ -3603,6 +3603,7 @@
         content.optimize();
         this._lastCached = Date.now();
         this._cached = content.html();
+        this._cached = this._cached.replace(/\n$/gm, '');
       }
       return ("" + indent + "<" + this._tagName + (this._attributesToString()) + ">") + ("" + this._cached + "</" + this._tagName + ">");
     };
