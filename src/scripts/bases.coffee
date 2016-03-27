@@ -908,14 +908,17 @@ class ContentEdit.Element extends ContentEdit.Node
             insertIndex += 1
 
         # Add/Remove alignment classes
+        alignLeft = ContentEdit.ALIGNMENT_CLASS_NAMES['left']
+        alignRight = ContentEdit.ALIGNMENT_CLASS_NAMES['right']
+
         if element.a
-            element._removeCSSClass('align-left')
-            element._removeCSSClass('align-right')
+            element._removeCSSClass(alignLeft)
+            element._removeCSSClass(alignRight)
 
             if element.a['class']
                 aClassNames = []
                 for className in element.a['class'].split(' ')
-                    if className == 'align-left' or className == 'align-right'
+                    if className == alignLeft or className == alignRight
                         continue
                     aClassNames.push(className)
 
@@ -925,28 +928,28 @@ class ContentEdit.Element extends ContentEdit.Node
                     delete element.a['class']
 
         else
-            element.removeCSSClass('align-left')
-            element.removeCSSClass('align-right')
+            element.removeCSSClass(alignLeft)
+            element.removeCSSClass(alignRight)
 
         if placement[1] == 'left'
             if element.a
                 if element.a['class']
-                    element.a['class'] += ' align-left'
+                    element.a['class'] += ' ' + alignLeft
                 else
-                    element.a['class'] = 'align-left'
-                element._addCSSClass('align-left')
+                    element.a['class'] = alignLeft
+                element._addCSSClass(alignLeft)
             else
-                element.addCSSClass('align-left')
+                element.addCSSClass(alignLeft)
 
         if placement[1] == 'right'
             if element.a
                 if element.a['class']
-                    element.a['class'] += ' align-right'
+                    element.a['class'] += ' ' + alignRight
                 else
-                    element.a['class'] = 'align-right'
-                element._addCSSClass('align-right')
+                    element.a['class'] = alignRight
+                element._addCSSClass(alignRight)
             else
-                element.addCSSClass('align-right')
+                element.addCSSClass(alignRight)
 
         # Drop the element into it's new position
         target.parent().attach(element, insertIndex)

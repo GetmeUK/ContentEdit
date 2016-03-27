@@ -2,6 +2,13 @@ window.ContentEdit =
 
     # Global settings
 
+    # The CSS class names used when an element is drag aligned to the left or
+    # right of another element.
+    ALIGNMENT_CLASS_NAMES: {
+        'left': 'align-left',
+        'right': 'align-right'
+    }
+
     # The default min/max constraints (in pixels) for element that can be
     # resized (`ContentEdit.ResizableElement`). The default values are used when
     # a min/max width has not been set using the custom attributes
