@@ -1,7 +1,15 @@
 {
   "name": "ContentEdit",
   "description": "A JavaScript library that provides a set of classes for building content-editable HTML elements.",
-  "main": "build/content-edit.js",
+  "main": [
+    "build/content-edit.js",
+    "build/content-edit.min.css",
+    "build/images/drop-horz.svg",
+    "build/images/drop-vert-above.svg",
+    "build/images/drop-vert-below.svg",
+    "build/images/video.svg",
+    "src/styles/content-edit.scss"
+    ],
   "authors": [
     {
       "name": "Anthony Blackshaw",
@@ -12,6 +20,7 @@
   "license": "MIT",
   "keywords": [
     "wysiwyg",
+    "inline"
     "html",
     "editor"
   ],
