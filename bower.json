@@ -1,0 +1,33 @@
+{
+  "name": "ContentEdit",
+  "description": "A JavaScript library that provides a set of classes for building content-editable HTML elements.",
+  "main": "build/content-edit.js",
+  "authors": [
+    {
+      "name": "Anthony Blackshaw",
+      "email": "ant@getme.co.uk",
+      "url": "https://github.com/anthonyjb"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "wysiwyg",
+    "html",
+    "editor"
+  ],
+  "homepage": "http://getcontenttools.com/api/content-edit",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:GetmeUK/ContentEdit.git"
+  },
+  "moduleType": [
+    "globals"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -4,6 +4,14 @@
 
 > A JavaScript library that provides a set of classes for building content-editable HTML elements.
 
+## Install
+
+**Using bower**
+
+```
+bower install --save ContentEdit
+```
+
 ## Building
 To build the library you'll need to use Grunt. First install the required node modules ([grunt-cli](http://gruntjs.com/getting-started) must be installed):
 ```
