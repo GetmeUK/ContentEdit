@@ -551,7 +551,7 @@ class ContentEdit.PreText extends ContentEdit.Text
 
             # Trim the last new line from the output string (see
             # updateInnerHTML hack re. issue #54).
-            @_cached = @_cached.replace(/\u200B$/g, '')
+            @_cached = @_cached.replace(/\u200B\Z/g, '')
 
         return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>" +
             "#{ @_cached }</#{ @_tagName }>"
