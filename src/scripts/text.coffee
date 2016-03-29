@@ -551,7 +551,7 @@ class ContentEdit.PreText extends ContentEdit.Text
 
             # Trim the last new line from the output string (see
             # updateInnerHTML hack re. issue #54).
-            @_cached = @_cached.replace(/\n$/gm, '')
+            @_cached = @_cached.replace(/\u200B$/g, '')
 
         return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>" +
             "#{ @_cached }</#{ @_tagName }>"
@@ -564,7 +564,7 @@ class ContentEdit.PreText extends ContentEdit.Text
         # end of the content (e.g if the user hits the return key - see issue
         # #54).
         html = @content.html()
-        html += '\n'
+        html += '\u200B'
         @_domElement.innerHTML = html
 
         ContentSelect.Range.prepareElement(@_domElement)
@@ -577,10 +577,8 @@ class ContentEdit.PreText extends ContentEdit.Text
         # by the key events.
         snapshot = @content.html()
 
-        # HACK: Remove the extra newline character added (see updateHTML)
-        html = @_domElement.innerHTML.replace(/[\n]$/, '')
-
         # Update the content for the element
+        html = @_domElement.innerHTML
         @content = new HTMLString.String(html, @content.preserveWhitespace())
 
         # If the snap-shot has changed mark the node as modified

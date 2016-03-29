@@ -3631,7 +3631,7 @@
         content.optimize();
         this._lastCached = Date.now();
         this._cached = content.html();
-        this._cached = this._cached.replace(/\n$/gm, '');
+        this._cached = this._cached.replace(/\u200B$/g, '');
       }
       return ("" + indent + "<" + this._tagName + (this._attributesToString()) + ">") + ("" + this._cached + "</" + this._tagName + ">");
     };
@@ -3639,7 +3639,7 @@
     PreText.prototype.updateInnerHTML = function() {
       var html;
       html = this.content.html();
-      html += '\n';
+      html += '\u200B';
       this._domElement.innerHTML = html;
       ContentSelect.Range.prepareElement(this._domElement);
       return this._flagIfEmpty();
@@ -3648,7 +3648,7 @@
     PreText.prototype._onKeyUp = function(ev) {
       var html, newSnaphot, snapshot;
       snapshot = this.content.html();
-      html = this._domElement.innerHTML.replace(/[\n]$/, '');
+      html = this._domElement.innerHTML;
       this.content = new HTMLString.String(html, this.content.preserveWhitespace());
       newSnaphot = this.content.html();
       if (snapshot !== newSnaphot) {
