@@ -464,7 +464,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         cell = @parent()
         row = cell.parent()
         if @content.length() == 0 and row.children.indexOf(cell) == 0
-            if row.isEmpty()
+            if row.isEmpty() and @can('remove')
 
                 # Move the focus to the previous text element
                 previous = @previousContent()
@@ -482,7 +482,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
     _keyDelete: (ev) ->
         # Check if the row is empty and if it is delete it
         row = @parent().parent()
-        if row.isEmpty()
+        if row.isEmpty() and @can('remove')
             ev.preventDefault()
 
             # Move the cursor to either the next row (if available) or the
@@ -551,6 +551,9 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         else
             # Check if this is the last table cell in a tbody, if it is add
             # another row.
+            unless @can('spawn')
+                return
+
             grandParent = cell.parent().parent()
             if grandParent.tagName() == 'tbody' and @_isLastInSection()
                 row = new ContentEdit.TableRow()

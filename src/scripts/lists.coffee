@@ -376,7 +376,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
         # Remove focus from the element
 
         # Remove editing focus from this element
-        if @content.isWhitespace()
+        if @content.isWhitespace() and @can('remove')
 
             # Remove parent list item if empty
             @parent().remove()
@@ -478,6 +478,10 @@ class ContentEdit.ListItemText extends ContentEdit.Text
         # If the element only contains whitespace unindent it
         if @content.isWhitespace()
             @parent().unindent()
+            return
+
+        # Check if we're allowed to spawn new elements
+        unless @can('spawn')
             return
 
         # Split the element at the text caret

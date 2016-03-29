@@ -380,6 +380,17 @@ class ContentEdit.Element extends ContentEdit.Node
         # The DOM element associated with the element
         @_domElement = null
 
+        # A dictionary of behaviour flags which can be configured to determine
+        # what behaviour an element allows.
+        @_behaviours = {
+            drag: true,   # The element can be dragged
+            drop: true,   # The element can be dropped on to
+            merge: true,  # The element can be merged with another
+            remove: true, # The element can be removed
+            resize: true, # The element can be resized
+            spawn: true   # The element can spawn new elements
+        }
+
     # Read-only properties
 
     attributes: () ->
@@ -465,6 +476,16 @@ class ContentEdit.Element extends ContentEdit.Node
             root._focused = null
             root.trigger('blur', this)
 
+    can: (behaviour, allowed) ->
+        # Get/Set the behaviour allowed for an element
+
+        # Get...
+        if allowed == undefined
+            return @_behaviours[behaviour]
+
+        # ...or Set the permission
+        @_behaviours[name] = allowed
+
     createDraggingDOMElement: () ->
         # Create a DOM element that visually aids the user in dragging the
         # element to a new location in the editiable tree structure.
@@ -482,7 +503,7 @@ class ContentEdit.Element extends ContentEdit.Node
 
     drag: (x, y) ->
         # Drag the element to a new position
-        unless @isMounted()
+        unless @isMounted() and @can('drag')
             return
 
         root = ContentEdit.Root.get()
@@ -567,6 +588,11 @@ class ContentEdit.Element extends ContentEdit.Node
         # The `mergers` class property is an object mapping class names to
         # functions that handle merging element classes. Merger functions
         # handle merging in either direction.
+
+        # A merge always results in the element being removed so merge and
+        # remove must be allowed.
+        unless @can('merge') and @can('remove')
+            return false
 
         # Determine if either elements class supports the merge
         if @constructor.mergers[element.type()]
@@ -798,13 +824,18 @@ class ContentEdit.Element extends ContentEdit.Node
         if root._dropTarget
             return
 
-        # Check the dragged element can be dragged on to this element
-        if @constructor.droppers[dragging.type()] \
-                or dragging.constructor.droppers[@type()]
+        # Check this element is allowed to receive drops
+        unless @can('drop')
+            return
 
-            # Mark the element as a drop target
-            @_addCSSClass('ce-element--drop')
-            root._dropTarget = @
+        # Check the dragged element can be dragged on to this element
+        unless (@constructor.droppers[dragging.type()] \
+                or dragging.constructor.droppers[@type()])
+            return
+
+        # Mark the element as a drop target
+        @_addCSSClass('ce-element--drop')
+        root._dropTarget = @
 
     _removeDOMEventListeners: () ->
         # The method is called before the element is removed from the DOM,
@@ -1126,7 +1157,7 @@ class ContentEdit.ResizableElement extends ContentEdit.Element
 
     resize: (corner, x, y) ->
         # Resize the element
-        unless @isMounted()
+        unless @isMounted() and @can('resize')
             return
 
         ContentEdit.Root.get().startResizing(this, corner, x, y, true)
@@ -1189,6 +1220,9 @@ class ContentEdit.ResizableElement extends ContentEdit.Element
 
     _onMouseMove: (ev) ->
         super()
+
+        unless @can('resize')
+            return
 
         # Add/Remove any resize classes
         @_removeCSSClass('ce-element--resize-top-left')

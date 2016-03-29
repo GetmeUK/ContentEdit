@@ -39,7 +39,7 @@ class ContentEdit.Text extends ContentEdit.Element
         if @isMounted()
             @_syncContent()
 
-        if @content.isWhitespace()
+        if @content.isWhitespace() and @can('remove')
             # Detatch element from parent if empty
             if @parent()
                 @parent().detach(this)
@@ -354,6 +354,10 @@ class ContentEdit.Text extends ContentEdit.Element
             selection = new ContentSelect.Range(insertAt, insertAt)
             selection.select(@domElement())
 
+            return
+
+        # Check if we're allowed to spawn new elements
+        unless @can('spawn')
             return
 
         # Update the contents of this element
