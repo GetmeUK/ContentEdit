@@ -389,6 +389,38 @@ describe 'ContentEdit.ListItem.indent()', () ->
 </ul>
 """)
 
+    it 'should do nothing if the `indent` behavior is not allowed', () ->
+
+        I = ContentEdit.INDENT
+
+        # Build list
+        domElement = document.createElement('ul')
+        domElement.innerHTML = '''
+            <li>One</li>
+            <li>Two</li>
+            <li>Three</li>
+            '''
+        list = ContentEdit.List.fromDOMElement(domElement)
+
+        # Disallow indenting for the list item
+        list.children[2].can('indent', false)
+
+        # Attempt to indent the 3rd item (expect no change
+        list.children[2].indent()
+        expect(list.html()).toBe("""
+<ul>
+#{ I }<li>
+#{ I }#{ I }One
+#{ I }</li>
+#{ I }<li>
+#{ I }#{ I }Two
+#{ I }</li>
+#{ I }<li>
+#{ I }#{ I }Three
+#{ I }</li>
+</ul>
+""")
+
 
 describe 'ContentEdit.ListItem.remove()', () ->
 
@@ -628,6 +660,35 @@ describe 'ContentEdit.ListItem.unindent()', () ->
 </p>
 """)
 
+    it 'should do nothing if the `indent` behavior is not allowed', () ->
+
+        I = ContentEdit.INDENT
+
+        domElement = document.createElement('ul')
+        domElement.innerHTML = '''
+            <li>One</li>
+            <li>Two</li>
+            '''
+        list = ContentEdit.List.fromDOMElement(domElement)
+
+        # Disallow indent behaviour for the list item
+        list.children[0].can('indent', false)
+
+        region = new ContentEdit.Region(document.createElement('div'))
+        region.attach(list)
+
+        # Sub-list item with siblings
+        list.children[0].unindent()
+        expect(region.html()).toBe("""
+<ul>
+#{ I }<li>
+#{ I }#{ I }One
+#{ I }</li>
+#{ I }<li>
+#{ I }#{ I }Two
+#{ I }</li>
+</ul>
+""")
 
 describe '`ContentEdit.ListItem.fromDOMElement()`', () ->
 
@@ -739,6 +800,19 @@ describe '`ContentEdit.ListItemText.blur()`', () ->
         listItemText.blur()
         expect(foo.handleFoo).toHaveBeenCalledWith(listItemText)
 
+    it 'should not remove the list element if it\'s just whitespace but remove
+        behaviour is disallowed for the parent list item', () ->
+
+        listItem = region.children[0].children[1]
+
+        # Disallow remove
+        listItem.can('remove', false)
+
+        listItemText = listItem.listItemText()
+        listItemText.content = new HTMLString.String('')
+        listItemText.blur()
+        expect(listItemText.parent().parent()).not.toBe null
+
 
 describe 'ContentEdit.Text.html()', () ->
 
@@ -800,6 +874,19 @@ describe '`ContentEdit.ListItemText` key events`', () ->
         listItemText._keyTab(ev)
 
         expect(listItem.unindent).toHaveBeenCalled()
+
+    it 'should not split the element into 2 on return if spawn is
+        disallowed', () ->
+
+        # Disallow spawning of new elements
+        listItemCount = list.children.length
+        listItem.can('spawn', false)
+
+        listItemText.focus()
+        new ContentSelect.Range(2, 2).select(listItemText.domElement())
+        listItemText._keyReturn(ev)
+
+        expect(list.children.length).toBe listItemCount
 
 
 # Droppers

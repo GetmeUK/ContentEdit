@@ -90,6 +90,9 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
     constructor: (attributes) ->
         super('li', attributes)
 
+        # Add the indent behaviour for list items
+        @_behaviours['indent'] = true
+
     # Read-only properties
 
     cssTypeName: () ->
@@ -127,6 +130,8 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
 
     indent: () ->
         # Indent the list item
+        unless @can('indent')
+            return
 
         # The first item in a list can't be indented
         if @parent().children.indexOf(this) == 0
@@ -147,7 +152,6 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
 
     remove: () ->
         # Remove the item from the list
-
         unless @parent()
             return
 
@@ -164,6 +168,9 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
 
     unindent: () ->
         # Unindent the list item
+        unless @can('indent')
+            return
+
         parent = @parent()
         grandParent = parent.parent()
 
@@ -389,6 +396,14 @@ class ContentEdit.ListItemText extends ContentEdit.Text
             @_domElement.removeAttribute('contenteditable')
 
         ContentEdit.Element::blur.call(this)
+
+    can: (behaviour, allowed) ->
+        # The allowed behaviour for a ListItemText instance reflects its parent
+        # ListItem and can not be set directly.
+        if allowed
+            throw new Error('Cannot set behaviour for ListItemText')
+
+        return @parent().can(behaviour)
 
     html: (indent='') ->
         # Return a HTML string for the node

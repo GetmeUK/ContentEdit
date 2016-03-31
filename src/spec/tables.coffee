@@ -553,7 +553,10 @@ describe '`ContentEdit.TableRow` key events`', () ->
     tableRow = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
+        domElement = document.createElement('div')
+        document.body.appendChild(domElement)
+        region = new ContentEdit.Region(domElement)
+
         domTable = document.createElement('table')
         domTable.innerHTML = '''<tbody>
             <tr><td></td><td>foo</td></tr>
@@ -567,12 +570,12 @@ describe '`ContentEdit.TableRow` key events`', () ->
     afterEach ->
         for child in region.children.slice()
             region.detach(child)
+        document.body.removeChild(region.domElement())
 
     it 'should support delete removing empty rows', () ->
         # Remove empty rows
         text = emptyTableRow.children[1].tableCellText()
         text.focus()
-        new ContentSelect.Range(0, 0).select(text.domElement())
         text._keyDelete(ev)
 
         expect(emptyTableRow.parent()).toBe null
@@ -581,7 +584,6 @@ describe '`ContentEdit.TableRow` key events`', () ->
         parent = tableRow.parent()
         text = tableRow.children[1].tableCellText()
         text.focus()
-        new ContentSelect.Range(0, 0).select(text.domElement())
         text._keyDelete(ev)
 
         expect(parent).toBe tableRow.parent()
@@ -590,7 +592,6 @@ describe '`ContentEdit.TableRow` key events`', () ->
         # Remove empty rows
         text = emptyTableRow.children[0].tableCellText()
         text.focus()
-        new ContentSelect.Range(0, 0).select(text.domElement())
         text._keyBack(ev)
 
         expect(emptyTableRow.parent()).toBe null
@@ -599,10 +600,22 @@ describe '`ContentEdit.TableRow` key events`', () ->
         parent = tableRow.parent()
         text = tableRow.children[0].tableCellText()
         text.focus()
-        new ContentSelect.Range(0, 0).select(text.domElement())
         text._keyBack(ev)
 
         expect(parent).toBe tableRow.parent()
+
+    it 'should not allow a row to be deleted with backspace or delete if remove
+        behaviour is disallowed', () ->
+
+        # Disallow the removal of the table row
+        emptyTableRow.can('remove', false)
+
+        # Attempt to delete using the backspace key
+        text = emptyTableRow.children[0].tableCellText()
+        text.focus()
+        text._keyBack(ev)
+
+        expect(emptyTableRow.parent()).not.toBe null
 
 
 # Droppers
@@ -930,3 +943,18 @@ describe '`ContentEdit.TableCellText` key events`', () ->
 
         otherTableCellText = tbody.children[0].children[1].tableCellText()
         expect(root.focused()).toBe otherTableCellText
+
+    it 'should not create an new body row on tab if spawn is disallowed', () ->
+
+        rows = tbody.children.length
+        tableCell = tbody.children[1].children[1]
+
+        # Disallow spawning of new rows
+        tableCell.can('spawn', false)
+
+        tableCellText = tableCell.tableCellText()
+        tableCellText.focus()
+        new ContentSelect.Range(3, 3).select(tableCellText.domElement())
+        tableCellText._keyTab(ev)
+
+        expect(tbody.children.length).toBe rows

@@ -637,6 +637,16 @@
     });
   });
 
+  describe('ContentEdit.Element.can()', function() {
+    return it('should set/get whether a behaviour is allowed for the element', function() {
+      var element;
+      element = new ContentEdit.Element('div');
+      expect(element.can('remove')).toBe(true);
+      element.can('remove', false);
+      return expect(element.can('remove')).toBe(false);
+    });
+  });
+
   describe('ContentEdit.Element.createDraggingDOMElement()', function() {
     return it('should create a helper DOM element', function() {
       var element, helper, region;
@@ -661,7 +671,7 @@
       expect(root.startDragging).toHaveBeenCalledWith(element, 0, 0);
       return root.cancelDragging();
     });
-    return it('should trigger the `drag` event against the root', function() {
+    it('should trigger the `drag` event against the root', function() {
       var element, foo, region, root;
       element = new ContentEdit.Element('div');
       region = new ContentEdit.Region(document.createElement('div'));
@@ -675,6 +685,17 @@
       element.drag(0, 0);
       expect(foo.handleFoo).toHaveBeenCalledWith(element);
       return root.cancelDragging();
+    });
+    return it('should do nothing if the `drag` behavior is not allowed', function() {
+      var element, region, root;
+      element = new ContentEdit.Element('div');
+      element.can('drag', false);
+      region = new ContentEdit.Region(document.createElement('div'));
+      region.attach(element);
+      root = ContentEdit.Root.get();
+      spyOn(root, 'startDragging');
+      element.drag(0, 0);
+      return expect(root.startDragging).not.toHaveBeenCalled();
     });
   });
 
@@ -690,7 +711,7 @@
       imageA.drop(imageB, ['below', 'center']);
       return expect(ContentEdit.Image.droppers['Image']).toHaveBeenCalledWith(imageA, imageB, ['below', 'center']);
     });
-    return it('should trigger the `drop` event against the root', function() {
+    it('should trigger the `drop` event against the root', function() {
       var foo, imageA, imageB, region, root;
       region = new ContentEdit.Region(document.createElement('div'));
       imageA = new ContentEdit.Image();
@@ -707,6 +728,18 @@
       expect(foo.handleFoo).toHaveBeenCalledWith(imageA, imageB, ['below', 'center']);
       imageA.drop(null, ['below', 'center']);
       return expect(foo.handleFoo).toHaveBeenCalledWith(imageA, null, null);
+    });
+    return it('should do nothing if the `drop` behavior is not allowed', function() {
+      var imageA, imageB, region;
+      region = new ContentEdit.Region(document.createElement('div'));
+      imageA = new ContentEdit.Image();
+      region.attach(imageA);
+      imageB = new ContentEdit.Image();
+      region.attach(imageB);
+      imageA.can('drop', false);
+      spyOn(ContentEdit.Image.droppers, 'Image');
+      imageA.drop(imageB, ['below', 'center']);
+      return expect(ContentEdit.Image.droppers['Image']).not.toHaveBeenCalled();
     });
   });
 
@@ -743,7 +776,7 @@
   });
 
   describe('ContentEdit.Element.merge()', function() {
-    return it('should select a function from the elements mergers map for the element being merged with this element', function() {
+    it('should select a function from the elements mergers map for the element being merged with this element', function() {
       var region, textA, textB;
       region = new ContentEdit.Region(document.createElement('div'));
       textA = new ContentEdit.Text('p', {}, 'a');
@@ -753,6 +786,18 @@
       spyOn(ContentEdit.Text.mergers, 'Text');
       textA.merge(textB);
       return expect(ContentEdit.Text.mergers['Text']).toHaveBeenCalledWith(textB, textA);
+    });
+    return it('should do nothing if the `merge` behavior is not allowed', function() {
+      var region, textA, textB;
+      region = new ContentEdit.Region(document.createElement('div'));
+      textA = new ContentEdit.Text('p', {}, 'a');
+      region.attach(textA);
+      textB = new ContentEdit.Text('p', {}, 'b');
+      region.attach(textB);
+      textA.can('merge', false);
+      spyOn(ContentEdit.Text.mergers, 'Text');
+      textA.merge(textB);
+      return expect(ContentEdit.Text.mergers['Text']).not.toHaveBeenCalled();
     });
   });
 
@@ -1126,7 +1171,7 @@
   });
 
   describe('ContentEdit.Element.resize()', function() {
-    return it('should call `startResizing` against the root element', function() {
+    it('should call `startResizing` against the root element', function() {
       var element, region, root;
       element = new ContentEdit.ResizableElement('div', {
         'height': 200,
@@ -1138,6 +1183,20 @@
       spyOn(root, 'startResizing');
       element.resize(['top', 'left'], 0, 0);
       return expect(root.startResizing).toHaveBeenCalledWith(element, ['top', 'left'], 0, 0, true);
+    });
+    return it('should do nothing if the `resize` behavior is not allowed', function() {
+      var element, region, root;
+      element = new ContentEdit.ResizableElement('div', {
+        'height': 200,
+        'width': 200
+      });
+      element.can('resize', false);
+      region = new ContentEdit.Region(document.createElement('div'));
+      region.attach(element);
+      root = ContentEdit.Root.get();
+      spyOn(root, 'startResizing');
+      element.resize(['top', 'left'], 0, 0);
+      return expect(root.startResizing).not.toHaveBeenCalled();
     });
   });
 
@@ -1539,7 +1598,7 @@
       text.blur();
       return expect(text.parent()).toBe(null);
     });
-    return it('should trigger the `blur` event against the root', function() {
+    it('should trigger the `blur` event against the root', function() {
       var foo;
       foo = {
         handleFoo: function() {}
@@ -1548,6 +1607,13 @@
       root.bind('blur', foo.handleFoo);
       text.blur();
       return expect(foo.handleFoo).toHaveBeenCalledWith(text);
+    });
+    return it('should not remove the text element if it\'s just whitespace but remove behaviour is disallowed', function() {
+      text.can('remove', false);
+      text.domElement().innerHTML = '';
+      text.content = new HTMLString.String('');
+      text.blur();
+      return expect(text.parent()).not.toBe(null);
     });
   });
 
@@ -1845,7 +1911,7 @@
       expect(region.children[0].content.text()).toBe('fo');
       return expect(region.children[1].content.text()).toBe('o');
     });
-    return it('should support shift+return inserting a line break', function() {
+    it('should support shift+return inserting a line break', function() {
       var text;
       text = region.children[0];
       text.focus();
@@ -1854,9 +1920,19 @@
       text._keyReturn(ev);
       return expect(region.children[0].content.html()).toBe('fo<br>o');
     });
+    return it('should not split the element into 2 on return if spawn is disallowed', function() {
+      var childCount, text;
+      childCount = region.children.length;
+      text = region.children[0];
+      text.can('spawn', false);
+      text.focus();
+      new ContentSelect.Range(2, 2).select(text.domElement());
+      text._keyReturn(ev);
+      return expect(region.children.length).toBe(childCount);
+    });
   });
 
-  describe('`ContentEdit.Text` key events`', function() {
+  describe('`ContentEdit.Text` key events with prefer line breaks`', function() {
     var INDENT, ev, region, root;
     INDENT = ContentEdit.INDENT;
     ev = {
@@ -2978,7 +3054,7 @@
   });
 
   describe('ContentEdit.ListItem.indent()', function() {
-    return it('should indent an item in a list by at most one level', function() {
+    it('should indent an item in a list by at most one level', function() {
       var I, domElement, list;
       I = ContentEdit.INDENT;
       domElement = document.createElement('ul');
@@ -2990,6 +3066,16 @@
       expect(list.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "One\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Two\n" + I + I + "<ul>\n" + I + I + I + "<li>\n" + I + I + I + I + "Three\n" + I + I + I + "</li>\n" + I + I + "</ul>\n" + I + "</li>\n</ul>");
       list.children[1].indent();
       return expect(list.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "One\n" + I + I + "<ul>\n" + I + I + I + "<li>\n" + I + I + I + I + "Two\n" + I + I + I + I + "<ul>\n" + I + I + I + I + I + "<li>\n" + I + I + I + I + I + I + "Three\n" + I + I + I + I + I + "</li>\n" + I + I + I + I + "</ul>\n" + I + I + I + "</li>\n" + I + I + "</ul>\n" + I + "</li>\n</ul>");
+    });
+    return it('should do nothing if the `indent` behavior is not allowed', function() {
+      var I, domElement, list;
+      I = ContentEdit.INDENT;
+      domElement = document.createElement('ul');
+      domElement.innerHTML = '<li>One</li>\n<li>Two</li>\n<li>Three</li>';
+      list = ContentEdit.List.fromDOMElement(domElement);
+      list.children[2].can('indent', false);
+      list.children[2].indent();
+      return expect(list.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "One\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Two\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Three\n" + I + "</li>\n</ul>");
     });
   });
 
@@ -3010,7 +3096,7 @@
   });
 
   describe('ContentEdit.ListItem.unindent()', function() {
-    return it('should indent an item in a list or remove it and convert to a text element if it can\'t be unindented any further', function() {
+    it('should indent an item in a list or remove it and convert to a text element if it can\'t be unindented any further', function() {
       var I, domElement, list, region;
       I = ContentEdit.INDENT;
       domElement = document.createElement('ul');
@@ -3031,6 +3117,18 @@
       expect(region.html()).toBe("<p>\n" + I + "One\n</p>\n<ul>\n" + I + "<li>\n" + I + I + "Two\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Three\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Alpha\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Beta\n" + I + "</li>\n</ul>\n<p>\n" + I + "Gamma\n</p>");
       list.children[1].unindent();
       return expect(region.html()).toBe("<p>\n" + I + "One\n</p>\n<ul>\n" + I + "<li>\n" + I + I + "Two\n" + I + "</li>\n</ul>\n<p>\n" + I + "Three\n</p>\n<ul>\n" + I + "<li>\n" + I + I + "Alpha\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Beta\n" + I + "</li>\n</ul>\n<p>\n" + I + "Gamma\n</p>");
+    });
+    return it('should do nothing if the `indent` behavior is not allowed', function() {
+      var I, domElement, list, region;
+      I = ContentEdit.INDENT;
+      domElement = document.createElement('ul');
+      domElement.innerHTML = '<li>One</li>\n<li>Two</li>';
+      list = ContentEdit.List.fromDOMElement(domElement);
+      list.children[0].can('indent', false);
+      region = new ContentEdit.Region(document.createElement('div'));
+      region.attach(list);
+      list.children[0].unindent();
+      return expect(region.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "One\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Two\n" + I + "</li>\n</ul>");
     });
   });
 
@@ -3113,7 +3211,7 @@
       listItemText.blur();
       return expect(listItemText.parent().parent()).toBe(null);
     });
-    return it('should trigger the `blur` event against the root', function() {
+    it('should trigger the `blur` event against the root', function() {
       var foo, listItemText;
       foo = {
         handleFoo: function() {}
@@ -3123,6 +3221,15 @@
       listItemText = region.children[0].children[1].listItemText();
       listItemText.blur();
       return expect(foo.handleFoo).toHaveBeenCalledWith(listItemText);
+    });
+    return it('should not remove the list element if it\'s just whitespace but remove behaviour is disallowed for the parent list item', function() {
+      var listItem, listItemText;
+      listItem = region.children[0].children[1];
+      listItem.can('remove', false);
+      listItemText = listItem.listItemText();
+      listItemText.content = new HTMLString.String('');
+      listItemText.blur();
+      return expect(listItemText.parent().parent()).not.toBe(null);
     });
   });
 
@@ -3175,12 +3282,21 @@
       listItemText._keyTab(ev);
       return expect(listItem.indent).toHaveBeenCalled();
     });
-    return it('should support using shift-tab to unindent', function() {
+    it('should support using shift-tab to unindent', function() {
       spyOn(listItem, 'unindent');
       ev.shiftKey = true;
       listItemText.focus();
       listItemText._keyTab(ev);
       return expect(listItem.unindent).toHaveBeenCalled();
+    });
+    return it('should not split the element into 2 on return if spawn is disallowed', function() {
+      var listItemCount;
+      listItemCount = list.children.length;
+      listItem.can('spawn', false);
+      listItemText.focus();
+      new ContentSelect.Range(2, 2).select(listItemText.domElement());
+      listItemText._keyReturn(ev);
+      return expect(list.children.length).toBe(listItemCount);
     });
   });
 
@@ -3662,8 +3778,10 @@
     root = ContentEdit.Root.get();
     tableRow = null;
     beforeEach(function() {
-      var domTable, table;
-      region = new ContentEdit.Region(document.createElement('div'));
+      var domElement, domTable, table;
+      domElement = document.createElement('div');
+      document.body.appendChild(domElement);
+      region = new ContentEdit.Region(domElement);
       domTable = document.createElement('table');
       domTable.innerHTML = '<tbody>\n<tr><td></td><td>foo</td></tr>\n<tr><td></td><td></td></tr>\n</tbody>';
       table = ContentEdit.Table.fromDOMElement(domTable);
@@ -3672,42 +3790,45 @@
       return region.attach(table);
     });
     afterEach(function() {
-      var child, _i, _len, _ref, _results;
+      var child, _i, _len, _ref;
       _ref = region.children.slice();
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         child = _ref[_i];
-        _results.push(region.detach(child));
+        region.detach(child);
       }
-      return _results;
+      return document.body.removeChild(region.domElement());
     });
     it('should support delete removing empty rows', function() {
       var parent, text;
       text = emptyTableRow.children[1].tableCellText();
       text.focus();
-      new ContentSelect.Range(0, 0).select(text.domElement());
       text._keyDelete(ev);
       expect(emptyTableRow.parent()).toBe(null);
       parent = tableRow.parent();
       text = tableRow.children[1].tableCellText();
       text.focus();
-      new ContentSelect.Range(0, 0).select(text.domElement());
       text._keyDelete(ev);
       return expect(parent).toBe(tableRow.parent());
     });
-    return it('should support backspace in first cell removing empty rows', function() {
+    it('should support backspace in first cell removing empty rows', function() {
       var parent, text;
       text = emptyTableRow.children[0].tableCellText();
       text.focus();
-      new ContentSelect.Range(0, 0).select(text.domElement());
       text._keyBack(ev);
       expect(emptyTableRow.parent()).toBe(null);
       parent = tableRow.parent();
       text = tableRow.children[0].tableCellText();
       text.focus();
-      new ContentSelect.Range(0, 0).select(text.domElement());
       text._keyBack(ev);
       return expect(parent).toBe(tableRow.parent());
+    });
+    return it('should not allow a row to be deleted with backspace or delete if remove behaviour is disallowed', function() {
+      var text;
+      emptyTableRow.can('remove', false);
+      text = emptyTableRow.children[0].tableCellText();
+      text.focus();
+      text._keyBack(ev);
+      return expect(emptyTableRow.parent()).not.toBe(null);
     });
   });
 
@@ -3951,7 +4072,7 @@
       otherTableCellText = tbody.children[rows].children[0].tableCellText();
       return expect(root.focused()).toBe(otherTableCellText);
     });
-    return it('should support using shift-tab to nav to previous table cell', function() {
+    it('should support using shift-tab to nav to previous table cell', function() {
       var otherTableCellText, tableCellText;
       tableCellText = tbody.children[1].children[0].tableCellText();
       tableCellText.focus();
@@ -3960,6 +4081,17 @@
       tableCellText._keyTab(ev);
       otherTableCellText = tbody.children[0].children[1].tableCellText();
       return expect(root.focused()).toBe(otherTableCellText);
+    });
+    return it('should not create an new body row on tab if spawn is disallowed', function() {
+      var rows, tableCell, tableCellText;
+      rows = tbody.children.length;
+      tableCell = tbody.children[1].children[1];
+      tableCell.can('spawn', false);
+      tableCellText = tableCell.tableCellText();
+      tableCellText.focus();
+      new ContentSelect.Range(3, 3).select(tableCellText.domElement());
+      tableCellText._keyTab(ev);
+      return expect(tbody.children.length).toBe(rows);
     });
   });
 

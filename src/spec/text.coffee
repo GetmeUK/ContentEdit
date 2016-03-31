@@ -70,6 +70,17 @@ describe 'ContentEdit.Text.blur()', () ->
         text.blur()
         expect(foo.handleFoo).toHaveBeenCalledWith(text)
 
+    it 'should not remove the text element if it\'s just whitespace but remove
+        behaviour is disallowed', () ->
+
+        # Disallow remove
+        text.can('remove', false)
+
+        text.domElement().innerHTML = ''
+        text.content = new HTMLString.String('')
+        text.blur()
+        expect(text.parent()).not.toBe null
+
 
 describe '`ContentEdit.Text.createDraggingDOMElement()`', () ->
 
@@ -435,10 +446,26 @@ describe '`ContentEdit.Text` key events`', () ->
 
         expect(region.children[0].content.html()).toBe 'fo<br>o'
 
+    it 'should not split the element into 2 on return if spawn is
+        disallowed', () ->
+
+        childCount = region.children.length
+        text = region.children[0]
+
+        # Disallow spawning of new elements
+        text.can('spawn', false)
+
+        text.focus()
+        new ContentSelect.Range(2, 2).select(text.domElement())
+        text._keyReturn(ev)
+
+        expect(region.children.length).toBe childCount
+
+
 # Test the behaviour of the return key if the `PREFER_LINE_BREAKS` has been
 # set to true.
 
-describe '`ContentEdit.Text` key events`', () ->
+describe '`ContentEdit.Text` key events with prefer line breaks`', () ->
 
     INDENT = ContentEdit.INDENT
     ev = {preventDefault: () -> return}

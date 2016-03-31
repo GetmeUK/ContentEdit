@@ -700,6 +700,19 @@ describe 'ContentEdit.Element.blur()', () ->
         element.blur()
         expect(foo.handleFoo).toHaveBeenCalledWith(element)
 
+describe 'ContentEdit.Element.can()', () ->
+
+    it 'should set/get whether a behaviour is allowed for the element', () ->
+
+        element = new ContentEdit.Element('div')
+
+        # Expect the remove behaviour to be true initially (all behaviours are
+        # are initially allowed by default against elements).
+        expect(element.can('remove')).toBe true
+
+        # Set the behaviour for remove to not allowed
+        element.can('remove', false)
+        expect(element.can('remove')).toBe false
 
 describe 'ContentEdit.Element.createDraggingDOMElement()', () ->
 
@@ -758,6 +771,26 @@ describe 'ContentEdit.Element.drag()', () ->
         element.drag(0, 0)
         expect(foo.handleFoo).toHaveBeenCalledWith(element)
         root.cancelDragging()
+
+    it 'should do nothing if the `drag` behavior is not allowed', () ->
+
+        element = new ContentEdit.Element('div')
+
+        # Disallow dragging of the element
+        element.can('drag', false)
+
+        # Mount the element
+        region = new ContentEdit.Region(document.createElement('div'))
+        region.attach(element)
+
+        # Spy on the startDragging method of root
+        root = ContentEdit.Root.get()
+        spyOn(root, 'startDragging')
+
+        # Attempt to drag the element
+        element.drag(0, 0)
+
+        expect(root.startDragging).not.toHaveBeenCalled()
 
 
 describe 'ContentEdit.Element.drop()', () ->
@@ -820,6 +853,29 @@ describe 'ContentEdit.Element.drop()', () ->
         # Drop the image on invalid target
         imageA.drop(null, ['below', 'center'])
         expect(foo.handleFoo).toHaveBeenCalledWith(imageA, null, null)
+
+    it 'should do nothing if the `drop` behavior is not allowed', () ->
+
+        # Mount the element
+        region = new ContentEdit.Region(document.createElement('div'))
+
+        # Create 2 elements that can be dropped on each other (we can't use
+        # Element instances so we use Image elements instead).
+        imageA = new ContentEdit.Image()
+        region.attach(imageA)
+
+        imageB = new ContentEdit.Image()
+        region.attach(imageB)
+
+        # Disallow imageA accepting drops
+        imageA.can('drop', false)
+
+        # Spy on the dropper function
+        spyOn(ContentEdit.Image.droppers, 'Image')
+
+        # Drop the image
+        imageA.drop(imageB, ['below', 'center'])
+        expect(ContentEdit.Image.droppers['Image']).not.toHaveBeenCalled()
 
 
 describe 'ContentEdit.Element.focus()', () ->
@@ -888,6 +944,30 @@ describe 'ContentEdit.Element.merge()', () ->
         expect(
             ContentEdit.Text.mergers['Text']
             ).toHaveBeenCalledWith(textB, textA)
+
+    it 'should do nothing if the `merge` behavior is not allowed', () ->
+
+        # Mount the element
+        region = new ContentEdit.Region(document.createElement('div'))
+
+        # Create 2 elements that can be merged with each other (we can't use
+        # Element instances so we use text elements instead).
+        textA = new ContentEdit.Text('p', {}, 'a')
+        region.attach(textA)
+
+        textB = new ContentEdit.Text('p', {}, 'b')
+        region.attach(textB)
+
+        # Disallow merge for textA
+        textA.can('merge', false)
+
+        # Spy on the merger function
+        spyOn(ContentEdit.Text.mergers, 'Text')
+
+        # Drop the image
+        textA.merge(textB)
+
+        expect(ContentEdit.Text.mergers['Text']).not.toHaveBeenCalled()
 
 
 describe 'ContentEdit.Element.mount()', () ->
@@ -1354,6 +1434,29 @@ describe 'ContentEdit.Element.resize()', () ->
             0,
             true # Fixed aspect ratio
             )
+
+    it 'should do nothing if the `resize` behavior is not allowed', () ->
+
+        element = new ContentEdit.ResizableElement('div', {
+            'height': 200,
+            'width': 200
+            })
+
+        # Disallow resizing of the element
+        element.can('resize', false)
+
+        # Mount the element
+        region = new ContentEdit.Region(document.createElement('div'))
+        region.attach(element)
+
+        # Spy on the startDragging method of root
+        root = ContentEdit.Root.get()
+        spyOn(root, 'startResizing')
+
+        # Drag the element
+        element.resize(['top', 'left'], 0, 0)
+
+        expect(root.startResizing).not.toHaveBeenCalled()
 
 
 describe 'ContentEdit.Element.size()', () ->

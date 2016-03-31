@@ -395,6 +395,14 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         # Remove editing focus from this element
         ContentEdit.Element::blur.call(this)
 
+    can: (behaviour, allowed) ->
+        # The allowed behaviour for a TableCellText instance reflects its parent
+        # TableCell and can not be set directly.
+        if allowed
+            throw new Error('Cannot set behaviour for ListItemText')
+
+        return @parent().can(behaviour)
+
     html: (indent='') ->
         # Return a HTML string for the node
 
@@ -463,39 +471,47 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         # check to see if the whole row is empty and if so remove it.
         cell = @parent()
         row = cell.parent()
+
+        # Check we're allowed to delete the row
+        if not (row.isEmpty() and row.can('remove'))
+            return
+
         if @content.length() == 0 and row.children.indexOf(cell) == 0
-            if row.isEmpty() and @can('remove')
 
-                # Move the focus to the previous text element
-                previous = @previousContent()
-                if previous
-                    previous.focus()
-                    selection = new ContentSelect.Range(
-                        previous.content.length(),
-                        previous.content.length()
-                        )
-                    selection.select(previous.domElement())
+            # Move the focus to the previous text element
+            previous = @previousContent()
+            if previous
+                previous.focus()
+                selection = new ContentSelect.Range(
+                    previous.content.length(),
+                    previous.content.length()
+                    )
+                selection.select(previous.domElement())
 
-                # Remove the row
-                row.parent().detach(row)
+            # If this is the last row check we're allowed to
+            row.parent().detach(row)
 
     _keyDelete: (ev) ->
         # Check if the row is empty and if it is delete it
         row = @parent().parent()
-        if row.isEmpty() and @can('remove')
-            ev.preventDefault()
 
-            # Move the cursor to either the next row (if available) or the
-            # next content element.
-            lastChild = row.children[row.children.length - 1]
-            nextElement = lastChild.tableCellText().nextContent()
+        # Check we're allowed to delete the row
+        if not (row.isEmpty() and row.can('remove'))
+            return
 
-            if nextElement
-                nextElement.focus()
-                selection = new ContentSelect.Range(0, 0)
-                selection.select(nextElement.domElement())
+        ev.preventDefault()
 
-            row.parent().detach(row)
+        # Move the cursor to either the next row (if available) or the
+        # next content element.
+        lastChild = row.children[row.children.length - 1]
+        nextElement = lastChild.tableCellText().nextContent()
+
+        if nextElement
+            nextElement.focus()
+            selection = new ContentSelect.Range(0, 0)
+            selection.select(nextElement.domElement())
+
+        row.parent().detach(row)
 
     _keyDown: (ev) ->
         selection = ContentSelect.Range.query(@_domElement)

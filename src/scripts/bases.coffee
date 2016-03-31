@@ -484,7 +484,7 @@ class ContentEdit.Element extends ContentEdit.Node
             return @_behaviours[behaviour]
 
         # ...or Set the permission
-        @_behaviours[name] = allowed
+        @_behaviours[behaviour] = allowed
 
     createDraggingDOMElement: () ->
         # Create a DOM element that visually aids the user in dragging the
@@ -514,6 +514,8 @@ class ContentEdit.Element extends ContentEdit.Node
         # Drop the element into a new position in the editable structure, if no
         # element is provided, or a method to manage the drop isn't defined the
         # drop is cancelled.
+        unless @can('drop')
+            return
 
         root = ContentEdit.Root.get()
         if element
