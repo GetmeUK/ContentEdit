@@ -620,7 +620,19 @@ class ContentEdit.Element extends ContentEdit.Node
                 sibling.domElement()
                 )
         else
-            @parent().domElement().appendChild(@_domElement)
+            if @parent().domElement().classList.contains 'fixture'
+
+                console.log @_domElement == @parent().domElement()
+
+                console.log @parent().domElement().parentNode
+
+                @parent().domElement().parentNode.replaceChild(
+                    @_domElement,
+                    @parent().domElement()
+                    )
+
+            else
+                @parent().domElement().appendChild(@_domElement)
 
         # Add interaction handlers
         @_addDOMEventListeners()

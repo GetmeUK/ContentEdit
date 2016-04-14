@@ -2277,7 +2277,13 @@
       if (sibling) {
         this.parent().domElement().insertBefore(this._domElement, sibling.domElement());
       } else {
-        this.parent().domElement().appendChild(this._domElement);
+        if (this.parent().domElement().classList.contains('fixture')) {
+          console.log(this._domElement === this.parent().domElement());
+          console.log(this.parent().domElement().parentNode);
+          this.parent().domElement().parentNode.replaceChild(this._domElement, this.parent().domElement());
+        } else {
+          this.parent().domElement().appendChild(this._domElement);
+        }
       }
       this._addDOMEventListeners();
       this._addCSSClass('ce-element');
@@ -2923,6 +2929,42 @@
     };
 
     return Region;
+
+  })(ContentEdit.NodeCollection);
+
+  ContentEdit.Fixture = (function(_super) {
+    __extends(Fixture, _super);
+
+    function Fixture(domElement) {
+      var cls, element, tagNames;
+      Fixture.__super__.constructor.call(this);
+      this._domElement = domElement;
+      tagNames = ContentEdit.TagNames.get();
+      if (this._domElement.getAttribute("data-ce-tag")) {
+        cls = tagNames.match(this._domElement.getAttribute("data-ce-tag"));
+      } else {
+        cls = tagNames.match(this._domElement.tagName);
+      }
+      element = cls.fromDOMElement(this._domElement);
+      this.children = [element];
+      element._parent = this;
+      element.mount();
+      ContentEdit.Root.get().trigger('ready', this);
+    }
+
+    Fixture.prototype.domElement = function() {
+      return this._domElement;
+    };
+
+    Fixture.prototype.isMounted = function() {
+      return true;
+    };
+
+    Fixture.prototype.type = function() {
+      return 'Fixture';
+    };
+
+    return Fixture;
 
   })(ContentEdit.NodeCollection);
 
