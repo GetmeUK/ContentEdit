@@ -46,8 +46,8 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
             src = 'No video source set'
 
         # Limit the length to something sensible
-        if src.length > ContentEdit.HELPER_CHAR_LIMIT
-            src = text.substr(0, ContentEdit.HELPER_CHAR_LIMIT)
+        if src.length > 80
+            src = src.substr(0, 80) + '...'
 
         return src
 
