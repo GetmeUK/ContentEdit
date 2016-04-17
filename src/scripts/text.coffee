@@ -530,7 +530,9 @@ class ContentEdit.PreText extends ContentEdit.Text
     # Methods
 
     blur: () ->
-        @_domElement.innerHTML = @content.html()
+        if @isMounted()
+            @_domElement.innerHTML = @content.html()
+
         super()
 
     html: (indent='') ->
@@ -628,14 +630,22 @@ class ContentEdit.PreText extends ContentEdit.Text
     # Private methods
 
     _ensureEndZWS: () ->
-        # HACK: Append an zero width space character to the DOM elements inner
-        # HTML to ensure the caret position moves when a newline is added to the
-        # end of the content (e.g if the user hits the return key - see issue
-        # #54).
-        if @_domElement.innerHTML[@_domElement.innerHTML.length - 1] != '\u200B'
-            @storeState()
-            @_domElement.lastChild.textContent += '\u200B'
-            @restoreState()
+        # HACK: Append an zero-width-space (ZWS) character to the DOM elements
+        # inner HTML to ensure the caret position moves when a newline is added
+        # to the end of the content (e.g if the user hits the return key - see
+        # issue #54).
+
+        # Check we need to add the ZWS
+        if not @_domElement.lastChild
+            return
+
+        if @_domElement.innerHTML[@_domElement.innerHTML.length - 1] == '\u200B'
+            return
+
+        # Add the ZWS and reset the selection
+        @storeState()
+        @_domElement.lastChild.textContent += '\u200B'
+        @restoreState()
 
     # Class properties
 

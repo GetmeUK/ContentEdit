@@ -3621,7 +3621,9 @@
     };
 
     PreText.prototype.blur = function() {
-      this._domElement.innerHTML = this.content.html();
+      if (this.isMounted()) {
+        this._domElement.innerHTML = this.content.html();
+      }
       return PreText.__super__.blur.call(this);
     };
 
@@ -3696,11 +3698,15 @@
     };
 
     PreText.prototype._ensureEndZWS = function() {
-      if (this._domElement.innerHTML[this._domElement.innerHTML.length - 1] !== '\u200B') {
-        this.storeState();
-        this._domElement.lastChild.textContent += '\u200B';
-        return this.restoreState();
+      if (!this._domElement.lastChild) {
+        return;
       }
+      if (this._domElement.innerHTML[this._domElement.innerHTML.length - 1] === '\u200B') {
+        return;
+      }
+      this.storeState();
+      this._domElement.lastChild.textContent += '\u200B';
+      return this.restoreState();
     };
 
     PreText.droppers = {
