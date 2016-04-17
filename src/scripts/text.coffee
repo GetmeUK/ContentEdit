@@ -412,16 +412,10 @@ class ContentEdit.Text extends ContentEdit.Element
 
     _atEnd: (selection) ->
         # Determine if the cursor/caret starts at the end of the content
-        atEnd = selection.get()[0] == @content.length()
 
-        # Catch scenario where the string length is longer than the browser
-        # reports the selection range to be (see issue #54). This occurs when
-        # the last character in an element is a linebreak `<br>` tag.
-        if selection.get()[0] == @content.length() - 1 and
-                @content.characters[@content.characters.length - 1].isTag('br')
-            atEnd = true
+        console.log selection.get(), @content.length()
 
-        return atEnd
+        return selection.get()[0] >= @content.length()
 
     _flagIfEmpty: () ->
         # Flag the element as empty if there's no content
@@ -535,6 +529,10 @@ class ContentEdit.PreText extends ContentEdit.Text
 
     # Methods
 
+    blur: () ->
+        @_domElement.innerHTML = @content.html()
+        super()
+
     html: (indent='') ->
         # Return a HTML string for the node
 
@@ -549,36 +547,30 @@ class ContentEdit.PreText extends ContentEdit.Text
             @_lastCached = Date.now()
             @_cached = content.html()
 
-            # Trim the last new line from the output string (see
-            # updateInnerHTML hack re. issue #54).
-            @_cached = @_cached.replace(/\u200B\Z/g, '')
-
         return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>" +
             "#{ @_cached }</#{ @_tagName }>"
 
     updateInnerHTML: () ->
         # Update the inner HTML of the DOM element with the elements content
-
-        # HACK: Append an additional newline character to the DOM elements inner
-        # HTML to ensure the caret position moves when a newline is added to the
-        # end of the content (e.g if the user hits the return key - see issue
-        # #54).
         html = @content.html()
-        html += '\u200B'
         @_domElement.innerHTML = html
-
+        @_ensureEndZWS()
         ContentSelect.Range.prepareElement(@_domElement)
         @_flagIfEmpty()
 
     # Event handlers
 
     _onKeyUp: (ev) ->
+        @_ensureEndZWS()
+
         # Keep the content in sync with the HTML and check if it's been modified
         # by the key events.
         snapshot = @content.html()
 
         # Update the content for the element
         html = @_domElement.innerHTML
+        html = html.replace(/\u200B$/g, '')
+
         @content = new HTMLString.String(html, @content.preserveWhitespace())
 
         # If the snap-shot has changed mark the node as modified
@@ -587,6 +579,17 @@ class ContentEdit.PreText extends ContentEdit.Text
             @taint()
 
         @_flagIfEmpty()
+
+    _keyBack: (ev) ->
+
+        # If the selection is within the known content behave as normal
+        selection = ContentSelect.Range.query(@_domElement)
+        if selection.get()[0] <= @content.length()
+            return super(ev)
+
+        # Set the selection to the end of the string (
+        selection.set(@content.length(), @content.length())
+        selection.select(@_domElement)
 
     # Key events
 
@@ -621,6 +624,18 @@ class ContentEdit.PreText extends ContentEdit.Text
         selection.select(@_domElement)
 
         @taint()
+
+    # Private methods
+
+    _ensureEndZWS: () ->
+        # HACK: Append an zero width space character to the DOM elements inner
+        # HTML to ensure the caret position moves when a newline is added to the
+        # end of the content (e.g if the user hits the return key - see issue
+        # #54).
+        if @_domElement.innerHTML[@_domElement.innerHTML.length - 1] != '\u200B'
+            @storeState()
+            @_domElement.lastChild.textContent += '\u200B'
+            @restoreState()
 
     # Class properties
 
