@@ -44,9 +44,8 @@ class ContentEdit.Fixture extends ContentEdit.NodeCollection
         # Return the type of element (this should be the same as the class name)
         return 'Fixture'
 
+    # Methods
 
-# Options
-# - Overwrite the appendChild method for the DOM element to basically do
-#   nothing.
-# - Set a flag against the element marking it as fixed so that the base element
-#   class behaves differently when mounting it.
+    html: (indent='') ->
+        # Return a HTML string for the node
+        return (c.html(indent) for c in @children).join('\n').trim()

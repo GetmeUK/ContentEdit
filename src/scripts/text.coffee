@@ -412,9 +412,6 @@ class ContentEdit.Text extends ContentEdit.Element
 
     _atEnd: (selection) ->
         # Determine if the cursor/caret starts at the end of the content
-
-        console.log selection.get(), @content.length()
-
         return selection.get()[0] >= @content.length()
 
     _flagIfEmpty: () ->
@@ -584,12 +581,13 @@ class ContentEdit.PreText extends ContentEdit.Text
 
     _keyBack: (ev) ->
 
-        # If the selection is within the known content behave as normal
+        # If the selection is within the known content behave as normal...
         selection = ContentSelect.Range.query(@_domElement)
         if selection.get()[0] <= @content.length()
             return super(ev)
 
-        # Set the selection to the end of the string (
+        # ...if not set the selection to the end of the string (not the
+        # contents).
         selection.set(@content.length(), @content.length())
         selection.select(@_domElement)
 

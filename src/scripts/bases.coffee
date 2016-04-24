@@ -409,6 +409,10 @@ class ContentEdit.Element extends ContentEdit.Node
         # Return the DOM element associated with the element
         return @_domElement
 
+    isFixed: () ->
+        # Return true if the element is parented by a fixture
+        return @parent().type() == 'Fixture'
+
     isFocused: () ->
         # Return true if the element currently has focus
         return ContentEdit.Root.get().focused() == this
@@ -481,7 +485,7 @@ class ContentEdit.Element extends ContentEdit.Node
 
         # Get...
         if allowed == undefined
-            return @_behaviours[behaviour]
+            return (not @isFixed()) and @_behaviours[behaviour]
 
         # ...or Set the permission
         @_behaviours[behaviour] = allowed
@@ -620,16 +624,14 @@ class ContentEdit.Element extends ContentEdit.Node
                 sibling.domElement()
                 )
         else
-            if @parent().domElement().classList.contains 'fixture'
-
-                console.log @_domElement == @parent().domElement()
-
-                console.log @parent().domElement().parentNode
-
+            # Check to see if the parent is a fixture, if so then the element
+            # will replace the parent DOM instead of appending it.
+            if @isFixed()
                 @parent().domElement().parentNode.replaceChild(
                     @_domElement,
                     @parent().domElement()
                     )
+                @parent()._domElement = @_domElement
 
             else
                 @parent().domElement().appendChild(@_domElement)
@@ -714,6 +716,11 @@ class ContentEdit.Element extends ContentEdit.Node
 
     unmount: () ->
         # Unmount the element from the DOM
+
+        # Check if the element is a fixture in which case it cannot be unmounted
+        if @isFixed
+            return
+
         @_removeDOMEventListeners()
         if @_domElement.parentNode
             @_domElement.parentNode.removeChild(@_domElement)
