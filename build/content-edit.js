@@ -2115,7 +2115,7 @@
     };
 
     Element.prototype.isFixed = function() {
-      return this.parent().type() === 'Fixture';
+      return this.parent() && this.parent().type() === 'Fixture';
     };
 
     Element.prototype.isFocused = function() {
@@ -2350,7 +2350,7 @@
     };
 
     Element.prototype.unmount = function() {
-      if (this.isFixed) {
+      if (this.isFixed()) {
         return;
       }
       this._removeDOMEventListeners();

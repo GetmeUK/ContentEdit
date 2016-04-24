@@ -411,7 +411,7 @@ class ContentEdit.Element extends ContentEdit.Node
 
     isFixed: () ->
         # Return true if the element is parented by a fixture
-        return @parent().type() == 'Fixture'
+        return @parent() and @parent().type() == 'Fixture'
 
     isFocused: () ->
         # Return true if the element currently has focus
@@ -718,7 +718,7 @@ class ContentEdit.Element extends ContentEdit.Node
         # Unmount the element from the DOM
 
         # Check if the element is a fixture in which case it cannot be unmounted
-        if @isFixed
+        if @isFixed()
             return
 
         @_removeDOMEventListeners()
