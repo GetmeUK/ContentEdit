@@ -535,7 +535,8 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # region switch.
                 ContentEdit.Root.get().trigger(
                     'next-region',
-                    @closest (node) -> node.type() is 'Region'
+                    @closest (node) ->
+                        node.type() is 'Fixture' or node.type() is 'Region'
                     )
 
         # ...else move down vertically
@@ -617,7 +618,8 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # manage a region switch.
                 ContentEdit.Root.get().trigger(
                     'previous-region',
-                    @closest (node) -> node is 'Region'
+                    @closest (node) ->
+                        node.type() is 'Fixture' or node.type() is 'Region'
                     )
 
         # ...else move up vertically

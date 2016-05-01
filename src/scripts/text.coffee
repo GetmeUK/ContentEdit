@@ -399,7 +399,8 @@ class ContentEdit.Text extends ContentEdit.Element
             # so trigger an event for external code to manage a region switch.
             ContentEdit.Root.get().trigger(
                 'next-region',
-                @closest (node) -> node.type() is 'Region'
+                @closest (node) ->
+                    node.type() is 'Fixture' or node.type() is 'Region'
                 )
 
     _keyTab: (ev) ->
