@@ -114,9 +114,13 @@ class ContentEdit.Text extends ContentEdit.Element
             @_lastCached = Date.now()
             @_cached = content.html()
 
-        return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>\n" +
-            "#{ indent }#{ ContentEdit.INDENT }#{ @_cached }\n" +
-            "#{ indent }</#{ @_tagName }>"
+        # If this is a fixed element only return the inner HTML
+        if @isFixed()
+            return @_cached
+        else
+            return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>\n" +
+                "#{ indent }#{ ContentEdit.INDENT }#{ @_cached }\n" +
+                "#{ indent }</#{ @_tagName }>"
 
     mount: () ->
         # Mount the element on to the DOM
@@ -170,6 +174,14 @@ class ContentEdit.Text extends ContentEdit.Element
             return
 
         @_savedSelection = ContentSelect.Range.query(@_domElement)
+
+    unmount: () ->
+        # Unmount the element on from the DOM
+
+        # Remove the contenteditable attribute
+        @_domElement.removeAttribute('contenteditable')
+
+        super()
 
     updateInnerHTML: () ->
         # Update the inner HTML of the DOM element with the elements content

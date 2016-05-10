@@ -110,6 +110,21 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
 
         super()
 
+    unmount: () ->
+        # Unmount the element from the DOM
+
+        if @isFixed()
+            # Revert the DOM element to an image
+            wrapper = document.createElement('div')
+            wrapper.innerHTML = @html()
+            domElement = wrapper.querySelector('iframe')
+
+            # Replace the current DOM element with the image
+            @_domElement.parentNode.replaceChild(domElement, @_domElement)
+            @_domElement = domElement
+
+        super()
+
     # Class properties
 
     @droppers:

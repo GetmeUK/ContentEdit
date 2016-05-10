@@ -717,14 +717,23 @@ class ContentEdit.Element extends ContentEdit.Node
     unmount: () ->
         # Unmount the element from the DOM
 
+        # Remove event listeners
+        @_removeDOMEventListeners()
+
         # Check if the element is a fixture in which case it cannot be unmounted
+        # but instead we must remove any classes applied on mount.
         if @isFixed()
+            @_removeCSSClass('ce-element')
+            @_removeCSSClass("ce-element--type-#{ @cssTypeName() }")
+            @_removeCSSClass('ce-element--focused')
+
             return
 
-        @_removeDOMEventListeners()
         if @_domElement.parentNode
             @_domElement.parentNode.removeChild(@_domElement)
         @_domElement = null
+
+        # Trigger the unmount event
         ContentEdit.Root.get().trigger('unmount', this)
 
     # Event handlers
@@ -732,50 +741,58 @@ class ContentEdit.Element extends ContentEdit.Node
     _addDOMEventListeners: () ->
         # Add all event bindings for the DOM element in this method
 
-        # Drag events
-        @_domElement.addEventListener 'focus', (ev) =>
-            ev.preventDefault()
+        # Define all event listeners
+        @_domEventHandlers = {
+            # Drag events
+            'dragstart': (ev) =>
+                ev.preventDefault()
 
-        # Drag events
-        @_domElement.addEventListener 'dragstart', (ev) =>
-            ev.preventDefault()
+            # Focus events
+            'focus': (ev) =>
+                ev.preventDefault()
 
-        # Keyboard events
-        @_domElement.addEventListener 'keydown', (ev) =>
-            @_onKeyDown(ev)
+            # Keyboard events
+            'keydown': (ev) =>
+                @_onKeyDown(ev)
 
-        @_domElement.addEventListener 'keyup', (ev) =>
-            @_onKeyUp(ev)
+            'keyup': (ev) =>
+                @_onKeyUp(ev)
 
-        # Mouse events
-        @_domElement.addEventListener 'mousedown', (ev) =>
-            # The editing environment only uses left mouse button events
-            if ev.button == 0
-                @_onMouseDown(ev)
+            # Mouse events
+            'mousedown':  (ev) =>
+                # The editing environment only uses primary mouse button events
+                if ev.button == 0
+                    @_onMouseDown(ev)
 
-        @_domElement.addEventListener 'mousemove', (ev) =>
-            @_onMouseMove(ev)
+            'mousemove': (ev) =>
+                @_onMouseMove(ev)
 
-        @_domElement.addEventListener 'mouseover', (ev) =>
-            @_onMouseOver(ev)
+            'mouseover': (ev) =>
+                @_onMouseOver(ev)
 
-        @_domElement.addEventListener 'mouseout', (ev) =>
-            @_onMouseOut(ev)
+            'mouseout': (ev) =>
+                @_onMouseOut(ev)
 
-        @_domElement.addEventListener 'mouseup', (ev) =>
-            # The editing environment only uses left mouse button events
-            if ev.button == 0
-                @_onMouseUp(ev)
+            'mouseup': (ev) =>
+                # The editing environment only primary left mouse button events
+                if ev.button == 0
+                    @_onMouseUp(ev)
 
-        # Paste event
-        @_domElement.addEventListener 'paste', (ev) =>
-            @_onPaste(ev)
+            # Paste event
 
-        @_domElement.addEventListener 'dragover', (ev) =>
-            ev.preventDefault()
+            'dragover': (ev) =>
+                ev.preventDefault()
 
-        @_domElement.addEventListener 'drop', (ev) =>
-            @_onNativeDrop(ev)
+            'drop': (ev) =>
+                @_onNativeDrop(ev)
+
+            'paste': (ev) =>
+                @_onPaste(ev)
+        }
+
+        # Add all event listeners
+        for eventName, eventHandler of @_domEventHandlers
+            @_domElement.addEventListener(eventName, eventHandler)
 
     _onKeyDown: (ev) ->
         # No default behaviour
@@ -863,6 +880,11 @@ class ContentEdit.Element extends ContentEdit.Node
         # whilst it is unnecessary to remove and event listeners bound to the
         # DOM element itself, event listners bound to associated DOM elements
         # should be removed here.
+
+        # Remove all event listeners
+        for eventName, eventHandler of @_domEventHandlers
+            @_domElement.removeEventListener(eventName, eventHandler)
+
 
     # Private methods
 
@@ -1064,9 +1086,14 @@ class ContentEdit.ElementCollection extends ContentEdit.Element
     html: (indent='') ->
         # Return a HTML string for the node
         children = (c.html(indent + ContentEdit.INDENT) for c in @children)
-        return "#{ indent }<#{ @tagName() }#{ @_attributesToString() }>\n" +
-            "#{ children.join('\n') }\n" +
-            "#{ indent }</#{ @tagName() }>"
+
+        if @isFixed()
+            return children.join('\n')
+
+        else
+            return "#{ indent }<#{ @tagName() }#{ @_attributesToString() }>\n" +
+                "#{ children.join('\n') }\n" +
+                "#{ indent }</#{ @tagName() }>"
 
     mount: () ->
         # Mount the element on to the DOM
