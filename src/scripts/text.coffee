@@ -319,7 +319,6 @@ class ContentEdit.Text extends ContentEdit.Element
             return
 
         # Split the element at the text caret
-        ContentSelect.Range.query(@_domElement)
         selection = ContentSelect.Range.query(@_domElement)
         tip = @content.substring(0, selection.get()[0])
         tail = @content.substring(selection.get()[1])
