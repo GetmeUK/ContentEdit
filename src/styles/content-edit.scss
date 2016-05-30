@@ -103,6 +103,22 @@ $highlight-color: #f39c12;
     &--type-image {
         background-position: 0 0;
         background-size: cover;
+
+        /**
+         * The after element is used by images to ensure that the clip mask
+         * applied by a border radius does not affect the selectable region or
+         * edge.
+         */
+        &:after {
+            background: transparent;
+            content: '';
+            display: block;
+            left: 0;
+            position: relative;
+            top: 0;
+            height: 100%;
+            width: 100%;
+        }
     }
 
     /**
