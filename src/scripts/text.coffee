@@ -365,6 +365,8 @@ class ContentEdit.Text extends ContentEdit.Element
             selection = new ContentSelect.Range(insertAt, insertAt)
             selection.select(@domElement())
 
+            @taint()
+
             return
 
         # Check if we're allowed to spawn new elements

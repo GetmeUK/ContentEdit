@@ -3590,6 +3590,7 @@
         insertAt += 1;
         selection = new ContentSelect.Range(insertAt, insertAt);
         selection.select(this.domElement());
+        this.taint();
         return;
       }
       if (!this.can('spawn')) {
