@@ -1,8 +1,8 @@
 (function() {
-  var SELF_CLOSING_NODE_NAMES, _containedBy, _getChildNodeAndOffset, _getNodeRange, _getOffsetOfChildNode,
+  var ContentSelect, SELF_CLOSING_NODE_NAMES, exports, _containedBy, _getChildNodeAndOffset, _getNodeRange, _getOffsetOfChildNode,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  window.ContentSelect = {};
+  ContentSelect = {};
 
   ContentSelect.Range = (function() {
     function Range(from, to) {
@@ -285,5 +285,13 @@
     }
     return [startNode, startOffset, endNode, endOffset];
   };
+
+  if (typeof window !== 'undefined') {
+    window.ContentSelect = ContentSelect;
+  }
+
+  if (typeof module !== 'undefined' && module.exports) {
+    exports = module.exports = ContentSelect;
+  }
 
 }).call(this);

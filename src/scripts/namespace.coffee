@@ -1,4 +1,4 @@
-window.ContentEdit =
+ContentEdit =
 
     # Global settings
 
@@ -160,3 +160,14 @@ window.ContentEdit =
                         )
                 else
                     domElement.removeAttribute('class')
+
+
+# Export the namespace
+
+# Browser (via window)
+if typeof window != 'undefined'
+    window.ContentEdit = ContentEdit
+
+# Node/Browserify
+if typeof module != 'undefined' and module.exports
+    exports = module.exports = ContentEdit
