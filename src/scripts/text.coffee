@@ -2,8 +2,8 @@ class ContentEdit.Text extends ContentEdit.Element
 
     # An editable body of text (e.g <address>, <blockquote>, <h1-h6>, <p>).
 
-    constructor: (tagName, attributes, content) ->
-        super(tagName, attributes)
+    constructor: (tagName, attributes, content, root) ->
+        super(tagName, attributes, root)
 
         # The content of the text element
         if content instanceof HTMLString.String
@@ -231,7 +231,7 @@ class ContentEdit.Text extends ContentEdit.Element
         # https://github.com/GetmeUK/ContentTools/issues/118
         #
         # Anthony Blackshaw <ant@getme.co.uk>, 2016-01-30
-        if @content.length() == 0 and ContentEdit.Root.get().focused() is this
+        if @content.length() == 0 and @_root.focused() is this
             ev.preventDefault()
             if document.activeElement != this._domElement
                 this._domElement.focus()
@@ -318,9 +318,10 @@ class ContentEdit.Text extends ContentEdit.Element
         else
             # If no element was found this must be the last content node found
             # so trigger an event for external code to manage a region switch.
-            ContentEdit.Root.get().trigger(
+            @_root.trigger(
                 'previous-region',
-                @closest (node) -> node.type() is 'Region'
+                @closest (node) ->
+                    node.type() is 'Fixture' or node.type() is 'Region'
                 )
 
     _keyReturn: (ev) ->
@@ -410,7 +411,7 @@ class ContentEdit.Text extends ContentEdit.Element
         else
             # If no element was found this must be the last content node found
             # so trigger an event for external code to manage a region switch.
-            ContentEdit.Root.get().trigger(
+            @_root.trigger(
                 'next-region',
                 @closest (node) ->
                     node.type() is 'Fixture' or node.type() is 'Region'
@@ -514,14 +515,14 @@ class ContentEdit.PreText extends ContentEdit.Text
 
     # An editable body of preserved text (e.g <pre>).
 
-    constructor: (tagName, attributes, content) ->
+    constructor: (tagName, attributes, content, root) ->
         # The content of the text element
         if content instanceof HTMLString.String
             @content = content
         else
             @content = new HTMLString.String(content, true)
 
-        ContentEdit.Element.call(this, tagName, attributes)
+        ContentEdit.Element.call(this, tagName, attributes, root)
 
     # Read-only properties
 

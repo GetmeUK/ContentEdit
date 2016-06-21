@@ -4,8 +4,8 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
     # The `Image` element supports 2 special tags to allow the the size of the
     # image to be constrained (data-ce-min-width, data-ce--max-width).
 
-    constructor: (attributes, a) ->
-        super('img', attributes)
+    constructor: (attributes, a, root) ->
+        super('img', attributes, root)
 
         # Optionally an <a> tag may be specified which will wrap the image. The
         # a tag should be specified as a dictionary of attributes.

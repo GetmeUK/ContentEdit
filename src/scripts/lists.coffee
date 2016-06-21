@@ -2,8 +2,8 @@ class ContentEdit.List extends ContentEdit.ElementCollection
 
     # An editable list (e.g <ol>, <ul>).
 
-    constructor: (tagName, attributes) ->
-        super(tagName, attributes)
+    constructor: (tagName, attributes, root) ->
+        super(tagName, attributes, root)
 
     # Read-only properties
 
@@ -87,8 +87,8 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
     # NOTE: The list item element is a collection of at most 2 elements, an
     # `ContentEdit.ListItemText` and optionally a `ContentEdit.List` item.
 
-    constructor: (attributes) ->
-        super('li', attributes)
+    constructor: (attributes, root) ->
+        super('li', attributes, root)
 
         # Add the indent behaviour for list items
         @_behaviours['indent'] = true
@@ -359,8 +359,8 @@ class ContentEdit.ListItemText extends ContentEdit.Text
 
     # The text component of an editable list item (e.g <li> -> TEXT_NODE).
 
-    constructor: (content) ->
-        super('div', {}, content)
+    constructor: (content, root) ->
+        super('div', {}, content, root)
 
     # Read-only properties
 
@@ -432,12 +432,12 @@ class ContentEdit.ListItemText extends ContentEdit.Text
         # element, how long the user holds the mouse down determines which
         # element is dragged (the parent list item or the list root).
         initDrag = () =>
-            if ContentEdit.Root.get().dragging() == this
+            if @_root.dragging() == this
                 # We're currently dragging the list item so switch to dragging
                 # the list root.
 
                 # Cancel dragging the list item
-                ContentEdit.Root.get().cancelDragging()
+                @_root.cancelDragging()
 
                 # Find the list root and start dragging it
                 listRoot = @closest (node) ->

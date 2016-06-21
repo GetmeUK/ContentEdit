@@ -4,8 +4,8 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
     # editable elements. Regions acts as a root collection of the editable
     # elements.
 
-    constructor: (domElement) ->
-        super()
+    constructor: (domElement, root) ->
+        super(root)
 
         # The DOM element associated with this region of editable content
         @_domElement = domElement
@@ -40,7 +40,7 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
                 @attach(element)
 
             # Trigger a ready event for the region
-            ContentEdit.Root.get().trigger('ready', this)
+            @_root.trigger('ready', this)
 
     # Read-only properties
 

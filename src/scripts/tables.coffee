@@ -2,8 +2,8 @@ class ContentEdit.Table extends ContentEdit.ElementCollection
 
     # An editable table (e.g <table>)
 
-    constructor: (attributes) ->
-        super('table', attributes)
+    constructor: (attributes, root) ->
+        super('table', attributes, root)
 
     # Read-only properties
 
@@ -141,8 +141,8 @@ class ContentEdit.TableSection extends ContentEdit.ElementCollection
 
     # An editable section of a table (e.g <thead>, <tbody>, <tfoot>)
 
-    constructor: (tagName, attributes) ->
-        super(tagName, attributes)
+    constructor: (tagName, attributes, root) ->
+        super(tagName, attributes, root)
 
     # Read-only properties
 
@@ -198,8 +198,8 @@ class ContentEdit.TableRow extends ContentEdit.ElementCollection
 
     # An editable table row (e.g <tr>)
 
-    constructor: (attributes) ->
-        super('tr', attributes)
+    constructor: (attributes, root) ->
+        super('tr', attributes, root)
 
     # Read-only properties
 
@@ -270,8 +270,8 @@ class ContentEdit.TableCell extends ContentEdit.ElementCollection
 
     # An editable table cell (e.g <td>, <th>).
 
-    constructor: (tagName, attributes) ->
-        super(tagName, attributes)
+    constructor: (tagName, attributes, root) ->
+        super(tagName, attributes, root)
 
     # Read-only properties
 
@@ -335,8 +335,8 @@ class ContentEdit.TableCellText extends ContentEdit.Text
 
     # An editable table cell (e.g <td>, <th> -> TEXT_NODE).
 
-    constructor: (content) ->
-        super('div', {}, content)
+    constructor: (content, root) ->
+        super('div', {}, content, root)
 
     # Read-only properties
 
@@ -431,12 +431,12 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         # parent row or table).
         initDrag = () =>
             cell = @parent()
-            if ContentEdit.Root.get().dragging() == cell.parent()
+            if @_root.dragging() == cell.parent()
                 # We're currently dragging the row so switch to dragging the
                 # parent table.
 
                 # Cancel dragging the row
-                ContentEdit.Root.get().cancelDragging()
+                @_root.cancelDragging()
 
                 # Find the table and start dragging it
                 table = cell.parent().parent().parent()
@@ -533,7 +533,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # If no next element was found this must be the last content
                 # node found so trigger an event for external code to manage a
                 # region switch.
-                ContentEdit.Root.get().trigger(
+                @_root.trigger(
                     'next-region',
                     @closest (node) ->
                         node.type() is 'Fixture' or node.type() is 'Region'
@@ -616,7 +616,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # If no previous element was found this must be the first
                 # content node found so trigger an event for external code to
                 # manage a region switch.
-                ContentEdit.Root.get().trigger(
+                @_root.trigger(
                     'previous-region',
                     @closest (node) ->
                         node.type() is 'Fixture' or node.type() is 'Region'

@@ -10,7 +10,7 @@ class _Root extends ContentEdit.Node
     # that all other nodes talk to (and through).
 
     constructor: () ->
-        super()
+        super(root = null)
 
         # The currently focused element
         @_focused = null
@@ -267,3 +267,6 @@ class ContentEdit.Root
 
     @get: () ->
         instance ?= new _Root()
+
+    @getCls: () ->
+        return _Root
