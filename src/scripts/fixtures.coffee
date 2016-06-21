@@ -3,8 +3,8 @@ class ContentEdit.Fixture extends ContentEdit.NodeCollection
     # Fixtures take a DOM element and convert it to a single editable element,
     # this allows the creation of field like regions within a page.
 
-    constructor: (domElement) ->
-        super()
+    constructor: (domElement, root) ->
+        super(root)
 
         # The DOM element associated with this region of editable content
         @_domElement = domElement
@@ -28,7 +28,7 @@ class ContentEdit.Fixture extends ContentEdit.NodeCollection
         element.mount()
 
         # Trigger a ready event for the region
-        ContentEdit.Root.get().trigger('ready', this)
+        @_root.trigger('ready', this)
 
     # Read-only properties
 

@@ -20,8 +20,8 @@ class ContentEdit.Static extends ContentEdit.Element
     # can lead to differences is the output as well as inconsistencies between
     # browsers.
 
-    constructor: (tagName, attributes, content) ->
-        super(tagName, attributes)
+    constructor: (tagName, attributes, content, root) ->
+        super(tagName, attributes, root)
 
         # The associated DOM element
         @_content = content

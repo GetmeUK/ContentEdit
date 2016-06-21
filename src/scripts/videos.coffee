@@ -10,8 +10,8 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
     # `sources` should be specified or set against the element as a list of
     # dictionaries containing `src` and `type` key values.
 
-    constructor: (tagName, attributes, sources=[]) ->
-        super(tagName, attributes)
+    constructor: (tagName, attributes, sources=[], root) ->
+        super(tagName, attributes, root)
 
         # List of sources for <video> elements
         @sources = sources
