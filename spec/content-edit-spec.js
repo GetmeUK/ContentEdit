@@ -1,5 +1,5 @@
 (function() {
-  var testDomElement;
+  var Factory, factory, testDomElement;
 
   describe('ContentEdit', function() {
     return it('should have correct default settings', function() {
@@ -76,104 +76,138 @@
     });
   });
 
+  Factory = ContentEdit.Factory;
+
+  factory = new Factory();
+
+  describe('ContentEdit.Factory', function() {
+    it('should be instance of Factory', function() {
+      return expect(factory instanceof Factory).toBe(true);
+    });
+    it('instance should modify classes', function() {
+      expect(factory.Root === Factory["class"]('Root')).toBe(false);
+      return expect(factory.classByTag('p') === Factory.classByTag('p')).toBe(false);
+    });
+    it('modified classes must have link to factory in static parameter and in instance parameter', function() {
+      var node;
+      expect(factory.Node._factory === factory).toBe(true, function() {});
+      node = new factory.Node();
+      return expect(node._factory === factory).toBe(true);
+    });
+    it('origin classes must haven\'t link to factory', function() {
+      var node;
+      expect(Factory["class"]('Node')._factory === void 0).toBe(true);
+      node = new (Factory["class"]('Node'))();
+      return expect(node._factory === void 0).toBe(true);
+    });
+    return it('should initialize and store Root instance', function() {
+      var Root;
+      Root = Factory["class"]('Root');
+      expect(factory.root instanceof Root).toBe(true);
+      return expect(factory.root instanceof factory.Root).toBe(false);
+    });
+  });
+
   testDomElement = document.createElement('div');
 
   testDomElement.setAttribute('id', 'test');
 
   document.body.appendChild(testDomElement);
 
-  describe('ContentEdit.Node()', function() {
-    return it('should create `ContentEdit.Node` instance', function() {
+  factory = new ContentEdit.Factory();
+
+  describe('Node()', function() {
+    return it('should create `Node` instance', function() {
       var node;
-      node = new ContentEdit.Node();
-      return expect(node instanceof ContentEdit.Node).toBe(true);
+      node = new factory.Node();
+      return expect(node instanceof factory.Node).toBe(true);
     });
   });
 
-  describe('ContentEdit.Node.lastModified()', function() {
+  describe('Node.lastModified()', function() {
     return it('should return a date last modified if the node has been tainted', function() {
       var node;
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       expect(node.lastModified()).toBe(null);
       node.taint();
       return expect(node.lastModified()).not.toBe(null);
     });
   });
 
-  describe('ContentEdit.Node.parent()', function() {
+  describe('Node.parent()', function() {
     return it('should return the parent node collection for the node', function() {
       var collection, node;
-      collection = new ContentEdit.NodeCollection();
-      node = new ContentEdit.Node();
+      collection = new factory.NodeCollection();
+      node = new factory.Node();
       collection.attach(node);
       return expect(node.parent()).toBe(collection);
     });
   });
 
-  describe('ContentEdit.Node.parents()', function() {
+  describe('Node.parents()', function() {
     return it('should return an ascending list of all the node\'s parents', function() {
       var grandParent, node, parent;
-      grandParent = new ContentEdit.NodeCollection();
-      parent = new ContentEdit.NodeCollection();
+      grandParent = new factory.NodeCollection();
+      parent = new factory.NodeCollection();
       grandParent.attach(parent);
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       parent.attach(node);
       return expect(node.parents()).toEqual([parent, grandParent]);
     });
   });
 
-  describe('ContentEdit.Node.html()', function() {
+  describe('Node.html()', function() {
     return it('should raise a not implemented error', function() {
       var node;
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       return expect(node.html).toThrow(new Error('`html` not implemented'));
     });
   });
 
-  describe('ContentEdit.Node.type()', function() {
+  describe('Node.type()', function() {
     return it('should return \'Node\'', function() {
       var node;
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       return expect(node.type()).toBe('Node');
     });
   });
 
-  describe('ContentEdit.Node.bind()', function() {
+  describe('Node.bind()', function() {
     return it('should bind a function so that it\'s called whenever the event is triggered', function() {
       var foo, node;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       node.bind('foo', foo.handleFoo);
       node.trigger('foo');
       return expect(foo.handleFoo).toHaveBeenCalled();
     });
   });
 
-  describe('ContentEdit.Node.trigger()', function() {
+  describe('Node.trigger()', function() {
     return it('should trigger an event against the node with specified arguments', function() {
       var foo, node;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       node.bind('foo', foo.handleFoo);
       node.trigger('foo', 123);
       return expect(foo.handleFoo).toHaveBeenCalledWith(123);
     });
   });
 
-  describe('ContentEdit.Node.unbind()', function() {
+  describe('Node.unbind()', function() {
     return it('should unbind a function previously bound for an event from the node', function() {
       var foo, node;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       node.bind('foo', foo.handleFoo);
       node.unbind('foo', foo.handleFoo);
       node.trigger('foo');
@@ -181,11 +215,11 @@
     });
   });
 
-  describe('ContentEdit.Node.commit()', function() {
+  describe('Node.commit()', function() {
     var node;
     node = null;
     beforeEach(function() {
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       return node.taint();
     });
     it('should set the last modified date of the node to null', function() {
@@ -193,50 +227,48 @@
       return expect(node.lastModified()).toBe(null);
     });
     return it('should trigger the commit event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('commit', foo.handleFoo);
+      factory.root.bind('commit', foo.handleFoo);
       node.commit();
       return expect(foo.handleFoo).toHaveBeenCalledWith(node);
     });
   });
 
-  describe('ContentEdit.Node.taint()', function() {
+  describe('Node.taint()', function() {
     it('should set the last modified date of the node, it\'s parents and the root', function() {
       var collection, node;
-      collection = new ContentEdit.NodeCollection();
-      node = new ContentEdit.Node();
+      collection = new factory.NodeCollection();
+      node = new factory.Node();
       collection.attach(node);
       node.taint();
       expect(node.lastModified()).not.toBe(null);
       expect(node.parent().lastModified()).toBe(node.lastModified());
-      return expect(ContentEdit.Root.get().lastModified()).toBe(node.lastModified());
+      return expect(factory.root.lastModified()).toBe(node.lastModified());
     });
     return it('should trigger the taint event against the root', function() {
-      var foo, node, root;
-      node = new ContentEdit.Node();
+      var foo, node;
+      node = new factory.Node();
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('taint', foo.handleFoo);
+      factory.root.bind('taint', foo.handleFoo);
       node.taint();
       return expect(foo.handleFoo).toHaveBeenCalledWith(node);
     });
   });
 
-  describe('ContentEdit.Node.closest()', function() {
+  describe('Node.closest()', function() {
     return it('should return the first ancestor (ascending order) to match the that returns true for the specified test function.', function() {
       var grandParent, node, parent;
-      grandParent = new ContentEdit.NodeCollection();
-      parent = new ContentEdit.NodeCollection();
+      grandParent = new factory.NodeCollection();
+      parent = new factory.NodeCollection();
       grandParent.attach(parent);
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       parent.attach(node);
       grandParent.foo = true;
       parent.bar = true;
@@ -249,14 +281,14 @@
     });
   });
 
-  describe('ContentEdit.Node.next()', function() {
+  describe('Node.next()', function() {
     return it('should return the node next to this node in the tree', function() {
       var collectionA, collectionB, nodeA, nodeB;
-      collectionA = new ContentEdit.NodeCollection();
-      nodeA = new ContentEdit.Node();
+      collectionA = new factory.NodeCollection();
+      nodeA = new factory.Node();
       collectionA.attach(nodeA);
-      collectionB = new ContentEdit.NodeCollection();
-      nodeB = new ContentEdit.Node();
+      collectionB = new factory.NodeCollection();
+      nodeB = new factory.Node();
       collectionA.attach(collectionB);
       collectionB.attach(nodeB);
       expect(nodeA.next()).toBe(collectionB);
@@ -264,40 +296,40 @@
     });
   });
 
-  describe('ContentEdit.Node.nextContent()', function() {
+  describe('Node.nextContent()', function() {
     return it('should return the next node in the tree that supports the `content` attribute', function() {
       var collectionA, collectionB, nodeA, nodeB;
-      collectionA = new ContentEdit.NodeCollection();
-      nodeA = new ContentEdit.Node();
+      collectionA = new factory.NodeCollection();
+      nodeA = new factory.Node();
       collectionA.attach(nodeA);
-      collectionB = new ContentEdit.NodeCollection();
-      nodeB = new ContentEdit.Text('p', {}, 'testing');
+      collectionB = new factory.NodeCollection();
+      nodeB = new factory.Text('p', {}, 'testing');
       collectionA.attach(collectionB);
       collectionB.attach(nodeB);
       return expect(collectionA.nextContent()).toBe(nodeB);
     });
   });
 
-  describe('ContentEdit.Node.nextSibling()', function() {
+  describe('Node.nextSibling()', function() {
     return it('should return the node next to this node with the same parent', function() {
       var collection, nodeA, nodeB;
-      collection = new ContentEdit.NodeCollection();
-      nodeA = new ContentEdit.Node();
+      collection = new factory.NodeCollection();
+      nodeA = new factory.Node();
       collection.attach(nodeA);
-      nodeB = new ContentEdit.Node();
+      nodeB = new factory.Node();
       collection.attach(nodeB);
       return expect(nodeA.nextSibling()).toBe(nodeB);
     });
   });
 
-  describe('ContentEdit.Node.nextWithTest()', function() {
+  describe('Node.nextWithTest()', function() {
     return it('should return the next node in the tree that matches or `undefined` if there are none', function() {
       var collectionA, collectionB, nodeA, nodeB;
-      collectionA = new ContentEdit.NodeCollection();
-      nodeA = new ContentEdit.Node();
+      collectionA = new factory.NodeCollection();
+      nodeA = new factory.Node();
       collectionA.attach(nodeA);
-      collectionB = new ContentEdit.NodeCollection();
-      nodeB = new ContentEdit.Node();
+      collectionB = new factory.NodeCollection();
+      nodeB = new factory.Node();
       collectionA.attach(collectionB);
       collectionB.attach(nodeB);
       nodeB.foo = true;
@@ -310,14 +342,14 @@
     });
   });
 
-  describe('ContentEdit.Node.previous()', function() {
+  describe('Node.previous()', function() {
     return it('should return the node previous to this node in the tree', function() {
       var collectionA, collectionB, nodeA, nodeB;
-      collectionA = new ContentEdit.NodeCollection();
-      nodeA = new ContentEdit.Node();
+      collectionA = new factory.NodeCollection();
+      nodeA = new factory.Node();
       collectionA.attach(nodeA);
-      collectionB = new ContentEdit.NodeCollection();
-      nodeB = new ContentEdit.Node();
+      collectionB = new factory.NodeCollection();
+      nodeB = new factory.Node();
       collectionA.attach(collectionB);
       collectionB.attach(nodeB);
       expect(nodeB.previous()).toBe(collectionB);
@@ -325,40 +357,40 @@
     });
   });
 
-  describe('ContentEdit.Node.nextContent()', function() {
+  describe('Node.nextContent()', function() {
     return it('should return the previous node in the tree that supports the `content` attribute', function() {
       var collectionA, collectionB, nodeA, nodeB;
-      collectionA = new ContentEdit.NodeCollection();
-      nodeA = new ContentEdit.Text('p', {}, 'testing');
+      collectionA = new factory.NodeCollection();
+      nodeA = new factory.Text('p', {}, 'testing');
       collectionA.attach(nodeA);
-      collectionB = new ContentEdit.NodeCollection();
-      nodeB = new ContentEdit.Node();
+      collectionB = new factory.NodeCollection();
+      nodeB = new factory.Node();
       collectionA.attach(collectionB);
       collectionB.attach(nodeB);
       return expect(nodeB.previousContent()).toBe(nodeA);
     });
   });
 
-  describe('ContentEdit.Node.previousSibling()', function() {
+  describe('Node.previousSibling()', function() {
     return it('should return the node previous to this node with the same parent', function() {
       var collection, nodeA, nodeB;
-      collection = new ContentEdit.NodeCollection();
-      nodeA = new ContentEdit.Node();
+      collection = new factory.NodeCollection();
+      nodeA = new factory.Node();
       collection.attach(nodeA);
-      nodeB = new ContentEdit.Node();
+      nodeB = new factory.Node();
       collection.attach(nodeB);
       return expect(nodeB.previousSibling()).toBe(nodeA);
     });
   });
 
-  describe('ContentEdit.Node.previousWithTest()', function() {
+  describe('Node.previousWithTest()', function() {
     return it('should return the previous node in the tree that matches or `undefined` if there are none', function() {
       var collectionA, collectionB, nodeA, nodeB;
-      collectionA = new ContentEdit.NodeCollection();
-      nodeA = new ContentEdit.Node();
+      collectionA = new factory.NodeCollection();
+      nodeA = new factory.Node();
       collectionA.attach(nodeA);
-      collectionB = new ContentEdit.NodeCollection();
-      nodeB = new ContentEdit.Node();
+      collectionB = new factory.NodeCollection();
+      nodeB = new factory.Node();
       collectionA.attach(collectionB);
       collectionB.attach(nodeB);
       nodeA.foo = true;
@@ -371,93 +403,92 @@
     });
   });
 
-  describe('ContentEdit.Node.@fromDOMElement()', function() {
+  describe('Node.@fromDOMElement()', function() {
     return it('should raise a not implemented error', function() {
-      return expect(ContentEdit.Node.fromDOMElement).toThrow(new Error('`fromDOMElement` not implemented'));
+      return expect(factory.Node.fromDOMElement).toThrow(new Error('`fromDOMElement` not implemented'));
     });
   });
 
-  describe('ContentEdit.NodeCollection()', function() {
-    return it('should create `ContentEdit.NodeCollection` instance', function() {
+  describe('NodeCollection()', function() {
+    return it('should create `NodeCollection` instance', function() {
       var collection;
-      collection = new ContentEdit.NodeCollection();
-      return expect(collection instanceof ContentEdit.NodeCollection).toBe(true);
+      collection = new factory.NodeCollection();
+      return expect(collection instanceof factory.NodeCollection).toBe(true);
     });
   });
 
-  describe('ContentEdit.NodeCollection.descendants()', function() {
+  describe('NodeCollection.descendants()', function() {
     return it('should return a (flat) list of all the descendants for the collection', function() {
       var collectionA, collectionB, nodeA, nodeB;
-      collectionA = new ContentEdit.NodeCollection();
-      nodeA = new ContentEdit.Node();
+      collectionA = new factory.NodeCollection();
+      nodeA = new factory.Node();
       collectionA.attach(nodeA);
-      collectionB = new ContentEdit.NodeCollection();
-      nodeB = new ContentEdit.Node();
+      collectionB = new factory.NodeCollection();
+      nodeB = new factory.Node();
       collectionA.attach(collectionB);
       collectionB.attach(nodeB);
       return expect(collectionA.descendants()).toEqual([nodeA, collectionB, nodeB]);
     });
   });
 
-  describe('ContentEdit.NodeCollection.isMounted()', function() {
+  describe('NodeCollection.isMounted()', function() {
     return it('should always return false', function() {
       var collection;
-      collection = new ContentEdit.NodeCollection();
+      collection = new factory.NodeCollection();
       return expect(collection.isMounted()).toBe(false);
     });
   });
 
-  describe('ContentEdit.NodeCollection.type()', function() {
+  describe('NodeCollection.type()', function() {
     return it('should return \'NodeCollection\'', function() {
       var collection;
-      collection = new ContentEdit.NodeCollection();
+      collection = new factory.NodeCollection();
       return expect(collection.type()).toBe('NodeCollection');
     });
   });
 
-  describe('ContentEdit.NodeCollection.attach()', function() {
+  describe('NodeCollection.attach()', function() {
     it('should attach a node to a node collection', function() {
       var collection, node;
-      collection = new ContentEdit.NodeCollection();
-      node = new ContentEdit.Node();
+      collection = new factory.NodeCollection();
+      node = new factory.Node();
       collection.attach(node);
       return expect(collection.children[0]).toBe(node);
     });
     it('should attach a node to a node collection at the specified index', function() {
       var collection, i, node, otherNode, _i;
-      collection = new ContentEdit.NodeCollection();
+      collection = new factory.NodeCollection();
       for (i = _i = 0; _i < 5; i = ++_i) {
-        otherNode = new ContentEdit.Node();
+        otherNode = new factory.Node();
         collection.attach(otherNode);
       }
-      node = new ContentEdit.Node();
+      node = new factory.Node();
       collection.attach(node, 2);
       return expect(collection.children[2]).toBe(node);
     });
     return it('should trigger the attach event against the root', function() {
-      var collection, foo, node, root;
+      var collection, foo, node;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('attach', foo.handleFoo);
-      collection = new ContentEdit.NodeCollection();
-      node = new ContentEdit.Node();
+      factory.root.bind('attach', foo.handleFoo);
+      collection = new factory.NodeCollection();
+      node = new factory.Node();
       collection.attach(node);
       return expect(foo.handleFoo).toHaveBeenCalledWith(collection, node);
     });
   });
 
-  describe('ContentEdit.NodeCollection.commit()', function() {
+  describe('NodeCollection.commit()', function() {
     var collectionA, collectionB, node;
     collectionA = null;
     collectionB = null;
     node = null;
     beforeEach(function() {
-      collectionA = new ContentEdit.NodeCollection();
-      collectionB = new ContentEdit.NodeCollection();
-      node = new ContentEdit.Node();
+      collectionA = new factory.NodeCollection();
+      collectionB = new factory.NodeCollection();
+      node = new factory.Node();
       collectionA.attach(collectionB);
       return collectionB.attach(node);
     });
@@ -468,25 +499,24 @@
       return expect(node.lastModified()).toBe(null);
     });
     return it('should trigger the commit event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('commit', foo.handleFoo);
+      factory.root.bind('commit', foo.handleFoo);
       collectionA.commit();
       return expect(foo.handleFoo).toHaveBeenCalledWith(collectionA);
     });
   });
 
-  describe('ContentEdit.NodeCollection.detach()', function() {
+  describe('NodeCollection.detach()', function() {
     var collection, node;
     collection = null;
     node = null;
     beforeEach(function() {
-      collection = new ContentEdit.NodeCollection();
-      node = new ContentEdit.Node();
+      collection = new factory.NodeCollection();
+      node = new factory.Node();
       return collection.attach(node);
     });
     it('should detach a node from the node collection', function() {
@@ -495,32 +525,31 @@
       return expect(node.parent()).toBe(null);
     });
     return it('should trigger the detach event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('detach', foo.handleFoo);
+      factory.root.bind('detach', foo.handleFoo);
       collection.detach(node);
       return expect(foo.handleFoo).toHaveBeenCalledWith(collection, node);
     });
   });
 
-  describe('ContentEdit.Element()', function() {
-    return it('should create `ContentEdit.Element` instance', function() {
+  describe('Element()', function() {
+    return it('should create `Element` instance', function() {
       var element;
-      element = new ContentEdit.Element('div', {
+      element = new factory.Element('div', {
         'class': 'foo'
       });
-      return expect(element instanceof ContentEdit.Element).toBe(true);
+      return expect(element instanceof factory.Element).toBe(true);
     });
   });
 
-  describe('ContentEdit.Element.attributes()', function() {
+  describe('Element.attributes()', function() {
     return it('should return a copy of the elements attributes', function() {
       var element;
-      element = new ContentEdit.Element('div', {
+      element = new factory.Element('div', {
         'class': 'foo',
         'data-test': ''
       });
@@ -531,72 +560,72 @@
     });
   });
 
-  describe('ContentEdit.Element.cssTypeName()', function() {
+  describe('Element.cssTypeName()', function() {
     return it('should return \'element\'', function() {
       var element;
-      element = new ContentEdit.Element('div', {
+      element = new factory.Element('div', {
         'class': 'foo'
       });
       return expect(element.cssTypeName()).toBe('element');
     });
   });
 
-  describe('ContentEdit.Element.domElement()', function() {
+  describe('Element.domElement()', function() {
     return it('should return a DOM element if mounted', function() {
       var element, region;
-      element = new ContentEdit.Text('p');
+      element = new factory.Text('p');
       expect(element.domElement()).toBe(null);
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
       return expect(element.domElement()).not.toBe(null);
     });
   });
 
-  describe('ContentEdit.Element.isFocused()', function() {
+  describe('Element.isFocused()', function() {
     return it('should return true if element is focused', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       expect(element.isFocused()).toBe(false);
       element.focus();
       return expect(element.isFocused()).toBe(true);
     });
   });
 
-  describe('ContentEdit.Element.isMounted()', function() {
+  describe('Element.isMounted()', function() {
     return it('should return true if the element is mounted in the DOM', function() {
       var element, region;
-      element = new ContentEdit.Text('p');
+      element = new factory.Text('p');
       expect(element.isMounted()).toBe(false);
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
       return expect(element.isMounted()).toBe(true);
     });
   });
 
-  describe('ContentEdit.Element.type()', function() {
+  describe('Element.type()', function() {
     return it('should return \'Element\'', function() {
       var element;
-      element = new ContentEdit.Element('div', {
+      element = new factory.Element('div', {
         'class': 'foo'
       });
       return expect(element.type()).toBe('Element');
     });
   });
 
-  describe('`ContentEdit.Element.typeName()`', function() {
+  describe('`Element.typeName()`', function() {
     return it('should return \'Element\'', function() {
       var element;
-      element = new ContentEdit.Element('div', {
+      element = new factory.Element('div', {
         'class': 'foo'
       });
       return expect(element.typeName()).toBe('Element');
     });
   });
 
-  describe('ContentEdit.Element.addCSSClass()', function() {
+  describe('Element.addCSSClass()', function() {
     return it('should add a CSS class to the element', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       element.addCSSClass('foo');
       expect(element.hasCSSClass('foo')).toBe(true);
       element.addCSSClass('bar');
@@ -604,54 +633,53 @@
     });
   });
 
-  describe('ContentEdit.Element.attr()', function() {
+  describe('Element.attr()', function() {
     return it('should set/get an attribute for the element', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       element.attr('foo', 'bar');
       return expect(element.attr('foo')).toBe('bar');
     });
   });
 
-  describe('ContentEdit.Element.blur()', function() {
+  describe('Element.blur()', function() {
     it('should blur an element', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       element.focus();
       expect(element.isFocused()).toBe(true);
       element.blur();
       return expect(element.isFocused()).toBe(false);
     });
     return it('should trigger the `blur` event against the root', function() {
-      var element, foo, root;
+      var element, foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('blur', foo.handleFoo);
-      element = new ContentEdit.Element('div');
+      factory.root.bind('blur', foo.handleFoo);
+      element = new factory.Element('div');
       element.focus();
       element.blur();
       return expect(foo.handleFoo).toHaveBeenCalledWith(element);
     });
   });
 
-  describe('ContentEdit.Element.can()', function() {
+  describe('Element.can()', function() {
     return it('should set/get whether a behaviour is allowed for the element', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       expect(element.can('remove')).toBe(true);
       element.can('remove', false);
       return expect(element.can('remove')).toBe(false);
     });
   });
 
-  describe('ContentEdit.Element.createDraggingDOMElement()', function() {
+  describe('Element.createDraggingDOMElement()', function() {
     return it('should create a helper DOM element', function() {
       var element, helper, region;
-      element = new ContentEdit.Element('div');
-      region = new ContentEdit.Region(document.createElement('div'));
+      element = new factory.Element('div');
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
       helper = element.createDraggingDOMElement();
       expect(helper).not.toBe(null);
@@ -659,71 +687,67 @@
     });
   });
 
-  describe('ContentEdit.Element.drag()', function() {
+  describe('Element.drag()', function() {
     it('should call `startDragging` against the root element', function() {
-      var element, region, root;
-      element = new ContentEdit.Element('div');
-      region = new ContentEdit.Region(document.createElement('div'));
+      var element, region;
+      element = new factory.Element('div');
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
-      root = ContentEdit.Root.get();
-      spyOn(root, 'startDragging');
+      spyOn(factory.root, 'startDragging');
       element.drag(0, 0);
-      expect(root.startDragging).toHaveBeenCalledWith(element, 0, 0);
-      return root.cancelDragging();
+      expect(factory.root.startDragging).toHaveBeenCalledWith(element, 0, 0);
+      return factory.root.cancelDragging();
     });
     it('should trigger the `drag` event against the root', function() {
-      var element, foo, region, root;
-      element = new ContentEdit.Element('div');
-      region = new ContentEdit.Region(document.createElement('div'));
+      var element, foo, region;
+      element = new factory.Element('div');
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('drag', foo.handleFoo);
+      factory.root.bind('drag', foo.handleFoo);
       element.drag(0, 0);
       expect(foo.handleFoo).toHaveBeenCalledWith(element);
-      return root.cancelDragging();
+      return factory.root.cancelDragging();
     });
     return it('should do nothing if the `drag` behavior is not allowed', function() {
-      var element, region, root;
-      element = new ContentEdit.Element('div');
+      var element, region;
+      element = new factory.Element('div');
       element.can('drag', false);
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
-      root = ContentEdit.Root.get();
-      spyOn(root, 'startDragging');
+      spyOn(factory.root, 'startDragging');
       element.drag(0, 0);
-      return expect(root.startDragging).not.toHaveBeenCalled();
+      return expect(factory.root.startDragging).not.toHaveBeenCalled();
     });
   });
 
-  describe('ContentEdit.Element.drop()', function() {
+  describe('Element.drop()', function() {
     it('should select a function from the elements droppers map for the element being dropped on to this element', function() {
       var imageA, imageB, region;
-      region = new ContentEdit.Region(document.createElement('div'));
-      imageA = new ContentEdit.Image();
+      region = new factory.Region(document.createElement('div'));
+      imageA = new factory.Image();
       region.attach(imageA);
-      imageB = new ContentEdit.Image();
+      imageB = new factory.Image();
       region.attach(imageB);
-      spyOn(ContentEdit.Image.droppers, 'Image');
+      spyOn(factory.Image.droppers, 'Image');
       imageA.drop(imageB, ['below', 'center']);
-      return expect(ContentEdit.Image.droppers['Image']).toHaveBeenCalledWith(imageA, imageB, ['below', 'center']);
+      return expect(factory.Image.droppers['Image']).toHaveBeenCalledWith(imageA, imageB, ['below', 'center']);
     });
     it('should trigger the `drop` event against the root', function() {
-      var foo, imageA, imageB, region, root;
-      region = new ContentEdit.Region(document.createElement('div'));
-      imageA = new ContentEdit.Image();
+      var foo, imageA, imageB, region;
+      region = new factory.Region(document.createElement('div'));
+      imageA = new factory.Image();
       region.attach(imageA);
-      imageB = new ContentEdit.Image();
+      imageB = new factory.Image();
       region.attach(imageB);
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('drop', foo.handleFoo);
+      factory.root.bind('drop', foo.handleFoo);
       imageA.drop(imageB, ['below', 'center']);
       expect(foo.handleFoo).toHaveBeenCalledWith(imageA, imageB, ['below', 'center']);
       imageA.drop(null, ['below', 'center']);
@@ -731,43 +755,42 @@
     });
     return it('should do nothing if the `drop` behavior is not allowed', function() {
       var imageA, imageB, region;
-      region = new ContentEdit.Region(document.createElement('div'));
-      imageA = new ContentEdit.Image();
+      region = new factory.Region(document.createElement('div'));
+      imageA = new factory.Image();
       region.attach(imageA);
-      imageB = new ContentEdit.Image();
+      imageB = new factory.Image();
       region.attach(imageB);
       imageA.can('drop', false);
-      spyOn(ContentEdit.Image.droppers, 'Image');
+      spyOn(factory.Image.droppers, 'Image');
       imageA.drop(imageB, ['below', 'center']);
-      return expect(ContentEdit.Image.droppers['Image']).not.toHaveBeenCalled();
+      return expect(factory.Image.droppers['Image']).not.toHaveBeenCalled();
     });
   });
 
-  describe('ContentEdit.Element.focus()', function() {
+  describe('Element.focus()', function() {
     it('should focus an element', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       element.focus();
       return expect(element.isFocused()).toBe(true);
     });
     return it('should trigger the `focus` event against the root', function() {
-      var element, foo, root;
+      var element, foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('focus', foo.handleFoo);
-      element = new ContentEdit.Element('div');
+      factory.root.bind('focus', foo.handleFoo);
+      element = new factory.Element('div');
       element.focus();
       return expect(foo.handleFoo).toHaveBeenCalledWith(element);
     });
   });
 
-  describe('ContentEdit.Element.hasCSSClass()', function() {
+  describe('Element.hasCSSClass()', function() {
     return it('should return true if the element has the specified class', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       element.addCSSClass('foo');
       element.addCSSClass('bar');
       expect(element.hasCSSClass('foo')).toBe(true);
@@ -775,39 +798,39 @@
     });
   });
 
-  describe('ContentEdit.Element.merge()', function() {
+  describe('Element.merge()', function() {
     it('should select a function from the elements mergers map for the element being merged with this element', function() {
       var region, textA, textB;
-      region = new ContentEdit.Region(document.createElement('div'));
-      textA = new ContentEdit.Text('p', {}, 'a');
+      region = new factory.Region(document.createElement('div'));
+      textA = new factory.Text('p', {}, 'a');
       region.attach(textA);
-      textB = new ContentEdit.Text('p', {}, 'b');
+      textB = new factory.Text('p', {}, 'b');
       region.attach(textB);
-      spyOn(ContentEdit.Text.mergers, 'Text');
+      spyOn(factory.Text.mergers, 'Text');
       textA.merge(textB);
-      return expect(ContentEdit.Text.mergers['Text']).toHaveBeenCalledWith(textB, textA);
+      return expect(factory.Text.mergers['Text']).toHaveBeenCalledWith(textB, textA);
     });
     return it('should do nothing if the `merge` behavior is not allowed', function() {
       var region, textA, textB;
-      region = new ContentEdit.Region(document.createElement('div'));
-      textA = new ContentEdit.Text('p', {}, 'a');
+      region = new factory.Region(document.createElement('div'));
+      textA = new factory.Text('p', {}, 'a');
       region.attach(textA);
-      textB = new ContentEdit.Text('p', {}, 'b');
+      textB = new factory.Text('p', {}, 'b');
       region.attach(textB);
       textA.can('merge', false);
-      spyOn(ContentEdit.Text.mergers, 'Text');
+      spyOn(factory.Text.mergers, 'Text');
       textA.merge(textB);
-      return expect(ContentEdit.Text.mergers['Text']).not.toHaveBeenCalled();
+      return expect(factory.Text.mergers['Text']).not.toHaveBeenCalled();
     });
   });
 
-  describe('ContentEdit.Element.mount()', function() {
+  describe('Element.mount()', function() {
     var element, region;
     element = null;
     region = null;
     beforeEach(function() {
-      element = new ContentEdit.Element('p');
-      region = new ContentEdit.Region(document.createElement('div'));
+      element = new factory.Element('p');
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
       return element.unmount();
     });
@@ -816,22 +839,21 @@
       return expect(element.isMounted()).toBe(true);
     });
     return it('should trigger the `mount` event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('mount', foo.handleFoo);
+      factory.root.bind('mount', foo.handleFoo);
       element.mount();
       return expect(foo.handleFoo).toHaveBeenCalledWith(element);
     });
   });
 
-  describe('ContentEdit.Element.removeAttr()', function() {
+  describe('Element.removeAttr()', function() {
     return it('should remove an attribute from the element', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       element.attr('foo', 'bar');
       expect(element.attr('foo')).toBe('bar');
       element.removeAttr('foo');
@@ -839,10 +861,10 @@
     });
   });
 
-  describe('ContentEdit.Element.removeCSSClass()', function() {
+  describe('Element.removeCSSClass()', function() {
     return it('should remove a CSS class from the element', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       element.addCSSClass('foo');
       element.addCSSClass('bar');
       expect(element.hasCSSClass('foo')).toBe(true);
@@ -854,23 +876,23 @@
     });
   });
 
-  describe('ContentEdit.Element.tagName()', function() {
+  describe('Element.tagName()', function() {
     return it('should set/get the tag name for the element', function() {
       var element;
-      element = new ContentEdit.Element('div');
+      element = new factory.Element('div');
       expect(element.tagName()).toBe('div');
       element.tagName('dt');
       return expect(element.tagName()).toBe('dt');
     });
   });
 
-  describe('ContentEdit.Element.unmount()', function() {
+  describe('Element.unmount()', function() {
     var element, region;
     element = null;
     region = null;
     beforeEach(function() {
-      element = new ContentEdit.Element('p');
-      region = new ContentEdit.Region(document.createElement('div'));
+      element = new factory.Element('p');
+      region = new factory.Region(document.createElement('div'));
       return region.attach(element);
     });
     it('should unmount the element from the DOM', function() {
@@ -878,26 +900,25 @@
       return expect(element.isMounted()).toBe(false);
     });
     return it('should trigger the `unmount` event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('unmount', foo.handleFoo);
+      factory.root.bind('unmount', foo.handleFoo);
       element.unmount();
       return expect(foo.handleFoo).toHaveBeenCalledWith(element);
     });
   });
 
-  describe('ContentEdit.Element.@getDOMElementAttributes()', function() {
+  describe('Element.@getDOMElementAttributes()', function() {
     return it('should return attributes from a DOM element as a dictionary', function() {
       var attributes, domElement;
       domElement = document.createElement('div');
       domElement.setAttribute('class', 'foo');
       domElement.setAttribute('id', 'bar');
       domElement.setAttribute('contenteditable', '');
-      attributes = ContentEdit.Element.getDOMElementAttributes(domElement);
+      attributes = factory.Element.getDOMElementAttributes(domElement);
       return expect(attributes).toEqual({
         'class': 'foo',
         'id': 'bar',
@@ -906,66 +927,66 @@
     });
   });
 
-  describe('ContentEdit.ElementCollection()', function() {
-    return it('should create `ContentEdit.ElementCollection` instance`', function() {
+  describe('ElementCollection()', function() {
+    return it('should create `ElementCollection` instance`', function() {
       var collection;
-      collection = new ContentEdit.ElementCollection('dl', {
+      collection = new factory.ElementCollection('dl', {
         'class': 'foo'
       });
-      return expect(collection instanceof ContentEdit.ElementCollection).toBe(true);
+      return expect(collection instanceof factory.ElementCollection).toBe(true);
     });
   });
 
-  describe('ContentEdit.ElementCollection.cssTypeName()', function() {
+  describe('ElementCollection.cssTypeName()', function() {
     return it('should return \'element-collection\'', function() {
       var element;
-      element = new ContentEdit.ElementCollection('div', {
+      element = new factory.ElementCollection('div', {
         'class': 'foo'
       });
       return expect(element.cssTypeName()).toBe('element-collection');
     });
   });
 
-  describe('ContentEdit.ElementCollection.isMounted()', function() {
+  describe('ElementCollection.isMounted()', function() {
     return it('should return true if the element is mounted in the DOM', function() {
       var collection, region;
-      collection = new ContentEdit.List('ul');
+      collection = new factory.List('ul');
       expect(collection.isMounted()).toBe(false);
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(collection);
       return expect(collection.isMounted()).toBe(true);
     });
   });
 
-  describe('ContentEdit.ElementCollection.html()', function() {
+  describe('ElementCollection.html()', function() {
     return it('should return a HTML string for the collection', function() {
       var collection, text;
-      collection = new ContentEdit.ElementCollection('div', {
+      collection = new factory.ElementCollection('div', {
         'class': 'foo'
       });
-      text = new ContentEdit.Text('p', {}, 'test');
+      text = new factory.Text('p', {}, 'test');
       collection.attach(text);
       return expect(collection.html()).toBe('<div class="foo">\n' + ("" + ContentEdit.INDENT + "<p>\n") + ("" + ContentEdit.INDENT + ContentEdit.INDENT + "test\n") + ("" + ContentEdit.INDENT + "</p>\n") + '</div>');
     });
   });
 
-  describe('`ContentEdit.ElementCollection.type()`', function() {
+  describe('`ElementCollection.type()`', function() {
     return it('should return \'ElementCollection\'', function() {
       var collection;
-      collection = new ContentEdit.ElementCollection('div', {
+      collection = new factory.ElementCollection('div', {
         'class': 'foo'
       });
       return expect(collection.type()).toBe('ElementCollection');
     });
   });
 
-  describe('ContentEdit.ElementCollection.createDraggingDOMElement()', function() {
+  describe('ElementCollection.createDraggingDOMElement()', function() {
     return it('should create a helper DOM element', function() {
       var collection, element, helper, region;
-      collection = new ContentEdit.ElementCollection('div');
-      element = new ContentEdit.Element('p');
+      collection = new factory.ElementCollection('div');
+      element = new factory.Element('p');
       collection.attach(element);
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(collection);
       helper = collection.createDraggingDOMElement();
       expect(helper).not.toBe(null);
@@ -973,19 +994,19 @@
     });
   });
 
-  describe('ContentEdit.ElementCollection.detach()', function() {
+  describe('ElementCollection.detach()', function() {
     var collection, elementA, elementB, region;
     collection = null;
     elementA = null;
     elementB = null;
     region = null;
     beforeEach(function() {
-      region = new ContentEdit.Region(document.createElement('div'));
-      collection = new ContentEdit.ElementCollection('div');
+      region = new factory.Region(document.createElement('div'));
+      collection = new factory.ElementCollection('div');
       region.attach(collection);
-      elementA = new ContentEdit.Element('p');
+      elementA = new factory.Element('p');
       collection.attach(elementA);
-      elementB = new ContentEdit.Element('p');
+      elementB = new factory.Element('p');
       return collection.attach(elementB);
     });
     it('should detach an element from the element collection', function() {
@@ -998,28 +1019,27 @@
       return expect(region.children.length).toBe(0);
     });
     return it('should trigger the detach event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('detach', foo.handleFoo);
+      factory.root.bind('detach', foo.handleFoo);
       collection.detach(elementA);
       return expect(foo.handleFoo).toHaveBeenCalledWith(collection, elementA);
     });
   });
 
-  describe('ContentEdit.ElementCollection.mount()', function() {
+  describe('ElementCollection.mount()', function() {
     var collection, element, region;
     collection = null;
     element = null;
     region = null;
     beforeEach(function() {
-      collection = new ContentEdit.ElementCollection('div');
-      element = new ContentEdit.Element('p');
+      collection = new factory.ElementCollection('div');
+      element = new factory.Element('p');
       collection.attach(element);
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(collection);
       return element.unmount();
     });
@@ -1029,29 +1049,28 @@
       return expect(element.isMounted()).toBe(true);
     });
     return it('should trigger the `mount` event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('mount', foo.handleFoo);
+      factory.root.bind('mount', foo.handleFoo);
       collection.mount();
       expect(foo.handleFoo).toHaveBeenCalledWith(collection);
       return expect(foo.handleFoo).toHaveBeenCalledWith(element);
     });
   });
 
-  describe('ContentEdit.ElementCollection.unmount()', function() {
+  describe('ElementCollection.unmount()', function() {
     var collection, element, region;
     collection = null;
     element = null;
     region = null;
     beforeEach(function() {
-      collection = new ContentEdit.ElementCollection('div');
-      element = new ContentEdit.Element('p');
+      collection = new factory.ElementCollection('div');
+      element = new factory.Element('p');
       collection.attach(element);
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       return region.attach(collection);
     });
     it('should unmount the collection and it\'s children from the DOM', function() {
@@ -1060,42 +1079,41 @@
       return expect(element.isMounted()).toBe(false);
     });
     return it('should trigger the `unmount` event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('unmount', foo.handleFoo);
+      factory.root.bind('unmount', foo.handleFoo);
       collection.unmount();
       expect(foo.handleFoo).toHaveBeenCalledWith(collection);
       return expect(foo.handleFoo).toHaveBeenCalledWith(element);
     });
   });
 
-  describe('ContentEdit.ResizableElement()', function() {
-    return it('should create `ContentEdit.ResizableElement` instance`', function() {
+  describe('ResizableElement()', function() {
+    return it('should create `ResizableElement` instance`', function() {
       var element;
-      element = new ContentEdit.ResizableElement('div', {
+      element = new factory.ResizableElement('div', {
         'class': 'foo'
       });
-      return expect(element instanceof ContentEdit.ResizableElement).toBe(true);
+      return expect(element instanceof factory.ResizableElement).toBe(true);
     });
   });
 
-  describe('ContentEdit.ResizableElement.aspectRatio()', function() {
+  describe('ResizableElement.aspectRatio()', function() {
     return it('should return the 1', function() {
       var element;
-      element = new ContentEdit.ResizableElement('div');
+      element = new factory.ResizableElement('div');
       return expect(element.aspectRatio()).toBe(1);
     });
   });
 
-  describe('ContentEdit.ResizableElement.maxSize()', function() {
+  describe('ResizableElement.maxSize()', function() {
     var element;
     element = null;
     beforeEach(function() {
-      return element = new ContentEdit.ResizableElement('div', {
+      return element = new factory.ResizableElement('div', {
         'height': 200,
         'width': 200
       });
@@ -1109,11 +1127,11 @@
     });
   });
 
-  describe('ContentEdit.ResizableElement.minSize()', function() {
+  describe('ResizableElement.minSize()', function() {
     var element;
     element = null;
     beforeEach(function() {
-      return element = new ContentEdit.ResizableElement('div', {
+      return element = new factory.ResizableElement('div', {
         'height': 200,
         'width': 200
       });
@@ -1127,26 +1145,26 @@
     });
   });
 
-  describe('`ContentEdit.ResizableElement.type()`', function() {
+  describe('`ResizableElement.type()`', function() {
     return it('should return \'ResizableElement\'', function() {
       var element;
-      element = new ContentEdit.ResizableElement('div', {
+      element = new factory.ResizableElement('div', {
         'class': 'foo'
       });
       return expect(element.type()).toBe('ResizableElement');
     });
   });
 
-  describe('ContentEdit.ResizableElement.mount()', function() {
+  describe('ResizableElement.mount()', function() {
     var element, region;
     element = null;
     region = null;
     beforeEach(function() {
-      element = new ContentEdit.ResizableElement('div', {
+      element = new factory.ResizableElement('div', {
         'height': 200,
         'width': 200
       });
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
       return element.unmount();
     });
@@ -1158,52 +1176,49 @@
       return expect(size).toBe('w 200 × h 200');
     });
     return it('should trigger the `mount` event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('mount', foo.handleFoo);
+      factory.root.bind('mount', foo.handleFoo);
       element.mount();
       return expect(foo.handleFoo).toHaveBeenCalledWith(element);
     });
   });
 
-  describe('ContentEdit.Element.resize()', function() {
+  describe('Element.resize()', function() {
     it('should call `startResizing` against the root element', function() {
-      var element, region, root;
-      element = new ContentEdit.ResizableElement('div', {
+      var element, region;
+      element = new factory.ResizableElement('div', {
         'height': 200,
         'width': 200
       });
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
-      root = ContentEdit.Root.get();
-      spyOn(root, 'startResizing');
+      spyOn(factory.root, 'startResizing');
       element.resize(['top', 'left'], 0, 0);
-      return expect(root.startResizing).toHaveBeenCalledWith(element, ['top', 'left'], 0, 0, true);
+      return expect(factory.root.startResizing).toHaveBeenCalledWith(element, ['top', 'left'], 0, 0, true);
     });
     return it('should do nothing if the `resize` behavior is not allowed', function() {
-      var element, region, root;
-      element = new ContentEdit.ResizableElement('div', {
+      var element, region;
+      element = new factory.ResizableElement('div', {
         'height': 200,
         'width': 200
       });
       element.can('resize', false);
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(element);
-      root = ContentEdit.Root.get();
-      spyOn(root, 'startResizing');
+      spyOn(factory.root, 'startResizing');
       element.resize(['top', 'left'], 0, 0);
-      return expect(root.startResizing).not.toHaveBeenCalled();
+      return expect(factory.root.startResizing).not.toHaveBeenCalled();
     });
   });
 
-  describe('ContentEdit.Element.size()', function() {
+  describe('Element.size()', function() {
     return it('should set/get the size of the element', function() {
       var element;
-      element = new ContentEdit.ResizableElement('div', {
+      element = new factory.ResizableElement('div', {
         'height': 200,
         'width': 200
       });
@@ -1213,234 +1228,192 @@
     });
   });
 
-  describe('`ContentEdit.TagNames.get()`', function() {
-    return it('should return a singleton instance of TagNames`', function() {
-      var tagNames;
-      tagNames = new ContentEdit.TagNames.get();
-      return expect(tagNames).toBe(ContentEdit.TagNames.get());
-    });
-  });
+  factory = new ContentEdit.Factory();
 
-  describe('`ContentEdit.TagNames.register()`', function() {
-    return it('should register a class with one or more tag names', function() {
-      var tagNames;
-      tagNames = new ContentEdit.TagNames.get();
-      tagNames.register(ContentEdit.Node, 'foo');
-      tagNames.register(ContentEdit.Element, 'bar', 'zee');
-      expect(tagNames.match('foo')).toBe(ContentEdit.Node);
-      expect(tagNames.match('bar')).toBe(ContentEdit.Element);
-      return expect(tagNames.match('zee')).toBe(ContentEdit.Element);
-    });
-  });
-
-  describe('`ContentEdit.TagNames.match()`', function() {
-    var tagNames;
-    tagNames = new ContentEdit.TagNames.get();
-    it('should return a class registered for the specifed tag name', function() {
-      return expect(tagNames.match('img')).toBe(ContentEdit.Image);
-    });
-    return it('should return `ContentEdit.Static` if no match is found for the tag name', function() {
-      return expect(tagNames.match('bom')).toBe(ContentEdit.Static);
-    });
-  });
-
-  describe('`ContentEdit.Region()`', function() {
+  describe('`Region()`', function() {
     return it('should return an instance of Region`', function() {
       var region;
-      region = new ContentEdit.Region(document.createElement('div'));
-      return expect(region instanceof ContentEdit.Region).toBe(true);
+      region = new factory.Region(document.createElement('div'));
+      return expect(region instanceof factory.Region).toBe(true);
     });
   });
 
-  describe('`ContentEdit.Region.domElement()`', function() {
+  describe('`Region.domElement()`', function() {
     return it('should return the DOM element the region was initialized with', function() {
       var domElement, region;
       domElement = document.createElement('div');
-      region = new ContentEdit.Region(domElement);
+      region = new factory.Region(domElement);
       return expect(region.domElement()).toBe(domElement);
     });
   });
 
-  describe('`ContentEdit.Region.isMounted()`', function() {
+  describe('`Region.isMounted()`', function() {
     return it('should always return true', function() {
       var region;
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       return expect(region.isMounted()).toBe(true);
     });
   });
 
-  describe('`ContentEdit.Region.type()`', function() {
+  describe('`Region.type()`', function() {
     return it('should return \'Region\'', function() {
       var region;
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       return expect(region.type()).toBe('Region');
     });
   });
 
-  describe('`ContentEdit.Region.html()`', function() {
+  describe('`Region.html()`', function() {
     return it('should return a HTML string for the region', function() {
       var region;
-      region = new ContentEdit.Region(document.createElement('div'));
-      region.attach(new ContentEdit.Text('p', {}, 'one'));
-      region.attach(new ContentEdit.Text('p', {}, 'two'));
-      region.attach(new ContentEdit.Text('p', {}, 'three'));
+      region = new factory.Region(document.createElement('div'));
+      region.attach(new factory.Text('p', {}, 'one'));
+      region.attach(new factory.Text('p', {}, 'two'));
+      region.attach(new factory.Text('p', {}, 'three'));
       return expect(region.html()).toBe('<p>\n' + ("" + ContentEdit.INDENT + "one\n") + '</p>\n' + '<p>\n' + ("" + ContentEdit.INDENT + "two\n") + '</p>\n' + '<p>\n' + ("" + ContentEdit.INDENT + "three\n") + '</p>');
     });
   });
 
-  describe('`ContentEdit.Root.get()`', function() {
-    return it('should return a singleton instance of Root`', function() {
-      var root;
-      root = new ContentEdit.Root.get();
-      return expect(root).toBe(ContentEdit.Root.get());
-    });
-  });
+  factory = new ContentEdit.Factory();
 
-  describe('`ContentEdit.Root.focused()`', function() {
+  describe('`Root.focused()`', function() {
     return it('should return the currently focused element or null if no element has focus', function() {
-      var element, region, root;
-      region = new ContentEdit.Region(document.createElement('div'));
-      element = new ContentEdit.Element('div');
+      var element, region;
+      region = new factory.Region(document.createElement('div'));
+      element = new factory.Element('div');
       region.attach(element);
-      root = new ContentEdit.Root.get();
-      if (root.focused()) {
-        root.focused().blur();
+      if (factory.root.focused()) {
+        factory.root.focused().blur();
       }
-      expect(root.focused()).toBe(null);
+      expect(factory.root.focused()).toBe(null);
       element.focus();
-      return expect(root.focused()).toBe(element);
+      return expect(factory.root.focused()).toBe(element);
     });
   });
 
-  describe('`ContentEdit.Root.dragging()`', function() {
+  describe('`Root.dragging()`', function() {
     return it('should return the element currently being dragged or null if no element is being dragged', function() {
-      var element, region, root;
-      region = new ContentEdit.Region(document.createElement('div'));
-      element = new ContentEdit.Element('div');
+      var element, region;
+      region = new factory.Region(document.createElement('div'));
+      element = new factory.Element('div');
       region.attach(element);
-      root = new ContentEdit.Root.get();
       element.drag(0, 0);
-      expect(root.dragging()).toBe(element);
-      root.cancelDragging();
-      return expect(root.dragging()).toBe(null);
+      expect(factory.root.dragging()).toBe(element);
+      factory.root.cancelDragging();
+      return expect(factory.root.dragging()).toBe(null);
     });
   });
 
-  describe('`ContentEdit.Root.dropTarget()`', function() {
+  describe('`Root.dropTarget()`', function() {
     return it('should return the element the dragging element is currently over', function() {
-      var elementA, elementB, region, root;
-      region = new ContentEdit.Region(document.getElementById('test'));
-      elementA = new ContentEdit.Text('p');
+      var elementA, elementB, region;
+      region = new factory.Region(document.getElementById('test'));
+      elementA = new factory.Text('p');
       region.attach(elementA);
-      elementB = new ContentEdit.Text('p');
+      elementB = new factory.Text('p');
       region.attach(elementB);
-      root = new ContentEdit.Root.get();
       elementA.drag(0, 0);
       elementB._onMouseOver({});
-      expect(root.dropTarget()).toBe(elementB);
-      root.cancelDragging();
-      expect(root.dropTarget()).toBe(null);
+      expect(factory.root.dropTarget()).toBe(elementB);
+      factory.root.cancelDragging();
+      expect(factory.root.dropTarget()).toBe(null);
       region.detach(elementA);
       return region.detach(elementB);
     });
   });
 
-  describe('`ContentEdit.Root.type()`', function() {
-    return it('should return \'Region\'', function() {
-      var root;
-      root = new ContentEdit.Root.get();
-      return expect(root.type()).toBe('Root');
+  describe('`Root.type()`', function() {
+    return it('should return \'Root\'', function() {
+      return expect(factory.root.type()).toBe('Root');
     });
   });
 
-  describe('`ContentEdit.Root.startDragging()`', function() {
+  describe('`Root.startDragging()`', function() {
     return it('should start a drag interaction', function() {
-      var cssClasses, element, region, root;
-      region = new ContentEdit.Region(document.getElementById('test'));
-      element = new ContentEdit.Text('p');
+      var cssClasses, element, region;
+      region = new factory.Region(document.getElementById('test'));
+      element = new factory.Text('p');
       region.attach(element);
-      root = new ContentEdit.Root.get();
-      root.startDragging(element, 0, 0);
-      expect(root.dragging()).toBe(element);
+      factory.root.startDragging(element, 0, 0);
+      expect(factory.root.dragging()).toBe(element);
       cssClasses = element.domElement().getAttribute('class').split(' ');
       expect(cssClasses.indexOf('ce-element--dragging') > -1).toBe(true);
       cssClasses = document.body.getAttribute('class').split(' ');
       expect(cssClasses.indexOf('ce--dragging') > -1).toBe(true);
-      expect(root._draggingDOMElement).not.toBe(null);
-      root.cancelDragging();
+      expect(factory.root._draggingDOMElement).not.toBe(null);
+      factory.root.cancelDragging();
       return region.detach(element);
     });
   });
 
-  describe('`ContentEdit.Root.cancelDragging()`', function() {
+  describe('`Root.cancelDragging()`', function() {
     return it('should cancel a drag interaction', function() {
-      var element, region, root;
-      region = new ContentEdit.Region(document.createElement('div'));
-      element = new ContentEdit.Element('div');
+      var element, region;
+      region = new factory.Region(document.createElement('div'));
+      element = new factory.Element('div');
       region.attach(element);
-      root = new ContentEdit.Root.get();
-      if (root.dragging()) {
-        root.cancelDragging();
+      if (factory.root.dragging()) {
+        factory.root.cancelDragging();
       }
       element.drag(0, 0);
-      expect(root.dragging()).toBe(element);
-      root.cancelDragging();
-      return expect(root.dragging()).toBe(null);
+      expect(factory.root.dragging()).toBe(element);
+      factory.root.cancelDragging();
+      return expect(factory.root.dragging()).toBe(null);
     });
   });
 
-  describe('`ContentEdit.Root.resizing()`', function() {
+  describe('`Root.resizing()`', function() {
     return it('should return the element currently being resized or null if no element is being resized', function() {
-      var element, region, root;
-      region = new ContentEdit.Region(document.createElement('div'));
-      element = new ContentEdit.ResizableElement('div');
+      var element, region;
+      region = new factory.Region(document.createElement('div'));
+      element = new factory.ResizableElement('div');
       region.attach(element);
-      root = new ContentEdit.Root.get();
       element.resize(['top', 'left'], 0, 0);
-      expect(root.resizing()).toBe(element);
-      return root._onStopResizing();
+      expect(factory.root.resizing()).toBe(element);
+      return factory.root._onStopResizing();
     });
   });
 
-  describe('`ContentEdit.Root.startResizing()`', function() {
+  describe('`Root.startResizing()`', function() {
     return it('should start a resize interaction', function() {
-      var cssClasses, element, region, root;
-      region = new ContentEdit.Region(document.getElementById('test'));
-      element = new ContentEdit.ResizableElement('div');
+      var cssClasses, element, region;
+      region = new factory.Region(document.getElementById('test'));
+      element = new factory.ResizableElement('div');
       region.attach(element);
-      root = new ContentEdit.Root.get();
-      root.startResizing(element, ['top', 'left'], 0, 0, true);
-      expect(root.resizing()).toBe(element);
+      factory.root.startResizing(element, ['top', 'left'], 0, 0, true);
+      expect(factory.root.resizing()).toBe(element);
       cssClasses = element.domElement().getAttribute('class').split(' ');
       expect(cssClasses.indexOf('ce-element--resizing') > -1).toBe(true);
       cssClasses = document.body.getAttribute('class').split(' ');
       expect(cssClasses.indexOf('ce--resizing') > -1).toBe(true);
-      root._onStopResizing();
+      factory.root._onStopResizing();
       return region.detach(element);
     });
   });
 
-  describe('`ContentEdit.Static()`', function() {
+  factory = new ContentEdit.Factory();
+
+  describe('`Static()`', function() {
     return it('should return an instance of Static`', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {}, '<div></div>');
-      return expect(staticElm instanceof ContentEdit.Static).toBe(true);
+      staticElm = new factory.Static('div', {}, '<div></div>');
+      return expect(staticElm instanceof factory.Static).toBe(true);
     });
   });
 
-  describe('`ContentEdit.Static.cssTypeName()`', function() {
+  describe('`Static.cssTypeName()`', function() {
     return it('should return \'static\'', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {}, '<div></div>');
+      staticElm = new factory.Static('div', {}, '<div></div>');
       return expect(staticElm.cssTypeName()).toBe('static');
     });
   });
 
-  describe('`ContentEdit.Static.createDraggingDOMElement()`', function() {
+  describe('`Static.createDraggingDOMElement()`', function() {
     return it('should create a helper DOM element', function() {
       var helper, region, staticElm;
-      staticElm = new ContentEdit.Static('div', {}, 'foo <b>bar</b>');
-      region = new ContentEdit.Region(document.createElement('div'));
+      staticElm = new factory.Static('div', {}, 'foo <b>bar</b>');
+      region = new factory.Region(document.createElement('div'));
       region.attach(staticElm);
       helper = staticElm.createDraggingDOMElement();
       expect(helper).not.toBe(null);
@@ -1449,41 +1422,41 @@
     });
   });
 
-  describe('`ContentEdit.Static.type()`', function() {
+  describe('`Static.type()`', function() {
     return it('should return \'Static\'', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {}, '<div></div>');
+      staticElm = new factory.Static('div', {}, '<div></div>');
       return expect(staticElm.type()).toBe('Static');
     });
   });
 
-  describe('`ContentEdit.Static.typeName()`', function() {
+  describe('`Static.typeName()`', function() {
     return it('should return \'Static\'', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {}, '<div></div>');
+      staticElm = new factory.Static('div', {}, '<div></div>');
       return expect(staticElm.typeName()).toBe('Static');
     });
   });
 
-  describe('ContentEdit.Static.html()', function() {
+  describe('Static.html()', function() {
     return it('should return a HTML string for the static element', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {
+      staticElm = new factory.Static('div', {
         'class': 'foo'
       }, '<div><b>foo</b></div>');
       return expect(staticElm.html()).toBe('<div class="foo"><div><b>foo</b></div></div>');
     });
   });
 
-  describe('ContentEdit.Static.mount()', function() {
+  describe('Static.mount()', function() {
     var region, staticElm;
     region = null;
     staticElm = null;
     beforeEach(function() {
-      staticElm = new ContentEdit.Static('div', {
+      staticElm = new factory.Static('div', {
         'class': 'foo'
       }, '<div><b>foo</b></div>');
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(staticElm);
       return staticElm.unmount();
     });
@@ -1493,44 +1466,43 @@
       return expect(staticElm.domElement().innerHTML).toBe('<div><b>foo</b></div>');
     });
     return it('should trigger the `mount` event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('mount', foo.handleFoo);
+      factory.root.bind('mount', foo.handleFoo);
       staticElm.mount();
       return expect(foo.handleFoo).toHaveBeenCalledWith(staticElm);
     });
   });
 
-  describe('`ContentEdit.Static.fromDOMElement()`', function() {
+  describe('`Static.fromDOMElement()`', function() {
     return it('should convert a DOM element into an static element', function() {
       var domElement, region, staticElm;
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       domElement = document.createElement('div');
       domElement.innerHTML = '<div><b>foo</b></div>';
-      staticElm = ContentEdit.Static.fromDOMElement(domElement);
+      staticElm = factory.Static.fromDOMElement(domElement);
       region.attach(staticElm);
       return expect(staticElm.domElement().innerHTML).toBe('<div><b>foo</b></div>');
     });
   });
 
-  describe('`ContentEdit.Static` drop interactions if `data-ce-moveable` is set', function() {
+  describe('`Static` drop interactions if `data-ce-moveable` is set', function() {
     var region, staticElm;
     staticElm = null;
     region = null;
     beforeEach(function() {
-      region = new ContentEdit.Region(document.createElement('div'));
-      staticElm = new ContentEdit.Static('div', {
+      region = new factory.Region(document.createElement('div'));
+      staticElm = new factory.Static('div', {
         'data-ce-moveable': ''
       }, 'foo');
       return region.attach(staticElm);
     });
     return it('should support dropping on Text', function() {
       var otherStaticElm;
-      otherStaticElm = new ContentEdit.Static('div', {
+      otherStaticElm = new factory.Static('div', {
         'data-ce-moveable': ''
       }, 'bar');
       region.attach(otherStaticElm);
@@ -1542,46 +1514,47 @@
     });
   });
 
-  describe('`ContentEdit.Text()`', function() {
+  factory = new ContentEdit.Factory();
+
+  describe('`Text()`', function() {
     return it('should return an instance of Text`', function() {
       var text;
-      text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>');
-      return expect(text instanceof ContentEdit.Text).toBe(true);
+      text = new factory.Text('p', {}, 'foo <b>bar</b>');
+      return expect(text instanceof factory.Text).toBe(true);
     });
   });
 
-  describe('`ContentEdit.Text.cssTypeName()`', function() {
+  describe('`Text.cssTypeName()`', function() {
     return it('should return \'text\'', function() {
       var text;
-      text = new ContentEdit.Text('p', {}, 'foo');
+      text = new factory.Text('p', {}, 'foo');
       return expect(text.cssTypeName()).toBe('text');
     });
   });
 
-  describe('`ContentEdit.Text.type()`', function() {
+  describe('`Text.type()`', function() {
     return it('should return \'Text\'', function() {
       var text;
-      text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>');
+      text = new factory.Text('p', {}, 'foo <b>bar</b>');
       return expect(text.type()).toBe('Text');
     });
   });
 
-  describe('`ContentEdit.Text.typeName()`', function() {
+  describe('`Text.typeName()`', function() {
     return it('should return \'Text\'', function() {
       var text;
-      text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>');
+      text = new factory.Text('p', {}, 'foo <b>bar</b>');
       return expect(text.typeName()).toBe('Text');
     });
   });
 
-  describe('ContentEdit.Text.blur()', function() {
-    var region, root, text;
-    root = ContentEdit.Root.get();
+  describe('Text.blur()', function() {
+    var region, text;
     text = null;
     region = null;
     beforeEach(function() {
-      text = new ContentEdit.Text('p', {}, 'foo');
-      region = new ContentEdit.Region(document.getElementById('test'));
+      text = new factory.Text('p', {}, 'foo');
+      region = new factory.Region(document.getElementById('test'));
       region.attach(text);
       return text.focus();
     });
@@ -1604,7 +1577,7 @@
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root.bind('blur', foo.handleFoo);
+      factory.root.bind('blur', foo.handleFoo);
       text.blur();
       return expect(foo.handleFoo).toHaveBeenCalledWith(text);
     });
@@ -1617,11 +1590,11 @@
     });
   });
 
-  describe('`ContentEdit.Text.createDraggingDOMElement()`', function() {
+  describe('`Text.createDraggingDOMElement()`', function() {
     return it('should create a helper DOM element', function() {
       var helper, region, text;
-      text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>');
-      region = new ContentEdit.Region(document.createElement('div'));
+      text = new factory.Text('p', {}, 'foo <b>bar</b>');
+      region = new factory.Region(document.createElement('div'));
       region.attach(text);
       helper = text.createDraggingDOMElement();
       expect(helper).not.toBe(null);
@@ -1630,18 +1603,17 @@
     });
   });
 
-  describe('ContentEdit.Text.drag()', function() {
-    var root, text;
-    root = ContentEdit.Root.get();
+  describe('Text.drag()', function() {
+    var text;
     text = null;
     beforeEach(function() {
       var region;
-      text = new ContentEdit.Text('p', {}, 'foo');
-      region = new ContentEdit.Region(document.createElement('div'));
+      text = new factory.Text('p', {}, 'foo');
+      region = new factory.Region(document.createElement('div'));
       return region.attach(text);
     });
     afterEach(function() {
-      return root.cancelDragging();
+      return factory.root.cancelDragging();
     });
     it('should call `storeState` against the text element', function() {
       spyOn(text, 'storeState');
@@ -1649,18 +1621,18 @@
       return expect(text.storeState).toHaveBeenCalled();
     });
     return it('should call `startDragging` against the root element', function() {
-      spyOn(root, 'startDragging');
+      spyOn(factory.root, 'startDragging');
       text.drag(0, 0);
-      return expect(root.startDragging).toHaveBeenCalledWith(text, 0, 0);
+      return expect(factory.root.startDragging).toHaveBeenCalledWith(text, 0, 0);
     });
   });
 
   describe('ContentEdit.Text.drop()', function() {
     return it('should call the `restoreState` against the text element', function() {
       var region, textA, textB;
-      textA = new ContentEdit.Text('p', {}, 'foo');
-      textB = new ContentEdit.Text('p', {}, 'bar');
-      region = new ContentEdit.Region(document.createElement('div'));
+      textA = new factory.Text('p', {}, 'foo');
+      textB = new factory.Text('p', {}, 'bar');
+      region = new factory.Region(document.createElement('div'));
       region.attach(textA);
       region.attach(textB);
       spyOn(textA, 'restoreState');
@@ -1670,14 +1642,13 @@
     });
   });
 
-  describe('ContentEdit.Text.focus()', function() {
-    var region, root, text;
-    root = ContentEdit.Root.get();
+  describe('Text.focus()', function() {
+    var region, text;
     text = null;
     region = null;
     beforeEach(function() {
-      text = new ContentEdit.Text('p', {}, 'foo');
-      region = new ContentEdit.Region(document.getElementById('test'));
+      text = new factory.Text('p', {}, 'foo');
+      region = new factory.Region(document.getElementById('test'));
       region.attach(text);
       return text.blur();
     });
@@ -1694,29 +1665,29 @@
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root.bind('focus', foo.handleFoo);
+      factory.root.bind('focus', foo.handleFoo);
       text.focus();
       return expect(foo.handleFoo).toHaveBeenCalledWith(text);
     });
   });
 
-  describe('ContentEdit.Text.html()', function() {
+  describe('Text.html()', function() {
     return it('should return a HTML string for the text element', function() {
       var text;
-      text = new ContentEdit.Text('p', {
+      text = new factory.Text('p', {
         'class': 'foo'
       }, 'bar <b>zee</b>');
       return expect(text.html()).toBe('<p class="foo">\n' + ("" + ContentEdit.INDENT + "bar <b>zee</b>\n") + '</p>');
     });
   });
 
-  describe('ContentEdit.Text.mount()', function() {
+  describe('Text.mount()', function() {
     var region, text;
     text = null;
     region = null;
     beforeEach(function() {
-      text = new ContentEdit.Text('p', {}, 'foo');
-      region = new ContentEdit.Region(document.createElement('div'));
+      text = new factory.Text('p', {}, 'foo');
+      region = new factory.Region(document.createElement('div'));
       region.attach(text);
       return text.unmount();
     });
@@ -1730,23 +1701,22 @@
       return expect(text.updateInnerHTML).toHaveBeenCalled();
     });
     return it('should trigger the `mount` event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('mount', foo.handleFoo);
+      factory.root.bind('mount', foo.handleFoo);
       text.mount();
       return expect(foo.handleFoo).toHaveBeenCalledWith(text);
     });
   });
 
-  describe('ContentEdit.Text.restoreState()', function() {
+  describe('Text.restoreState()', function() {
     return it('should restore a text elements state after it has been remounted', function() {
       var region, selection, text;
-      text = new ContentEdit.Text('p', {}, 'foo');
-      region = new ContentEdit.Region(document.getElementById('test'));
+      text = new factory.Text('p', {}, 'foo');
+      region = new factory.Region(document.getElementById('test'));
       region.attach(text);
       text.focus();
       new ContentSelect.Range(1, 2).select(text.domElement());
@@ -1760,11 +1730,11 @@
     });
   });
 
-  describe('ContentEdit.Text.selection()', function() {
+  describe('Text.selection()', function() {
     return it('should get/set the content selection for the element', function() {
       var region, text;
-      text = new ContentEdit.Text('p', {}, 'foobar');
-      region = new ContentEdit.Region(document.getElementById('test'));
+      text = new factory.Text('p', {}, 'foobar');
+      region = new factory.Region(document.getElementById('test'));
       region.attach(text);
       text.selection(new ContentSelect.Range(1, 2));
       expect(text.selection().get()).toEqual([1, 2]);
@@ -1772,11 +1742,11 @@
     });
   });
 
-  describe('ContentEdit.Text.storeState()', function() {
+  describe('Text.storeState()', function() {
     return it('should store the text elements state so it can be restored', function() {
       var region, selection, text;
-      text = new ContentEdit.Text('p', {}, 'foo');
-      region = new ContentEdit.Region(document.getElementById('test'));
+      text = new factory.Text('p', {}, 'foo');
+      region = new factory.Region(document.getElementById('test'));
       region.attach(text);
       text.focus();
       new ContentSelect.Range(1, 2).select(text.domElement());
@@ -1791,11 +1761,11 @@
     });
   });
 
-  describe('ContentEdit.Text.updateInnerHTML()', function() {
+  describe('Text.updateInnerHTML()', function() {
     return it('should update the contents of the text elements related DOM element', function() {
       var region, text;
-      text = new ContentEdit.Text('p', {}, 'foo');
-      region = new ContentEdit.Region(document.getElementById('test'));
+      text = new factory.Text('p', {}, 'foo');
+      region = new factory.Region(document.getElementById('test'));
       region.attach(text);
       text.content = text.content.concat(' bar');
       text.updateInnerHTML();
@@ -1804,43 +1774,42 @@
     });
   });
 
-  describe('`ContentEdit.Text.fromDOMElement()`', function() {
+  describe('`Text.fromDOMElement()`', function() {
     return it('should convert the following DOM elements into a text element: <address>, <h1>, <h2>, <h3>, <h4>, <h5>, <h6>, <p>', function() {
       var INDENT, address, domAddress, domH, domP, h, i, p, _i;
       INDENT = ContentEdit.INDENT;
       domAddress = document.createElement('address');
       domAddress.innerHTML = 'foo';
-      address = ContentEdit.Text.fromDOMElement(domAddress);
+      address = factory.Text.fromDOMElement(domAddress);
       expect(address.html()).toBe("<address>\n" + INDENT + "foo\n</address>");
       for (i = _i = 1; _i < 7; i = ++_i) {
         domH = document.createElement("h" + i);
         domH.innerHTML = 'foo';
-        h = ContentEdit.Text.fromDOMElement(domH);
+        h = factory.Text.fromDOMElement(domH);
         expect(h.html()).toBe("<h" + i + ">\n" + INDENT + "foo\n</h" + i + ">");
       }
       domP = document.createElement('p');
       domP.innerHTML = 'foo';
-      p = ContentEdit.Text.fromDOMElement(domP);
+      p = factory.Text.fromDOMElement(domP);
       return expect(p.html()).toBe("<p>\n" + INDENT + "foo\n</p>");
     });
   });
 
   describe('`ContentEdit.Text` key events`', function() {
-    var INDENT, ev, region, root;
+    var INDENT, ev, region;
     INDENT = ContentEdit.INDENT;
     ev = {
       preventDefault: function() {}
     };
     region = null;
-    root = ContentEdit.Root.get();
     beforeEach(function() {
       var content, _i, _len, _ref, _results;
-      region = new ContentEdit.Region(document.getElementById('test'));
+      region = new factory.Region(document.getElementById('test'));
       _ref = ['foo', 'bar', 'zee'];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         content = _ref[_i];
-        _results.push(region.attach(new ContentEdit.Text('p', {}, content)));
+        _results.push(region.attach(new factory.Text('p', {}, content)));
       }
       return _results;
     });
@@ -1860,7 +1829,7 @@
       text.focus();
       new ContentSelect.Range(3, 3).select(text.domElement());
       text._keyDown(ev);
-      return expect(root.focused()).toBe(region.children[1]);
+      return expect(factory.root.focused()).toBe(region.children[1]);
     });
     it('should support left arrow nav to previous content element', function() {
       var text;
@@ -1868,7 +1837,7 @@
       text.focus();
       new ContentSelect.Range(0, 0).select(text.domElement());
       text._keyLeft(ev);
-      return expect(root.focused()).toBe(region.children[0]);
+      return expect(factory.root.focused()).toBe(region.children[0]);
     });
     it('should support right arrow nav to next content element', function() {
       var text;
@@ -1876,7 +1845,7 @@
       text.focus();
       new ContentSelect.Range(3, 3).select(text.domElement());
       text._keyRight(ev);
-      return expect(root.focused()).toBe(region.children[1]);
+      return expect(factory.root.focused()).toBe(region.children[1]);
     });
     it('should support up arrow nav to previous content element', function() {
       var text;
@@ -1884,7 +1853,7 @@
       text.focus();
       new ContentSelect.Range(0, 0).select(text.domElement());
       text._keyUp(ev);
-      return expect(root.focused()).toBe(region.children[0]);
+      return expect(factory.root.focused()).toBe(region.children[0]);
     });
     it('should support delete merge with next content element', function() {
       var text;
@@ -1933,22 +1902,21 @@
   });
 
   describe('`ContentEdit.Text` key events with prefer line breaks`', function() {
-    var INDENT, ev, region, root;
+    var INDENT, ev, region;
     INDENT = ContentEdit.INDENT;
     ev = {
       preventDefault: function() {}
     };
     region = null;
-    root = ContentEdit.Root.get();
     beforeEach(function() {
       var content, _i, _len, _ref, _results;
       ContentEdit.PREFER_LINE_BREAKS = true;
-      region = new ContentEdit.Region(document.getElementById('test'));
+      region = new factory.Region(document.getElementById('test'));
       _ref = ['foo', 'bar', 'zee'];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         content = _ref[_i];
-        _results.push(region.attach(new ContentEdit.Text('p', {}, content)));
+        _results.push(region.attach(new factory.Text('p', {}, content)));
       }
       return _results;
     });
@@ -1983,18 +1951,18 @@
     });
   });
 
-  describe('`ContentEdit.Text` drop interactions`', function() {
+  describe('`Text` drop interactions`', function() {
     var region, text;
     region = null;
     text = null;
     beforeEach(function() {
-      region = new ContentEdit.Region(document.createElement('div'));
-      text = new ContentEdit.Text('p', {}, 'foo');
+      region = new factory.Region(document.createElement('div'));
+      text = new factory.Text('p', {}, 'foo');
       return region.attach(text);
     });
     it('should support dropping on Text', function() {
       var otherText;
-      otherText = new ContentEdit.Text('p', {}, 'bar');
+      otherText = new factory.Text('p', {}, 'bar');
       region.attach(otherText);
       expect(text.nextSibling()).toBe(otherText);
       text.drop(otherText, ['below', 'center']);
@@ -2004,7 +1972,7 @@
     });
     it('should support dropping on Static', function() {
       var staticElm;
-      staticElm = ContentEdit.Static.fromDOMElement(document.createElement('div'));
+      staticElm = factory.Static.fromDOMElement(document.createElement('div'));
       region.attach(staticElm);
       expect(text.nextSibling()).toBe(staticElm);
       text.drop(staticElm, ['below', 'center']);
@@ -2014,7 +1982,7 @@
     });
     return it('should support being dropped on by `moveable` Static', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {
+      staticElm = new factory.Static('div', {
         'data-ce-moveable': 'data-ce-moveable'
       }, 'foo');
       region.attach(staticElm, 0);
@@ -2026,13 +1994,13 @@
     });
   });
 
-  describe('`ContentEdit.Text` merge interactions`', function() {
+  describe('`Text` merge interactions`', function() {
     var region, text;
     text = null;
     region = null;
     beforeEach(function() {
-      region = new ContentEdit.Region(document.getElementById('test'));
-      text = new ContentEdit.Text('p', {}, 'foo');
+      region = new factory.Region(document.getElementById('test'));
+      text = new factory.Text('p', {}, 'foo');
       return region.attach(text);
     });
     afterEach(function() {
@@ -2047,7 +2015,7 @@
     });
     return it('should support merging with Text', function() {
       var otherText;
-      otherText = new ContentEdit.Text('p', {}, 'bar');
+      otherText = new factory.Text('p', {}, 'bar');
       region.attach(otherText);
       text.merge(otherText);
       expect(text.html()).toBe("<p>\n" + ContentEdit.INDENT + "foobar\n</p>");
@@ -2055,72 +2023,71 @@
     });
   });
 
-  describe('`ContentEdit.PreText()`', function() {
+  describe('`PreText()`', function() {
     return it('should return an instance of PreText`', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>');
-      return expect(preText instanceof ContentEdit.PreText).toBe(true);
+      preText = new factory.PreText('pre', {}, 'foo <b>bar</b>');
+      return expect(preText instanceof factory.PreText).toBe(true);
     });
   });
 
-  describe('`ContentEdit.PreText.cssTypeName()`', function() {
+  describe('`PreText.cssTypeName()`', function() {
     return it('should return \'pre-text\'', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>');
+      preText = new factory.PreText('pre', {}, 'foo <b>bar</b>');
       return expect(preText.cssTypeName()).toBe('pre-text');
     });
   });
 
-  describe('`ContentEdit.PreText.type()`', function() {
+  describe('`PreText.type()`', function() {
     return it('should return \'PreText\'', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>');
+      preText = new factory.PreText('pre', {}, 'foo <b>bar</b>');
       return expect(preText.type()).toBe('PreText');
     });
   });
 
-  describe('`ContentEdit.PreText.typeName()`', function() {
+  describe('`PreText.typeName()`', function() {
     return it('should return \'Preformatted\'', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>');
+      preText = new factory.PreText('pre', {}, 'foo <b>bar</b>');
       return expect(preText.typeName()).toBe('Preformatted');
     });
   });
 
-  describe('ContentEdit.PreText.html()', function() {
+  describe('PreText.html()', function() {
     return it('should return a HTML string for the pre-text element', function() {
       var I, preText;
       I = ContentEdit.INDENT;
-      preText = new ContentEdit.PreText('pre', {
+      preText = new factory.PreText('pre', {
         'class': 'foo'
       }, "&lt;div&gt;\n    test &amp; test\n&lt;/div&gt;");
       return expect(preText.html()).toBe("<pre class=\"foo\">&lt;div&gt;\n" + ContentEdit.INDENT + "test &amp; test\n&lt;/div&gt;</pre>");
     });
   });
 
-  describe('`ContentEdit.PreText.fromDOMElement()`', function() {
+  describe('`PreText.fromDOMElement()`', function() {
     return it('should convert a <pre> DOM element into a preserved text element', function() {
       var I, domDiv, preText;
       I = ContentEdit.INDENT;
       domDiv = document.createElement('div');
       domDiv.innerHTML = "<pre>&lt;div&gt;\n" + ContentEdit.INDENT + "test &amp; test\n&lt;/div&gt;</pre>";
-      preText = ContentEdit.PreText.fromDOMElement(domDiv.childNodes[0]);
+      preText = factory.PreText.fromDOMElement(domDiv.childNodes[0]);
       return expect(preText.html()).toBe("<pre>&lt;div&gt;\n" + ContentEdit.INDENT + "test &amp; test\n&lt;/div&gt;</pre>");
     });
   });
 
-  describe('`ContentEdit.PreText` key events`', function() {
-    var I, ev, preText, region, root;
+  describe('`PreText` key events`', function() {
+    var I, ev, preText, region;
     I = ContentEdit.INDENT;
     ev = {
       preventDefault: function() {}
     };
     region = null;
     preText = null;
-    root = ContentEdit.Root.get();
     beforeEach(function() {
-      region = new ContentEdit.Region(document.getElementById('test'));
-      preText = new ContentEdit.PreText('pre', {
+      region = new factory.Region(document.getElementById('test'));
+      preText = new factory.PreText('pre', {
         'class': 'foo'
       }, "&lt;div&gt;\n" + ContentEdit.INDENT + "test &amp; test\n&lt;/div&gt;");
       return region.attach(preText);
@@ -2148,13 +2115,13 @@
     region = null;
     preText = null;
     beforeEach(function() {
-      region = new ContentEdit.Region(document.createElement('div'));
-      preText = new ContentEdit.PreText('p', {}, 'foo');
+      region = new factory.Region(document.createElement('div'));
+      preText = new factory.PreText('p', {}, 'foo');
       return region.attach(preText);
     });
     it('should support dropping on PreText', function() {
       var otherPreText;
-      otherPreText = new ContentEdit.PreText('pre', {}, '');
+      otherPreText = new factory.PreText('pre', {}, '');
       region.attach(otherPreText);
       expect(preText.nextSibling()).toBe(otherPreText);
       preText.drop(otherPreText, ['below', 'center']);
@@ -2164,7 +2131,7 @@
     });
     it('should support dropping on Static', function() {
       var staticElm;
-      staticElm = ContentEdit.Static.fromDOMElement(document.createElement('div'));
+      staticElm = factory.Static.fromDOMElement(document.createElement('div'));
       region.attach(staticElm);
       expect(preText.nextSibling()).toBe(staticElm);
       preText.drop(staticElm, ['below', 'center']);
@@ -2174,7 +2141,7 @@
     });
     it('should support being dropped on by `moveable` Static', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {
+      staticElm = new factory.Static('div', {
         'data-ce-moveable': 'data-ce-moveable'
       }, 'foo');
       region.attach(staticElm, 0);
@@ -2186,7 +2153,7 @@
     });
     it('should support dropping on Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text);
       expect(preText.nextSibling()).toBe(text);
       preText.drop(text, ['below', 'center']);
@@ -2196,7 +2163,7 @@
     });
     return it('should support being dropped on by Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text, 0);
       expect(text.nextSibling()).toBe(preText);
       text.drop(preText, ['below', 'center']);
@@ -2206,59 +2173,61 @@
     });
   });
 
-  describe('`ContentEdit.Image()`', function() {
+  factory = new ContentEdit.Factory();
+
+  describe('`Image()`', function() {
     return it('should return an instance of Image`', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/foo.jpg'
       });
-      expect(image instanceof ContentEdit.Image).toBe(true);
-      image = new ContentEdit.Image({
+      expect(image instanceof factory.Image).toBe(true);
+      image = new factory.Image({
         'src': '/foo.jpg'
       }, {
         'href': 'bar'
       });
-      return expect(image instanceof ContentEdit.Image).toBe(true);
+      return expect(image instanceof factory.Image).toBe(true);
     });
   });
 
-  describe('`ContentEdit.Image.cssTypeName()`', function() {
+  describe('`Image.cssTypeName()`', function() {
     return it('should return \'image\'', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/foo.jpg'
       });
       return expect(image.cssTypeName()).toBe('image');
     });
   });
 
-  describe('`ContentEdit.Image.type()`', function() {
+  describe('`Image.type()`', function() {
     return it('should return \'Image\'', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/foo.jpg'
       });
       return expect(image.type()).toBe('Image');
     });
   });
 
-  describe('`ContentEdit.Image.typeName()`', function() {
+  describe('`Image.typeName()`', function() {
     return it('should return \'Image\'', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/foo.jpg'
       });
       return expect(image.typeName()).toBe('Image');
     });
   });
 
-  describe('`ContentEdit.Image.createDraggingDOMElement()`', function() {
+  describe('`Image.createDraggingDOMElement()`', function() {
     return it('should create a helper DOM element', function() {
       var helper, image, region;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': 'http://getme.co.uk/foo.jpg'
       });
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(image);
       helper = image.createDraggingDOMElement();
       expect(helper).not.toBe(null);
@@ -2267,14 +2236,14 @@
     });
   });
 
-  describe('`ContentEdit.Image.html()`', function() {
+  describe('`Image.html()`', function() {
     return it('should return a HTML string for the image', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/foo.jpg'
       });
       expect(image.html()).toBe('<img src="/foo.jpg">');
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/foo.jpg'
       }, {
         'href': 'bar'
@@ -2283,21 +2252,21 @@
     });
   });
 
-  describe('`ContentEdit.Image.mount()`', function() {
+  describe('`Image.mount()`', function() {
     var imageA, imageB, region;
     imageA = null;
     imageB = null;
     region = null;
     beforeEach(function() {
-      imageA = new ContentEdit.Image({
+      imageA = new factory.Image({
         'src': '/foo.jpg'
       });
-      imageB = new ContentEdit.Image({
+      imageB = new factory.Image({
         'src': '/foo.jpg'
       }, {
         'href': 'bar'
       });
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(imageA);
       region.attach(imageB);
       imageA.unmount();
@@ -2310,33 +2279,32 @@
       return expect(imageB.isMounted()).toBe(true);
     });
     return it('should trigger the `mount` event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('mount', foo.handleFoo);
+      factory.root.bind('mount', foo.handleFoo);
       imageA.mount();
       return expect(foo.handleFoo).toHaveBeenCalledWith(imageA);
     });
   });
 
-  describe('`ContentEdit.Image.fromDOMElement()`', function() {
+  describe('`Image.fromDOMElement()`', function() {
     it('should convert a <img> DOM element into an image element', function() {
       var domImg, img;
       domImg = document.createElement('img');
       domImg.setAttribute('src', '/foo.jpg');
       domImg.setAttribute('width', '400');
       domImg.setAttribute('height', '300');
-      img = ContentEdit.Image.fromDOMElement(domImg);
+      img = factory.Image.fromDOMElement(domImg);
       return expect(img.html()).toBe('<img height="300" src="/foo.jpg" width="400">');
     });
     it('should read the natural width of the image if not supplied as an attribute', function() {
       var domImg, img;
       domImg = document.createElement('img');
       domImg.setAttribute('src', 'data:image/gif;' + 'base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==');
-      img = ContentEdit.Image.fromDOMElement(domImg);
+      img = factory.Image.fromDOMElement(domImg);
       return expect(img.size()).toEqual([1, 1]);
     });
     return it('should convert a wrapped <a><img></a> DOM element into an image element', function() {
@@ -2348,25 +2316,25 @@
       domImg.setAttribute('width', '400');
       domImg.setAttribute('height', '300');
       domA.appendChild(domImg);
-      img = ContentEdit.Image.fromDOMElement(domA);
+      img = factory.Image.fromDOMElement(domA);
       return expect(img.html()).toBe('<a href="test" data-ce-tag="img">\n' + ("" + ContentEdit.INDENT) + '<img height="300" src="/foo.jpg" width="400">\n' + '</a>');
     });
   });
 
-  describe('`ContentEdit.Image` drop interactions', function() {
+  describe('`Image` drop interactions', function() {
     var image, region;
     image = null;
     region = null;
     beforeEach(function() {
-      region = new ContentEdit.Region(document.createElement('div'));
-      image = new ContentEdit.Image({
+      region = new factory.Region(document.createElement('div'));
+      image = new factory.Image({
         'src': '/foo.jpg'
       });
       return region.attach(image);
     });
     it('should support dropping on Image', function() {
       var otherImage;
-      otherImage = new ContentEdit.Image({
+      otherImage = new factory.Image({
         'src': '/bar.jpg'
       });
       region.attach(otherImage);
@@ -2387,7 +2355,7 @@
     });
     it('should support dropping on PreText', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, '');
+      preText = new factory.PreText('pre', {}, '');
       region.attach(preText);
       expect(image.nextSibling()).toBe(preText);
       image.drop(preText, ['above', 'left']);
@@ -2406,7 +2374,7 @@
     });
     it('should support being dropped on by PreText', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, '');
+      preText = new factory.PreText('pre', {}, '');
       region.attach(preText, 0);
       expect(preText.nextSibling()).toBe(image);
       preText.drop(image, ['below', 'center']);
@@ -2416,7 +2384,7 @@
     });
     it('should support dropping on Static', function() {
       var staticElm;
-      staticElm = ContentEdit.Static.fromDOMElement(document.createElement('div'));
+      staticElm = factory.Static.fromDOMElement(document.createElement('div'));
       region.attach(staticElm);
       expect(image.nextSibling()).toBe(staticElm);
       image.drop(staticElm, ['above', 'left']);
@@ -2435,7 +2403,7 @@
     });
     it('should support being dropped on by `moveable` Static', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {
+      staticElm = new factory.Static('div', {
         'data-ce-moveable': 'data-ce-moveable'
       }, 'foo');
       region.attach(staticElm, 0);
@@ -2447,7 +2415,7 @@
     });
     it('should support dropping on Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text);
       expect(image.nextSibling()).toBe(text);
       image.drop(text, ['above', 'left']);
@@ -2466,7 +2434,7 @@
     });
     return it('should support being dropped on by Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text, 0);
       expect(text.nextSibling()).toBe(image);
       text.drop(image, ['below', 'center']);
@@ -2476,47 +2444,49 @@
     });
   });
 
-  describe('`ContentEdit.Video()`', function() {
+  factory = new ContentEdit.Factory();
+
+  describe('`Video()`', function() {
     return it('should return an instance of Video`', function() {
       var video;
-      video = new ContentEdit.Video('video', {}, []);
-      return expect(video instanceof ContentEdit.Video).toBe(true);
+      video = new factory.Video('video', {}, []);
+      return expect(video instanceof factory.Video).toBe(true);
     });
   });
 
-  describe('`ContentEdit.Video.cssTypeName()`', function() {
+  describe('`Video.cssTypeName()`', function() {
     return it('should return \'video\'', function() {
       var video;
-      video = new ContentEdit.Video('video', {}, []);
+      video = new factory.Video('video', {}, []);
       return expect(video.cssTypeName()).toBe('video');
     });
   });
 
-  describe('`ContentEdit.Video.type()`', function() {
+  describe('`Video.type()`', function() {
     return it('should return \'video\'', function() {
       var video;
-      video = new ContentEdit.Video('video', {}, []);
+      video = new factory.Video('video', {}, []);
       return expect(video.type()).toBe('Video');
     });
   });
 
-  describe('`ContentEdit.Video.typeName()`', function() {
+  describe('`Video.typeName()`', function() {
     return it('should return \'video\'', function() {
       var video;
-      video = new ContentEdit.Video('video', {}, []);
+      video = new factory.Video('video', {}, []);
       return expect(video.typeName()).toBe('Video');
     });
   });
 
-  describe('`ContentEdit.Video.createDraggingDOMElement()`', function() {
+  describe('`Video.createDraggingDOMElement()`', function() {
     var region;
     region = null;
     beforeEach(function() {
-      return region = new ContentEdit.Region(document.createElement('div'));
+      return region = new factory.Region(document.createElement('div'));
     });
     it('should create a helper DOM element using the sources list for <video> elements', function() {
       var helper, video;
-      video = new ContentEdit.Video('video', {}, [
+      video = new factory.Video('video', {}, [
         {
           'src': 'foo.mp4'
         }
@@ -2529,7 +2499,7 @@
     });
     return it('should create a helper DOM element using the src attribute for other elements (e.g iframes)', function() {
       var helper, video;
-      video = new ContentEdit.Video('iframe', {
+      video = new factory.Video('iframe', {
         'src': 'foo.mp4'
       });
       region.attach(video);
@@ -2540,11 +2510,11 @@
     });
   });
 
-  describe('`ContentEdit.Video.html()`', function() {
+  describe('`Video.html()`', function() {
     return it('should return a HTML string for the image', function() {
       var INDENT, video;
       INDENT = ContentEdit.INDENT;
-      video = new ContentEdit.Video('video', {
+      video = new factory.Video('video', {
         'controls': ''
       }, [
         {
@@ -2556,20 +2526,20 @@
         }
       ]);
       expect(video.html()).toBe('<video controls>\n' + ("" + INDENT + "<source src=\"foo.mp4\" type=\"video/mp4\">\n") + ("" + INDENT + "<source src=\"bar.ogg\" type=\"video/ogg\">\n") + '</video>');
-      video = new ContentEdit.Video('iframe', {
+      video = new factory.Video('iframe', {
         'src': 'foo.mp4'
       });
       return expect(video.html()).toBe('<iframe src="foo.mp4"></iframe>');
     });
   });
 
-  describe('`ContentEdit.Video.mount()`', function() {
+  describe('`Video.mount()`', function() {
     var region, videoA, videoB;
     videoA = null;
     videoB = null;
     region = null;
     beforeEach(function() {
-      videoA = new ContentEdit.Video('video', {
+      videoA = new factory.Video('video', {
         'controls': ''
       }, [
         {
@@ -2580,10 +2550,10 @@
           'type': 'video/ogg'
         }
       ]);
-      videoB = new ContentEdit.Video('iframe', {
+      videoB = new factory.Video('iframe', {
         'src': 'foo.mp4'
       });
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(videoA);
       region.attach(videoB);
       videoA.unmount();
@@ -2596,19 +2566,18 @@
       return expect(videoB.isMounted()).toBe(true);
     });
     return it('should trigger the `mount` event against the root', function() {
-      var foo, root;
+      var foo;
       foo = {
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root = ContentEdit.Root.get();
-      root.bind('mount', foo.handleFoo);
+      factory.root.bind('mount', foo.handleFoo);
       videoA.mount();
       return expect(foo.handleFoo).toHaveBeenCalledWith(videoA);
     });
   });
 
-  describe('`ContentEdit.Video.fromDOMElement()`', function() {
+  describe('`Video.fromDOMElement()`', function() {
     var INDENT;
     INDENT = ContentEdit.INDENT;
     it('should convert a <video> DOM element into a video element', function() {
@@ -2617,32 +2586,32 @@
       domVideo.setAttribute('controls', '');
       domVideo.innerHTML += '<source src="foo.mp4" type="video/mp4">';
       domVideo.innerHTML += '<source src="bar.ogg" type="video/ogg">';
-      video = ContentEdit.Video.fromDOMElement(domVideo);
+      video = factory.Video.fromDOMElement(domVideo);
       return expect(video.html()).toBe('<video controls>\n' + ("" + INDENT + "<source src=\"foo.mp4\" type=\"video/mp4\">\n") + ("" + INDENT + "<source src=\"bar.ogg\" type=\"video/ogg\">\n") + '</video>');
     });
     return it('should convert an iframe <iframe> DOM element into a video element', function() {
       var domVideo, video;
       domVideo = document.createElement('iframe');
       domVideo.setAttribute('src', 'foo.mp4');
-      video = ContentEdit.Video.fromDOMElement(domVideo);
+      video = factory.Video.fromDOMElement(domVideo);
       return expect(video.html()).toBe('<iframe src="foo.mp4"></iframe>');
     });
   });
 
-  describe('`ContentEdit.Video` drop interactions`', function() {
+  describe('`Video` drop interactions`', function() {
     var region, video;
     video = null;
     region = null;
     beforeEach(function() {
-      region = new ContentEdit.Region(document.createElement('div'));
-      video = new ContentEdit.Video('iframe', {
+      region = new factory.Region(document.createElement('div'));
+      video = new factory.Video('iframe', {
         'src': '/foo.jpg'
       });
       return region.attach(video);
     });
     it('should support dropping on Image', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/bar.jpg'
       });
       region.attach(image);
@@ -2663,7 +2632,7 @@
     });
     it('should support being dropped on by Image', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/bar.jpg'
       });
       region.attach(image, 0);
@@ -2684,7 +2653,7 @@
     });
     it('should support dropping on PreText', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, '');
+      preText = new factory.PreText('pre', {}, '');
       region.attach(preText);
       expect(video.nextSibling()).toBe(preText);
       video.drop(preText, ['above', 'left']);
@@ -2703,7 +2672,7 @@
     });
     it('should support being dropped on by PreText', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, '');
+      preText = new factory.PreText('pre', {}, '');
       region.attach(preText, 0);
       expect(preText.nextSibling()).toBe(video);
       preText.drop(video, ['below', 'center']);
@@ -2713,7 +2682,7 @@
     });
     it('should support dropping on Static', function() {
       var staticElm;
-      staticElm = ContentEdit.Static.fromDOMElement(document.createElement('div'));
+      staticElm = factory.Static.fromDOMElement(document.createElement('div'));
       region.attach(staticElm);
       expect(video.nextSibling()).toBe(staticElm);
       video.drop(staticElm, ['above', 'left']);
@@ -2732,7 +2701,7 @@
     });
     it('should support being dropped on by `moveable` Static', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {
+      staticElm = new factory.Static('div', {
         'data-ce-moveable': 'data-ce-moveable'
       }, 'foo');
       region.attach(staticElm, 0);
@@ -2744,7 +2713,7 @@
     });
     it('should support dropping on Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text);
       expect(video.nextSibling()).toBe(text);
       video.drop(text, ['above', 'left']);
@@ -2763,7 +2732,7 @@
     });
     it('should support being dropped on by Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text, 0);
       expect(text.nextSibling()).toBe(video);
       text.drop(video, ['below', 'center']);
@@ -2773,7 +2742,7 @@
     });
     return it('should support dropping on Video', function() {
       var otherVideo;
-      otherVideo = new ContentEdit.Video('iframe', {
+      otherVideo = new factory.Video('iframe', {
         'src': '/foo.jpg'
       });
       region.attach(otherVideo);
@@ -2794,65 +2763,67 @@
     });
   });
 
-  describe('`ContentEdit.List()`', function() {
+  factory = new ContentEdit.Factory();
+
+  describe('`List()`', function() {
     return it('should return an instance of List`', function() {
       var list;
-      list = new ContentEdit.List('ul');
-      return expect(list instanceof ContentEdit.List).toBe(true);
+      list = new factory.List('ul');
+      return expect(list instanceof factory.List).toBe(true);
     });
   });
 
-  describe('`ContentEdit.List.cssTypeName()`', function() {
+  describe('`List.cssTypeName()`', function() {
     return it('should return \'list\'', function() {
       var list;
-      list = new ContentEdit.List('ul');
+      list = new factory.List('ul');
       return expect(list.cssTypeName()).toBe('list');
     });
   });
 
-  describe('`ContentEdit.List.typeName()`', function() {
+  describe('`List.typeName()`', function() {
     return it('should return \'List\'', function() {
       var list;
-      list = new ContentEdit.List('ul');
+      list = new factory.List('ul');
       return expect(list.type()).toBe('List');
     });
   });
 
-  describe('`ContentEdit.List.typeName()`', function() {
+  describe('`List.typeName()`', function() {
     return it('should return \'List\'', function() {
       var list;
-      list = new ContentEdit.List('ul');
+      list = new factory.List('ul');
       return expect(list.typeName()).toBe('List');
     });
   });
 
-  describe('`ContentEdit.List.fromDOMElement()`', function() {
+  describe('`List.fromDOMElement()`', function() {
     return it('should convert the following DOM elements into a list element: <ol>, <ul>', function() {
       var INDENT, domOl, domUl, ol, ul;
       INDENT = ContentEdit.INDENT;
       domOl = document.createElement('ol');
       domOl.innerHTML = '<li>foo</li>';
-      ol = ContentEdit.Text.fromDOMElement(domOl);
+      ol = factory.Text.fromDOMElement(domOl);
       expect(ol.html()).toBe("<ol>\n" + INDENT + "<li>foo</li>\n</ol>");
       domUl = document.createElement('ul');
       domUl.innerHTML = '<li>foo</li>';
-      ul = ContentEdit.Text.fromDOMElement(domUl);
+      ul = factory.Text.fromDOMElement(domUl);
       return expect(ul.html()).toBe("<ul>\n" + INDENT + "<li>foo</li>\n</ul>");
     });
   });
 
-  describe('`ContentEdit.List` drop interactions`', function() {
+  describe('`List` drop interactions`', function() {
     var list, region;
     list = null;
     region = null;
     beforeEach(function() {
-      region = new ContentEdit.Region(document.createElement('div'));
-      list = new ContentEdit.List('ul');
+      region = new factory.Region(document.createElement('div'));
+      list = new factory.List('ul');
       return region.attach(list);
     });
     it('should support dropping on Image', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/bar.jpg'
       });
       region.attach(image);
@@ -2864,7 +2835,7 @@
     });
     it('should support being dropped on by Image', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/bar.jpg'
       });
       region.attach(image, 0);
@@ -2885,7 +2856,7 @@
     });
     it('should support dropping on List', function() {
       var otherList;
-      otherList = new ContentEdit.Image({
+      otherList = new factory.Image({
         'src': '/bar.jpg'
       });
       region.attach(otherList);
@@ -2897,7 +2868,7 @@
     });
     it('should support dropping on PreText', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, '');
+      preText = new factory.PreText('pre', {}, '');
       region.attach(preText);
       expect(list.nextSibling()).toBe(preText);
       list.drop(preText, ['below', 'center']);
@@ -2907,7 +2878,7 @@
     });
     it('should support being dropped on by PreText', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, '');
+      preText = new factory.PreText('pre', {}, '');
       region.attach(preText, 0);
       expect(preText.nextSibling()).toBe(list);
       preText.drop(list, ['below', 'center']);
@@ -2917,7 +2888,7 @@
     });
     it('should support dropping on Static', function() {
       var staticElm;
-      staticElm = ContentEdit.Static.fromDOMElement(document.createElement('div'));
+      staticElm = factory.Static.fromDOMElement(document.createElement('div'));
       region.attach(staticElm);
       expect(list.nextSibling()).toBe(staticElm);
       list.drop(staticElm, ['below', 'center']);
@@ -2927,7 +2898,7 @@
     });
     it('should support being dropped on by `moveable` Static', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {
+      staticElm = new factory.Static('div', {
         'data-ce-moveable': 'data-ce-moveable'
       }, 'foo');
       region.attach(staticElm, 0);
@@ -2939,7 +2910,7 @@
     });
     it('should support dropping on Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text);
       expect(list.nextSibling()).toBe(text);
       list.drop(text, ['below', 'center']);
@@ -2949,7 +2920,7 @@
     });
     it('should support being dropped on by Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text, 0);
       expect(text.nextSibling()).toBe(list);
       text.drop(list, ['below', 'center']);
@@ -2959,7 +2930,7 @@
     });
     it('should support dropping on Video', function() {
       var video;
-      video = new ContentEdit.Video('iframe', {
+      video = new factory.Video('iframe', {
         'src': '/foo.jpg'
       });
       region.attach(video);
@@ -2971,7 +2942,7 @@
     });
     return it('should support being dropped on by Video', function() {
       var video;
-      video = new ContentEdit.Video('iframe', {
+      video = new factory.Video('iframe', {
         'src': '/foo.jpg'
       });
       region.attach(video, 0);
@@ -2992,74 +2963,74 @@
     });
   });
 
-  describe('`ContentEdit.ListItem()`', function() {
+  describe('`ListItem()`', function() {
     return it('should return an instance of ListLitem`', function() {
       var listItem;
-      listItem = new ContentEdit.ListItem();
-      return expect(listItem instanceof ContentEdit.ListItem).toBe(true);
+      listItem = new factory.ListItem();
+      return expect(listItem instanceof factory.ListItem).toBe(true);
     });
   });
 
-  describe('`ContentEdit.List.cssTypeName()`', function() {
+  describe('`List.cssTypeName()`', function() {
     return it('should return \'list-item\'', function() {
       var listItem;
-      listItem = new ContentEdit.ListItem();
+      listItem = new factory.ListItem();
       return expect(listItem.cssTypeName()).toBe('list-item');
     });
   });
 
-  describe('`ContentEdit.ListItem.list()`', function() {
+  describe('`ListItem.list()`', function() {
     return it('should return any associated List element, or null if there isn\'t one', function() {
       var list, listItem, listItemText;
-      listItem = new ContentEdit.ListItem();
+      listItem = new factory.ListItem();
       expect(listItem.list()).toBe(null);
-      listItemText = new ContentEdit.ListItemText('foo');
+      listItemText = new factory.ListItemText('foo');
       listItem.attach(listItemText);
       expect(listItem.list()).toBe(null);
-      list = new ContentEdit.List('ul');
+      list = new factory.List('ul');
       listItem.attach(list);
       return expect(listItem.list()).toBe(list);
     });
   });
 
-  describe('`ContentEdit.ListItem.listItemText()`', function() {
+  describe('`ListItem.listItemText()`', function() {
     return it('should return any associated ListItemText element, or null if there isn\'t one', function() {
       var listItem, listItemText;
-      listItem = new ContentEdit.ListItem();
+      listItem = new factory.ListItem();
       expect(listItem.listItemText()).toBe(null);
-      listItemText = new ContentEdit.ListItemText('foo');
+      listItemText = new factory.ListItemText('foo');
       listItem.attach(listItemText);
       return expect(listItem.listItemText()).toBe(listItemText);
     });
   });
 
-  describe('`ContentEdit.ListItem.type()`', function() {
+  describe('`ListItem.type()`', function() {
     return it('should return \'ListItem\'', function() {
       var listItem;
-      listItem = new ContentEdit.ListItem();
+      listItem = new factory.ListItem();
       return expect(listItem.type()).toBe('ListItem');
     });
   });
 
-  describe('ContentEdit.ListItem.html()', function() {
+  describe('ListItem.html()', function() {
     return it('should return a HTML string for the list element', function() {
       var listItem, listItemText;
-      listItem = new ContentEdit.ListItem({
+      listItem = new factory.ListItem({
         'class': 'foo'
       });
-      listItemText = new ContentEdit.ListItemText('bar');
+      listItemText = new factory.ListItemText('bar');
       listItem.attach(listItemText);
       return expect(listItem.html()).toBe('<li class="foo">\n' + ("" + ContentEdit.INDENT + "bar\n") + '</li>');
     });
   });
 
-  describe('ContentEdit.ListItem.indent()', function() {
+  describe('factory.ListItem.indent()', function() {
     it('should indent an item in a list by at most one level', function() {
       var I, domElement, list;
       I = ContentEdit.INDENT;
       domElement = document.createElement('ul');
       domElement.innerHTML = '<li>One</li>\n<li>Two</li>\n<li>Three</li>';
-      list = ContentEdit.List.fromDOMElement(domElement);
+      list = factory.List.fromDOMElement(domElement);
       list.children[0].indent();
       expect(list.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "One\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Two\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Three\n" + I + "</li>\n</ul>");
       list.children[2].indent();
@@ -3072,20 +3043,20 @@
       I = ContentEdit.INDENT;
       domElement = document.createElement('ul');
       domElement.innerHTML = '<li>One</li>\n<li>Two</li>\n<li>Three</li>';
-      list = ContentEdit.List.fromDOMElement(domElement);
+      list = factory.List.fromDOMElement(domElement);
       list.children[2].can('indent', false);
       list.children[2].indent();
       return expect(list.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "One\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Two\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Three\n" + I + "</li>\n</ul>");
     });
   });
 
-  describe('ContentEdit.ListItem.remove()', function() {
+  describe('ListItem.remove()', function() {
     return it('should remove an item from a list keeping integrity of the lists structure', function() {
       var I, domElement, list;
       I = ContentEdit.INDENT;
       domElement = document.createElement('ul');
       domElement.innerHTML = '<li>One</li>\n<li>Two</li>\n<li>\n    Three\n    <ul>\n        <li>Alpha</li>\n        <li>Beta</li>\n    </ul>\n</li>';
-      list = ContentEdit.List.fromDOMElement(domElement);
+      list = factory.List.fromDOMElement(domElement);
       list.children[2].list().children[1].remove();
       expect(list.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "One\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Two\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Three\n" + I + I + "<ul>\n" + I + I + I + "<li>\n" + I + I + I + I + "Alpha\n" + I + I + I + "</li>\n" + I + I + "</ul>\n" + I + "</li>\n</ul>");
       list.children[2].remove();
@@ -3101,8 +3072,8 @@
       I = ContentEdit.INDENT;
       domElement = document.createElement('ul');
       domElement.innerHTML = '<li>One</li>\n<li>Two</li>\n<li>\n    Three\n    <ul>\n        <li>\n            Alpha\n            <ul>\n                <li>Beta</li>\n                <li>Gamma</li>\n            </ul>\n        </li>\n    </ul>\n</li>';
-      list = ContentEdit.List.fromDOMElement(domElement);
-      region = new ContentEdit.Region(document.createElement('div'));
+      list = factory.List.fromDOMElement(domElement);
+      region = new factory.Region(document.createElement('div'));
       region.attach(list);
       list.children[2].list().children[0].list().children[0].unindent();
       expect(region.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "One\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Two\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Three\n" + I + I + "<ul>\n" + I + I + I + "<li>\n" + I + I + I + I + "Alpha\n" + I + I + I + "</li>\n" + I + I + I + "<li>\n" + I + I + I + I + "Beta\n" + I + I + I + I + "<ul>\n" + I + I + I + I + I + "<li>\n" + I + I + I + I + I + I + "Gamma\n" + I + I + I + I + I + "</li>\n" + I + I + I + I + "</ul>\n" + I + I + I + "</li>\n" + I + I + "</ul>\n" + I + "</li>\n</ul>");
@@ -3123,69 +3094,68 @@
       I = ContentEdit.INDENT;
       domElement = document.createElement('ul');
       domElement.innerHTML = '<li>One</li>\n<li>Two</li>';
-      list = ContentEdit.List.fromDOMElement(domElement);
+      list = factory.List.fromDOMElement(domElement);
       list.children[0].can('indent', false);
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       region.attach(list);
       list.children[0].unindent();
       return expect(region.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "One\n" + I + "</li>\n" + I + "<li>\n" + I + I + "Two\n" + I + "</li>\n</ul>");
     });
   });
 
-  describe('`ContentEdit.ListItem.fromDOMElement()`', function() {
+  describe('`ListItem.fromDOMElement()`', function() {
     return it('should convert a <li> DOM element into an ListItem element', function() {
       var I, domLi, li;
       I = ContentEdit.INDENT;
       domLi = document.createElement('li');
       domLi.innerHTML = 'foo';
-      li = ContentEdit.ListItem.fromDOMElement(domLi);
+      li = factory.ListItem.fromDOMElement(domLi);
       expect(li.html()).toBe("<li>\n" + I + "foo\n</li>");
       domLi = document.createElement('li');
       domLi.innerHTML = 'foo\n<ul>\n    <li>bar</li>\n</ul>';
-      li = ContentEdit.ListItem.fromDOMElement(domLi);
+      li = factory.ListItem.fromDOMElement(domLi);
       return expect(li.html()).toBe("<li>\n" + I + "foo\n" + I + "<ul>\n" + I + I + "<li>\n" + I + I + I + "bar\n" + I + I + "</li>\n" + I + "</ul>\n</li>");
     });
   });
 
-  describe('`ContentEdit.ListItemText()`', function() {
+  describe('`ListItemText()`', function() {
     return it('should return an instance of ListItemText`', function() {
       var listItemText;
-      listItemText = new ContentEdit.ListItemText('foo');
-      return expect(listItemText instanceof ContentEdit.ListItemText).toBe(true);
+      listItemText = new factory.ListItemText('foo');
+      return expect(listItemText instanceof factory.ListItemText).toBe(true);
     });
   });
 
-  describe('`ContentEdit.ListItemText.cssTypeName()`', function() {
+  describe('`ListItemText.cssTypeName()`', function() {
     return it('should return \'list-item-text\'', function() {
       var listItemText;
-      listItemText = new ContentEdit.ListItemText('foo');
+      listItemText = new factory.ListItemText('foo');
       return expect(listItemText.cssTypeName()).toBe('list-item-text');
     });
   });
 
-  describe('`ContentEdit.ListItemText.type()`', function() {
+  describe('`ListItemText.type()`', function() {
     return it('should return \'ListItemText\'', function() {
       var listItemText;
-      listItemText = new ContentEdit.ListItemText();
+      listItemText = new factory.ListItemText();
       return expect(listItemText.type()).toBe('ListItemText');
     });
   });
 
-  describe('`ContentEdit.ListItemText.typeName()`', function() {
+  describe('`ListItemText.typeName()`', function() {
     return it('should return \'List item\'', function() {
       var listItemText;
-      listItemText = new ContentEdit.ListItemText('foo');
+      listItemText = new factory.ListItemText('foo');
       return expect(listItemText.typeName()).toBe('List item');
     });
   });
 
-  describe('`ContentEdit.ListItemText.blur()`', function() {
-    var region, root;
-    root = ContentEdit.Root.get();
+  describe('`ListItemText.blur()`', function() {
+    var region;
     region = null;
     beforeEach(function() {
       document.getElementById('test').innerHTML = '<ul>\n    <li>foo</li>\n    <li>bar</li>\n    <li>zee</li>\n</ul>';
-      region = new ContentEdit.Region(document.getElementById('test'));
+      region = new factory.Region(document.getElementById('test'));
       return region.children[0].children[1].listItemText().focus();
     });
     afterEach(function() {
@@ -3217,7 +3187,7 @@
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root.bind('blur', foo.handleFoo);
+      factory.root.bind('blur', foo.handleFoo);
       listItemText = region.children[0].children[1].listItemText();
       listItemText.blur();
       return expect(foo.handleFoo).toHaveBeenCalledWith(listItemText);
@@ -3236,25 +3206,24 @@
   describe('ContentEdit.Text.html()', function() {
     return it('should return a HTML string for the list item text element', function() {
       var listItemText;
-      listItemText = new ContentEdit.ListItemText('bar <b>zee</b>');
+      listItemText = new factory.ListItemText('bar <b>zee</b>');
       return expect(listItemText.html()).toBe('bar <b>zee</b>');
     });
   });
 
   describe('`ContentEdit.ListItemText` key events`', function() {
-    var ev, list, listItem, listItemText, region, root;
+    var ev, list, listItem, listItemText, region;
     ev = null;
     list = null;
     listItem = null;
     listItemText = null;
     region = null;
-    root = ContentEdit.Root.get();
     beforeEach(function() {
       ev = {
         preventDefault: function() {}
       };
       document.getElementById('test').innerHTML = '<ul>\n    <li>foo</li>\n    <li>bar</li>\n    <li>zee</li>\n</ul>';
-      region = new ContentEdit.Region(document.getElementById('test'));
+      region = new factory.Region(document.getElementById('test'));
       list = region.children[0];
       listItem = list.children[1];
       return listItemText = listItem.listItemText();
@@ -3300,7 +3269,7 @@
     });
   });
 
-  describe('`ContentEdit.ListItemText` drop interactions`', function() {
+  describe('`ListItemText` drop interactions`', function() {
     var I, listItemText, region;
     I = ContentEdit.INDENT;
     listItemText = null;
@@ -3309,7 +3278,7 @@
       var domElement;
       domElement = document.createElement('div');
       domElement.innerHTML = '<ul>\n    <li>foo</li>\n    <li>bar</li>\n</ul>\n<p>zee</p>';
-      region = new ContentEdit.Region(domElement);
+      region = new factory.Region(domElement);
       return listItemText = region.children[0].children[0].listItemText();
     });
     it('should support dropping on ListItemText', function() {
@@ -3335,14 +3304,14 @@
       text = region.children[1];
       text.drop(listItemText, ['below', 'center']);
       expect(region.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "foo\n" + I + "</li>\n" + I + "<li>\n" + I + I + "zee\n" + I + "</li>\n" + I + "<li>\n" + I + I + "bar\n" + I + "</li>\n</ul>");
-      text = new ContentEdit.Text('p', {}, 'umm');
+      text = new factory.Text('p', {}, 'umm');
       region.attach(text, 0);
       text.drop(listItemText, ['above', 'center']);
       return expect(region.html()).toBe("<ul>\n" + I + "<li>\n" + I + I + "umm\n" + I + "</li>\n" + I + "<li>\n" + I + I + "foo\n" + I + "</li>\n" + I + "<li>\n" + I + I + "zee\n" + I + "</li>\n" + I + "<li>\n" + I + I + "bar\n" + I + "</li>\n</ul>");
     });
   });
 
-  describe('`ContentEdit.Text` merge interactions`', function() {
+  describe('`Text` merge interactions`', function() {
     var I, region;
     I = ContentEdit.INDENT;
     region = null;
@@ -3350,7 +3319,7 @@
       var domElement;
       domElement = document.getElementById('test');
       domElement.innerHTML = '<p>foo</p>\n<ul>\n    <li>bar</li>\n    <li>zee</li>\n</ul>\n<p>umm</p>';
-      return region = new ContentEdit.Region(domElement);
+      return region = new factory.Region(domElement);
     });
     afterEach(function() {
       var child, _i, _len, _ref, _results;
@@ -3382,45 +3351,47 @@
     });
   });
 
-  describe('`ContentEdit.Table()`', function() {
+  factory = new ContentEdit.Factory();
+
+  describe('`Table()`', function() {
     return it('should return an instance of Table`', function() {
       var table;
-      table = new ContentEdit.Table();
-      return expect(table instanceof ContentEdit.Table).toBe(true);
+      table = new factory.Table();
+      return expect(table instanceof factory.Table).toBe(true);
     });
   });
 
-  describe('`ContentEdit.Table.cssTypeName()`', function() {
+  describe('`Table.cssTypeName()`', function() {
     return it('should return \'table\'', function() {
       var table;
-      table = new ContentEdit.Table();
+      table = new factory.Table();
       return expect(table.cssTypeName()).toBe('table');
     });
   });
 
-  describe('`ContentEdit.Table.type()`', function() {
+  describe('`Table.type()`', function() {
     return it('should return \'Table\'', function() {
       var table;
-      table = new ContentEdit.Table();
+      table = new factory.Table();
       return expect(table.type()).toBe('Table');
     });
   });
 
-  describe('`ContentEdit.Table.typeName()`', function() {
+  describe('`Table.typeName()`', function() {
     return it('should return \'table\'', function() {
       var table;
-      table = new ContentEdit.Table();
+      table = new factory.Table();
       return expect(table.typeName()).toBe('Table');
     });
   });
 
-  describe('`ContentEdit.Table.firstSection()`', function() {
+  describe('`Table.firstSection()`', function() {
     return it('should return the first section in the table (their position as children is irrelevant, the order is thead, tbody, tfoot in that order ', function() {
       var table, tbody, tfoot, thead;
-      table = new ContentEdit.Table();
-      thead = new ContentEdit.TableSection('thead');
-      tbody = new ContentEdit.TableSection('tbody');
-      tfoot = new ContentEdit.TableSection('tfoot');
+      table = new factory.Table();
+      thead = new factory.TableSection('thead');
+      tbody = new factory.TableSection('tbody');
+      tfoot = new factory.TableSection('tfoot');
       expect(table.firstSection()).toBe(null);
       table.attach(tfoot);
       expect(table.firstSection()).toBe(tfoot);
@@ -3431,13 +3402,13 @@
     });
   });
 
-  describe('`ContentEdit.Table.lastSection()`', function() {
+  describe('`Table.lastSection()`', function() {
     return it('should return the last section in the table (their position as children is irrelevant, the order is thead, tbody, tfoot in that order ', function() {
       var table, tbody, tfoot, thead;
-      table = new ContentEdit.Table();
-      thead = new ContentEdit.TableSection('thead');
-      tbody = new ContentEdit.TableSection('tbody');
-      tfoot = new ContentEdit.TableSection('tfoot');
+      table = new factory.Table();
+      thead = new factory.TableSection('thead');
+      tbody = new factory.TableSection('tbody');
+      tfoot = new factory.TableSection('tfoot');
       expect(table.lastSection()).toBe(null);
       table.attach(thead);
       expect(table.lastSection()).toBe(thead);
@@ -3448,66 +3419,66 @@
     });
   });
 
-  describe('`ContentEdit.Table.thead()`', function() {
+  describe('`Table.thead()`', function() {
     return it('should return the `TableSection` (thead) for the `Table` if there is one', function() {
       var table, tableHead;
-      table = new ContentEdit.Table();
+      table = new factory.Table();
       expect(table.thead()).toBe(null);
-      tableHead = new ContentEdit.TableSection('thead');
+      tableHead = new factory.TableSection('thead');
       table.attach(tableHead);
       return expect(table.thead()).toBe(tableHead);
     });
   });
 
-  describe('`ContentEdit.Table.tbody()`', function() {
+  describe('`Table.tbody()`', function() {
     return it('should return the `TableSection` (tbody) for the `Table` if there is one', function() {
       var table, tableBody;
-      table = new ContentEdit.Table();
+      table = new factory.Table();
       expect(table.tbody()).toBe(null);
-      tableBody = new ContentEdit.TableSection('tbody');
+      tableBody = new factory.TableSection('tbody');
       table.attach(tableBody);
       return expect(table.tbody()).toBe(tableBody);
     });
   });
 
-  describe('`ContentEdit.Table.tfoot()`', function() {
+  describe('`Table.tfoot()`', function() {
     return it('should return the `TableSection` (tfoot) for the `Table` if there is one', function() {
       var table, tableFoot;
-      table = new ContentEdit.Table();
+      table = new factory.Table();
       expect(table.tfoot()).toBe(null);
-      tableFoot = new ContentEdit.TableSection('tfoot');
+      tableFoot = new factory.TableSection('tfoot');
       table.attach(tableFoot);
       return expect(table.tfoot()).toBe(tableFoot);
     });
   });
 
-  describe('`ContentEdit.Table.fromDOMElement()`', function() {
+  describe('`Table.fromDOMElement()`', function() {
     return it('should convert a <table> DOM element into a table element', function() {
       var I, domTable, table;
       I = ContentEdit.INDENT;
       domTable = document.createElement('table');
       domTable.innerHTML = '<tbody>\n    <tr>\n        <td>bar</td>\n        <td>zee</td>\n    </tr>\n</tbody>';
-      table = ContentEdit.Table.fromDOMElement(domTable);
+      table = factory.Table.fromDOMElement(domTable);
       expect(table.html()).toBe("<table>\n" + I + "<tbody>\n" + I + I + "<tr>\n" + I + I + I + "<td>\n" + I + I + I + I + "bar\n" + I + I + I + "</td>\n" + I + I + I + "<td>\n" + I + I + I + I + "zee\n" + I + I + I + "</td>\n" + I + I + "</tr>\n" + I + "</tbody>\n</table>");
       domTable = document.createElement('table');
       domTable.innerHTML = '<tr>\n    <td>bar</td>\n    <td>zee</td>\n</tr>';
-      table = ContentEdit.Table.fromDOMElement(domTable);
+      table = factory.Table.fromDOMElement(domTable);
       return expect(table.html()).toBe("<table>\n" + I + "<tbody>\n" + I + I + "<tr>\n" + I + I + I + "<td>\n" + I + I + I + I + "bar\n" + I + I + I + "</td>\n" + I + I + I + "<td>\n" + I + I + I + I + "zee\n" + I + I + I + "</td>\n" + I + I + "</tr>\n" + I + "</tbody>\n</table>");
     });
   });
 
-  describe('`ContentEdit.Table` drop interactions`', function() {
+  describe('`Table` drop interactions`', function() {
     var region, table;
     table = null;
     region = null;
     beforeEach(function() {
-      region = new ContentEdit.Region(document.createElement('div'));
-      table = new ContentEdit.Table();
+      region = new factory.Region(document.createElement('div'));
+      table = new factory.Table();
       return region.attach(table);
     });
     it('should support dropping on Image', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/bar.jpg'
       });
       region.attach(image);
@@ -3519,7 +3490,7 @@
     });
     it('should support being dropped on by Image', function() {
       var image;
-      image = new ContentEdit.Image({
+      image = new factory.Image({
         'src': '/bar.jpg'
       });
       region.attach(image, 0);
@@ -3540,7 +3511,7 @@
     });
     it('should support dropping on List', function() {
       var list;
-      list = new ContentEdit.Image({
+      list = new factory.Image({
         'src': '/bar.jpg'
       });
       region.attach(list);
@@ -3552,7 +3523,7 @@
     });
     it('should support being dropped on by List', function() {
       var list;
-      list = new ContentEdit.Text('p');
+      list = new factory.Text('p');
       region.attach(list, 0);
       expect(list.nextSibling()).toBe(table);
       list.drop(table, ['below', 'center']);
@@ -3562,7 +3533,7 @@
     });
     it('should support dropping on PreText', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, '');
+      preText = new factory.PreText('pre', {}, '');
       region.attach(preText);
       expect(table.nextSibling()).toBe(preText);
       table.drop(preText, ['below', 'center']);
@@ -3572,7 +3543,7 @@
     });
     it('should support being dropped on by PreText', function() {
       var preText;
-      preText = new ContentEdit.PreText('pre', {}, '');
+      preText = new factory.PreText('pre', {}, '');
       region.attach(preText, 0);
       expect(preText.nextSibling()).toBe(table);
       preText.drop(table, ['below', 'center']);
@@ -3582,7 +3553,7 @@
     });
     it('should support dropping on Static', function() {
       var staticElm;
-      staticElm = ContentEdit.Static.fromDOMElement(document.createElement('div'));
+      staticElm = factory.Static.fromDOMElement(document.createElement('div'));
       region.attach(staticElm);
       expect(table.nextSibling()).toBe(staticElm);
       table.drop(staticElm, ['below', 'center']);
@@ -3592,7 +3563,7 @@
     });
     it('should support being dropped on by `moveable` Static', function() {
       var staticElm;
-      staticElm = new ContentEdit.Static('div', {
+      staticElm = new factory.Static('div', {
         'data-ce-moveable': 'data-ce-moveable'
       }, 'foo');
       region.attach(staticElm, 0);
@@ -3604,7 +3575,7 @@
     });
     it('should support dropping on Table', function() {
       var otherTable;
-      otherTable = new ContentEdit.Table();
+      otherTable = new factory.Table();
       region.attach(otherTable);
       expect(table.nextSibling()).toBe(otherTable);
       table.drop(otherTable, ['below', 'center']);
@@ -3614,7 +3585,7 @@
     });
     it('should support dropping on Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text);
       expect(table.nextSibling()).toBe(text);
       table.drop(text, ['below', 'center']);
@@ -3624,7 +3595,7 @@
     });
     it('should support being dropped on by Text', function() {
       var text;
-      text = new ContentEdit.Text('p');
+      text = new factory.Text('p');
       region.attach(text, 0);
       expect(text.nextSibling()).toBe(table);
       text.drop(table, ['below', 'center']);
@@ -3634,7 +3605,7 @@
     });
     it('should support dropping on Video', function() {
       var video;
-      video = new ContentEdit.Video('iframe', {
+      video = new factory.Video('iframe', {
         'src': '/foo.jpg'
       });
       region.attach(video);
@@ -3646,7 +3617,7 @@
     });
     return it('should support being dropped on by Video', function() {
       var video;
-      video = new ContentEdit.Video('iframe', {
+      video = new factory.Video('iframe', {
         'src': '/foo.jpg'
       });
       region.attach(video, 0);
@@ -3667,31 +3638,31 @@
     });
   });
 
-  describe('`ContentEdit.TableSection()`', function() {
+  describe('`TableSection()`', function() {
     return it('should return an instance of TableSection`', function() {
       var tableSection;
-      tableSection = new ContentEdit.TableSection('tbody', {});
-      return expect(tableSection instanceof ContentEdit.TableSection).toBe(true);
+      tableSection = new factory.TableSection('tbody', {});
+      return expect(tableSection instanceof factory.TableSection).toBe(true);
     });
   });
 
-  describe('`ContentEdit.TableSection.cssTypeName()`', function() {
+  describe('`TableSection.cssTypeName()`', function() {
     return it('should return \'table-section\'', function() {
       var tableSection;
-      tableSection = new ContentEdit.TableSection('tbody', {});
+      tableSection = new factory.TableSection('tbody', {});
       return expect(tableSection.cssTypeName()).toBe('table-section');
     });
   });
 
-  describe('`ContentEdit.TableSection.type()`', function() {
+  describe('`TableSection.type()`', function() {
     return it('should return \'TableSection\'', function() {
       var tableSection;
-      tableSection = new ContentEdit.TableSection('tbody', {});
+      tableSection = new factory.TableSection('tbody', {});
       return expect(tableSection.type()).toBe('TableSection');
     });
   });
 
-  describe('`ContentEdit.TableSection.fromDOMElement()`', function() {
+  describe('`TableSection.fromDOMElement()`', function() {
     return it('should convert a <tbody>, <tfoot> or <thead> DOM element into a table section element', function() {
       var I, domTableSection, sectionName, tableSection, _i, _len, _ref, _results;
       I = ContentEdit.INDENT;
@@ -3701,90 +3672,89 @@
         sectionName = _ref[_i];
         domTableSection = document.createElement(sectionName);
         domTableSection.innerHTML = '<tr>\n    <td>foo</td>\n    <td>bar</td>\n</tr>';
-        tableSection = ContentEdit.TableSection.fromDOMElement(domTableSection);
+        tableSection = factory.TableSection.fromDOMElement(domTableSection);
         _results.push(expect(tableSection.html()).toBe("<" + sectionName + ">\n" + I + "<tr>\n" + I + I + "<td>\n" + I + I + I + "foo\n" + I + I + "</td>\n" + I + I + "<td>\n" + I + I + I + "bar\n" + I + I + "</td>\n" + I + "</tr>\n</" + sectionName + ">"));
       }
       return _results;
     });
   });
 
-  describe('`ContentEdit.TableRow()`', function() {
+  describe('`TableRow()`', function() {
     return it('should return an instance of TableRow`', function() {
       var tableRow;
-      tableRow = new ContentEdit.TableRow();
-      return expect(tableRow instanceof ContentEdit.TableRow).toBe(true);
+      tableRow = new factory.TableRow();
+      return expect(tableRow instanceof factory.TableRow).toBe(true);
     });
   });
 
-  describe('`ContentEdit.TableRow.cssTypeName()`', function() {
+  describe('`TableRow.cssTypeName()`', function() {
     return it('should return \'table-row\'', function() {
       var tableRow;
-      tableRow = new ContentEdit.TableRow();
+      tableRow = new factory.TableRow();
       return expect(tableRow.cssTypeName()).toBe('table-row');
     });
   });
 
-  describe('`ContentEdit.TableRow.isEmpty()`', function() {
+  describe('`TableRow.isEmpty()`', function() {
     it('should return true if the table row is empty', function() {
       var domTableRow, tableRow;
       domTableRow = document.createElement('tr');
       domTableRow.innerHTML = '<td></td><td></td>';
-      tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow);
+      tableRow = factory.TableRow.fromDOMElement(domTableRow);
       return expect(tableRow.isEmpty()).toBe(true);
     });
     return it('should return true false the table contains content', function() {
       var domTableRow, tableRow;
       domTableRow = document.createElement('tr');
       domTableRow.innerHTML = '<td>foo</td><td></td>';
-      tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow);
+      tableRow = factory.TableRow.fromDOMElement(domTableRow);
       return expect(tableRow.isEmpty()).toBe(false);
     });
   });
 
-  describe('`ContentEdit.TableRow.type()`', function() {
+  describe('`TableRow.type()`', function() {
     return it('should return \'TableRow\'', function() {
       var tableRow;
-      tableRow = new ContentEdit.TableRow();
+      tableRow = new factory.TableRow();
       return expect(tableRow.type()).toBe('TableRow');
     });
   });
 
-  describe('`ContentEdit.TableRow.typeName()`', function() {
+  describe('`TableRow.typeName()`', function() {
     return it('should return \'Table row\'', function() {
       var tableRow;
-      tableRow = new ContentEdit.TableRow();
+      tableRow = new factory.TableRow();
       return expect(tableRow.typeName()).toBe('Table row');
     });
   });
 
-  describe('`ContentEdit.TableRow.fromDOMElement()`', function() {
+  describe('`TableRow.fromDOMElement()`', function() {
     return it('should convert a <tr> DOM element into a table row element', function() {
       var I, domTableRow, tableRow;
       I = ContentEdit.INDENT;
       domTableRow = document.createElement('tr');
       domTableRow.innerHTML = '<td>foo</td>\n<td>bar</td>';
-      tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow);
+      tableRow = factory.TableRow.fromDOMElement(domTableRow);
       return expect(tableRow.html()).toBe("<tr>\n" + I + "<td>\n" + I + I + "foo\n" + I + "</td>\n" + I + "<td>\n" + I + I + "bar\n" + I + "</td>\n</tr>");
     });
   });
 
-  describe('`ContentEdit.TableRow` key events`', function() {
-    var emptyTableRow, ev, region, root, tableRow;
+  describe('`TableRow` key events`', function() {
+    var emptyTableRow, ev, region, tableRow;
     ev = {
       preventDefault: function() {}
     };
     emptyTableRow = null;
     region = null;
-    root = ContentEdit.Root.get();
     tableRow = null;
     beforeEach(function() {
       var domElement, domTable, table;
       domElement = document.createElement('div');
       document.body.appendChild(domElement);
-      region = new ContentEdit.Region(domElement);
+      region = new factory.Region(domElement);
       domTable = document.createElement('table');
       domTable.innerHTML = '<tbody>\n<tr><td></td><td>foo</td></tr>\n<tr><td></td><td></td></tr>\n</tbody>';
-      table = ContentEdit.Table.fromDOMElement(domTable);
+      table = factory.Table.fromDOMElement(domTable);
       tableRow = table.children[0].children[0];
       emptyTableRow = table.children[0].children[1];
       return region.attach(table);
@@ -3832,16 +3802,16 @@
     });
   });
 
-  describe('`ContentEdit.TableRow` drop interactions`', function() {
+  describe('`TableRow` drop interactions`', function() {
     var region, table;
     region = null;
     table = null;
     beforeEach(function() {
       var domTable;
-      region = new ContentEdit.Region(document.createElement('div'));
+      region = new factory.Region(document.createElement('div'));
       domTable = document.createElement('table');
       domTable.innerHTML = '<tbody>\n    <tr>\n        <td>foo</td>\n    </tr>\n    <tr>\n        <td>bar</td>\n    </tr>\n    <tr>\n        <td>zee</td>\n    </tr>\n    <tr>\n        <td>umm</td>\n    </tr>\n</tbody>';
-      table = ContentEdit.Table.fromDOMElement(domTable);
+      table = factory.Table.fromDOMElement(domTable);
       return region.attach(table);
     });
     return it('should support dropping on TableRow', function() {
@@ -3856,95 +3826,94 @@
     });
   });
 
-  describe('`ContentEdit.TableCell()`', function() {
+  describe('`TableCell()`', function() {
     return it('should return an instance of `TableCell`', function() {
       var tableCell;
-      tableCell = new ContentEdit.TableCell('td', {});
-      return expect(tableCell instanceof ContentEdit.TableCell).toBe(true);
+      tableCell = new factory.TableCell('td', {});
+      return expect(tableCell instanceof factory.TableCell).toBe(true);
     });
   });
 
-  describe('`ContentEdit.TableCell.cssTypeName()`', function() {
+  describe('`TableCell.cssTypeName()`', function() {
     return it('should return \'table-cell\'', function() {
       var tableCell;
-      tableCell = new ContentEdit.TableCell('td', {});
+      tableCell = new factory.TableCell('td', {});
       return expect(tableCell.cssTypeName()).toBe('table-cell');
     });
   });
 
-  describe('`ContentEdit.TableCell.tableCellText()`', function() {
+  describe('`TableCell.tableCellText()`', function() {
     return it('should return any associated TableCellText element, or null if there isn\'t one', function() {
       var tableCell, tableCellText;
-      tableCell = new ContentEdit.TableCell('td');
+      tableCell = new factory.TableCell('td');
       expect(tableCell.tableCellText()).toBe(null);
-      tableCellText = new ContentEdit.TableCellText('foo');
+      tableCellText = new factory.TableCellText('foo');
       tableCell.attach(tableCellText);
       return expect(tableCell.tableCellText()).toBe(tableCellText);
     });
   });
 
-  describe('`ContentEdit.TableCell.type()`', function() {
+  describe('`TableCell.type()`', function() {
     return it('should return \'table-cell\'', function() {
       var tableCell;
-      tableCell = new ContentEdit.TableCell('td', {});
+      tableCell = new factory.TableCell('td', {});
       return expect(tableCell.type()).toBe('TableCell');
     });
   });
 
-  describe('`ContentEdit.TableCell.html()`', function() {
+  describe('`TableCell.html()`', function() {
     return it('should return a HTML string for the table cell element', function() {
       var tableCell, tableCellText;
-      tableCell = new ContentEdit.TableCell('td', {
+      tableCell = new factory.TableCell('td', {
         'class': 'foo'
       });
-      tableCellText = new ContentEdit.TableCellText('bar');
+      tableCellText = new factory.TableCellText('bar');
       tableCell.attach(tableCellText);
       return expect(tableCell.html()).toBe('<td class="foo">\n' + ("" + ContentEdit.INDENT + "bar\n") + '</td>');
     });
   });
 
-  describe('`ContentEdit.TableCell.fromDOMElement()`', function() {
+  describe('`TableCell.fromDOMElement()`', function() {
     return it('should convert a <td> or <th> DOM element into a table cell element', function() {
       var I, domTableCell, tableCell;
       I = ContentEdit.INDENT;
       domTableCell = document.createElement('td');
       domTableCell.innerHTML = 'foo';
-      tableCell = ContentEdit.TableCell.fromDOMElement(domTableCell);
+      tableCell = factory.TableCell.fromDOMElement(domTableCell);
       expect(tableCell.html()).toBe("<td>\n" + I + "foo\n</td>");
       domTableCell = document.createElement('th');
       domTableCell.innerHTML = 'bar';
-      tableCell = ContentEdit.TableCell.fromDOMElement(domTableCell);
+      tableCell = factory.TableCell.fromDOMElement(domTableCell);
       return expect(tableCell.html()).toBe("<th>\n" + I + "bar\n</th>");
     });
   });
 
-  describe('`ContentEdit.TableCellText()`', function() {
+  describe('`TableCellText()`', function() {
     return it('should return an instance of TableCellText', function() {
       var tableCellText;
-      tableCellText = new ContentEdit.TableCellText('foo');
-      return expect(tableCellText instanceof ContentEdit.TableCellText).toBe(true);
+      tableCellText = new factory.TableCellText('foo');
+      return expect(tableCellText instanceof factory.TableCellText).toBe(true);
     });
   });
 
-  describe('`ContentEdit.TableCellText.cssTypeName()`', function() {
+  describe('`TableCellText.cssTypeName()`', function() {
     return it('should return \'table-cell-text\'', function() {
       var tableCellText;
-      tableCellText = new ContentEdit.TableCellText('foo');
+      tableCellText = new factory.TableCellText('foo');
       return expect(tableCellText.cssTypeName()).toBe('table-cell-text');
     });
   });
 
-  describe('`ContentEdit.TableCellText.type()`', function() {
+  describe('`TableCellText.type()`', function() {
     return it('should return \'TableCellText\'', function() {
       var tableCellText;
-      tableCellText = new ContentEdit.TableCellText('foo');
+      tableCellText = new factory.TableCellText('foo');
       return expect(tableCellText.type()).toBe('TableCellText');
     });
   });
 
-  describe('ContentEdit.TableCellText.blur()', function() {
-    var region, root, table, tableCell, tableCellText;
-    root = ContentEdit.Root.get();
+  describe('TableCellText.blur()', function() {
+    var region, table, tableCell, tableCellText;
     region = null;
     table = null;
     tableCell = null;
@@ -3953,8 +3922,8 @@
       var domTable;
       domTable = document.createElement('table');
       domTable.innerHTML = '<tbody>\n    <tr>\n        <td>bar</td>\n        <td>zee</td>\n    </tr>\n</tbody>';
-      table = ContentEdit.Table.fromDOMElement(domTable);
-      region = new ContentEdit.Region(document.getElementById('test'));
+      table = factory.Table.fromDOMElement(domTable);
+      region = new factory.Region(document.getElementById('test'));
       region.attach(table);
       tableCell = table.tbody().children[0].children[0];
       tableCellText = tableCell.tableCellText();
@@ -3980,7 +3949,7 @@
         handleFoo: function() {}
       };
       spyOn(foo, 'handleFoo');
-      root.bind('blur', foo.handleFoo);
+      factory.root.bind('blur', foo.handleFoo);
       tableCellText.blur();
       return expect(foo.handleFoo).toHaveBeenCalledWith(tableCellText);
     });
@@ -3989,24 +3958,23 @@
   describe('ContentEdit.TableCellText.html()', function() {
     return it('should return a HTML string for the table cell text element', function() {
       var tableCellText;
-      tableCellText = new ContentEdit.TableCellText('bar <b>zee</b>');
+      tableCellText = new factory.TableCellText('bar <b>zee</b>');
       return expect(tableCellText.html()).toBe('bar <b>zee</b>');
     });
   });
 
-  describe('`ContentEdit.TableCellText` key events`', function() {
-    var INDENT, ev, region, root, table, tbody;
+  describe('`TableCellText` key events`', function() {
+    var INDENT, ev, region, table, tbody;
     INDENT = ContentEdit.INDENT;
     ev = {
       preventDefault: function() {}
     };
-    root = ContentEdit.Root.get();
     region = null;
     table = null;
     tbody = null;
     beforeEach(function() {
       document.getElementById('test').innerHTML = '<p>foo</p>\n<table>\n    <tbody>\n        <tr>\n            <td>foo</td>\n            <td>bar</td>\n        </tr>\n        <tr>\n            <td>zee</td>\n            <td>umm</td>\n        </tr>\n    </tbody>\n</table>\n<p>bar</p>';
-      region = new ContentEdit.Region(document.getElementById('test'));
+      region = new factory.Region(document.getElementById('test'));
       table = region.children[1];
       return tbody = table.tbody();
     });
@@ -4027,10 +3995,10 @@
       new ContentSelect.Range(3, 3).select(tableCellText.domElement());
       tableCellText._keyDown(ev);
       otherTableCellText = tbody.children[1].children[0].tableCellText();
-      expect(root.focused()).toBe(otherTableCellText);
+      expect(factory.root.focused()).toBe(otherTableCellText);
       new ContentSelect.Range(3, 3).select(otherTableCellText.domElement());
-      root.focused()._keyDown(ev);
-      return expect(root.focused()).toBe(region.children[2]);
+      factory.root.focused()._keyDown(ev);
+      return expect(factory.root.focused()).toBe(region.children[2]);
     });
     it('should support up arrow nav to table cell below or previous content element if we\'re in the first row', function() {
       var otherTableCellText, tableCellText;
@@ -4039,9 +4007,9 @@
       new ContentSelect.Range(0, 0).select(tableCellText.domElement());
       tableCellText._keyUp(ev);
       otherTableCellText = tbody.children[0].children[0].tableCellText();
-      expect(root.focused()).toBe(otherTableCellText);
-      root.focused()._keyUp(ev);
-      return expect(root.focused()).toBe(region.children[0]);
+      expect(factory.root.focused()).toBe(otherTableCellText);
+      factory.root.focused()._keyUp(ev);
+      return expect(factory.root.focused()).toBe(region.children[0]);
     });
     it('should support return nav to next content element', function() {
       var otherTableCellText, tableCellText;
@@ -4050,7 +4018,7 @@
       new ContentSelect.Range(3, 3).select(tableCellText.domElement());
       tableCellText._keyReturn(ev);
       otherTableCellText = tbody.children[0].children[1].tableCellText();
-      return expect(root.focused()).toBe(otherTableCellText);
+      return expect(factory.root.focused()).toBe(otherTableCellText);
     });
     it('should support using tab to nav to next table cell', function() {
       var otherTableCellText, tableCellText;
@@ -4059,7 +4027,7 @@
       new ContentSelect.Range(3, 3).select(tableCellText.domElement());
       tableCellText._keyTab(ev);
       otherTableCellText = tbody.children[0].children[1].tableCellText();
-      return expect(root.focused()).toBe(otherTableCellText);
+      return expect(factory.root.focused()).toBe(otherTableCellText);
     });
     it('should support tab creating a new body row if last table cell in last row of the table body focused', function() {
       var otherTableCellText, rows, tableCellText;
@@ -4070,7 +4038,7 @@
       tableCellText._keyTab(ev);
       expect(tbody.children.length).toBe(rows + 1);
       otherTableCellText = tbody.children[rows].children[0].tableCellText();
-      return expect(root.focused()).toBe(otherTableCellText);
+      return expect(factory.root.focused()).toBe(otherTableCellText);
     });
     it('should support using shift-tab to nav to previous table cell', function() {
       var otherTableCellText, tableCellText;
@@ -4080,7 +4048,7 @@
       ev.shiftKey = true;
       tableCellText._keyTab(ev);
       otherTableCellText = tbody.children[0].children[1].tableCellText();
-      return expect(root.focused()).toBe(otherTableCellText);
+      return expect(factory.root.focused()).toBe(otherTableCellText);
     });
     return it('should not create an new body row on tab if spawn is disallowed', function() {
       var rows, tableCell, tableCellText;

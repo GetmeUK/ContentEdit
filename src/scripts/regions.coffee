@@ -1,4 +1,7 @@
-class ContentEdit.Region extends ContentEdit.NodeCollection
+class Region extends ContentEdit.Factory.class('NodeCollection')
+
+    # Register `Region` class in Abstract factory
+    ContentEdit.Factory.register(@, 'Region')
 
     # Regions take a DOM element and convert the child DOM elements to other
     # editable elements. Regions acts as a root collection of the editable
@@ -9,9 +12,6 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
 
         # The DOM element associated with this region of editable content
         @_domElement = domElement
-
-        # Convert the existing contents of the DOM element to editable elements
-        tagNames = ContentEdit.TagNames.get()
 
         # Create a list if child nodes we can safely remove whilst iterating
         # through them.
@@ -25,9 +25,9 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
 
             # Find the class associated with this node's tag name
             if childNode.getAttribute("data-ce-tag")
-                cls = tagNames.match(childNode.getAttribute("data-ce-tag"))
+                cls = @_factory.classByTag(childNode.getAttribute("data-ce-tag"))
             else
-                cls = tagNames.match(childNode.tagName)
+                cls = @_factory.classByTag(childNode.tagName)
 
             # Convert the node to a ContentEdit.Element
             element = cls.fromDOMElement(childNode)
@@ -40,7 +40,7 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
                 @attach(element)
 
             # Trigger a ready event for the region
-            ContentEdit.Root.get().trigger('ready', this)
+            @_factory.root.trigger('ready', this)
 
     # Read-only properties
 

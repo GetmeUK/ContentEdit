@@ -13,7 +13,7 @@ module.exports = (grunt) ->
                 files:
                     'src/tmp/content-edit.js': [
                         'src/scripts/namespace.coffee'
-                        'src/scripts/tag-names.coffee'
+                        'src/scripts/factory.coffee'
                         'src/scripts/bases.coffee'
                         'src/scripts/regions.coffee'
                         'src/scripts/fixtures.coffee'
@@ -35,8 +35,7 @@ module.exports = (grunt) ->
                     'spec/spec-helper.js': 'src/spec/spec-helper.coffee'
                     'spec/content-edit-spec.js': [
                         'src/spec/namespace.coffee'
-                        'src/spec/bases.coffee'
-                        'src/spec/tag-names.coffee'
+                        'src/spec/factory.coffee'
                         'src/spec/bases.coffee'
                         'src/spec/regions.coffee'
                         'src/spec/root.coffee'

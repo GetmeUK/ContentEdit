@@ -1,45 +1,47 @@
 # Image
 
-describe '`ContentEdit.Image()`', () ->
+factory = new ContentEdit.Factory()
+
+describe '`Image()`', () ->
 
     it 'should return an instance of Image`', () ->
 
         # Wihtout a link
-        image = new ContentEdit.Image({'src': '/foo.jpg'})
-        expect(image instanceof ContentEdit.Image).toBe true
+        image = new factory.Image({'src': '/foo.jpg'})
+        expect(image instanceof factory.Image).toBe true
 
         # With a link
-        image = new ContentEdit.Image({'src': '/foo.jpg'}, {'href': 'bar'})
-        expect(image instanceof ContentEdit.Image).toBe true
+        image = new factory.Image({'src': '/foo.jpg'}, {'href': 'bar'})
+        expect(image instanceof factory.Image).toBe true
 
 
-describe '`ContentEdit.Image.cssTypeName()`', () ->
+describe '`Image.cssTypeName()`', () ->
 
     it 'should return \'image\'', () ->
-        image = new ContentEdit.Image({'src': '/foo.jpg'})
+        image = new factory.Image({'src': '/foo.jpg'})
         expect(image.cssTypeName()).toBe 'image'
 
 
-describe '`ContentEdit.Image.type()`', () ->
+describe '`Image.type()`', () ->
 
     it 'should return \'Image\'', () ->
-        image = new ContentEdit.Image({'src': '/foo.jpg'})
+        image = new factory.Image({'src': '/foo.jpg'})
         expect(image.type()).toBe 'Image'
 
 
-describe '`ContentEdit.Image.typeName()`', () ->
+describe '`Image.typeName()`', () ->
 
     it 'should return \'Image\'', () ->
-        image = new ContentEdit.Image({'src': '/foo.jpg'})
+        image = new factory.Image({'src': '/foo.jpg'})
         expect(image.typeName()).toBe 'Image'
 
 
-describe '`ContentEdit.Image.createDraggingDOMElement()`', () ->
+describe '`Image.createDraggingDOMElement()`', () ->
 
     it 'should create a helper DOM element', () ->
         # Mount an image to a region
-        image = new ContentEdit.Image({'src': 'http://getme.co.uk/foo.jpg'})
-        region = new ContentEdit.Region(document.createElement('div'))
+        image = new factory.Image({'src': 'http://getme.co.uk/foo.jpg'})
+        region = new factory.Region(document.createElement('div'))
         region.attach(image)
 
         # Get the helper DOM element
@@ -52,34 +54,34 @@ describe '`ContentEdit.Image.createDraggingDOMElement()`', () ->
             ).toBe 'url(http://getme.co.uk/foo.jpg)'
 
 
-describe '`ContentEdit.Image.html()`', () ->
+describe '`Image.html()`', () ->
 
     it 'should return a HTML string for the image', () ->
 
         # Without a link
-        image = new ContentEdit.Image({'src': '/foo.jpg'})
+        image = new factory.Image({'src': '/foo.jpg'})
         expect(image.html()).toBe '<img src="/foo.jpg">'
 
         # With a link
-        image = new ContentEdit.Image({'src': '/foo.jpg'}, {'href': 'bar'})
+        image = new factory.Image({'src': '/foo.jpg'}, {'href': 'bar'})
         expect(image.html()).toBe(
             '<a href="bar" data-ce-tag="img">\n' +
                 "#{ ContentEdit.INDENT }<img src=\"/foo.jpg\">\n" +
             '</a>'
             )
 
-describe '`ContentEdit.Image.mount()`', () ->
+describe '`Image.mount()`', () ->
 
     imageA = null
     imageB = null
     region = null
 
     beforeEach ->
-        imageA = new ContentEdit.Image({'src': '/foo.jpg'})
-        imageB = new ContentEdit.Image({'src': '/foo.jpg'}, {'href': 'bar'})
+        imageA = new factory.Image({'src': '/foo.jpg'})
+        imageB = new factory.Image({'src': '/foo.jpg'}, {'href': 'bar'})
 
         # Mount the images
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(imageA)
         region.attach(imageB)
         imageA.unmount()
@@ -101,15 +103,14 @@ describe '`ContentEdit.Image.mount()`', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the mount event
-        root = ContentEdit.Root.get()
-        root.bind('mount', foo.handleFoo)
+        factory.root.bind('mount', foo.handleFoo)
 
         # Mount the image
         imageA.mount()
         expect(foo.handleFoo).toHaveBeenCalledWith(imageA)
 
 
-describe '`ContentEdit.Image.fromDOMElement()`', () ->
+describe '`Image.fromDOMElement()`', () ->
 
     it 'should convert a <img> DOM element into an image element', () ->
         # Create <img> DOM element
@@ -119,7 +120,7 @@ describe '`ContentEdit.Image.fromDOMElement()`', () ->
         domImg.setAttribute('height', '300')
 
         # Convert the DOM element into an image element
-        img = ContentEdit.Image.fromDOMElement(domImg)
+        img = factory.Image.fromDOMElement(domImg)
 
         expect(img.html()).toBe '<img height="300" src="/foo.jpg" width="400">'
 
@@ -137,7 +138,7 @@ describe '`ContentEdit.Image.fromDOMElement()`', () ->
             )
 
         # Convert the DOM element into an image element
-        img = ContentEdit.Image.fromDOMElement(domImg)
+        img = factory.Image.fromDOMElement(domImg)
 
         expect(img.size()).toEqual [1, 1]
 
@@ -156,7 +157,7 @@ describe '`ContentEdit.Image.fromDOMElement()`', () ->
         domA.appendChild(domImg)
 
         # Convert the DOM element into an image element
-        img = ContentEdit.Image.fromDOMElement(domA)
+        img = factory.Image.fromDOMElement(domA)
 
         expect(img.html()).toBe(
             '<a href="test" data-ce-tag="img">\n' +
@@ -168,18 +169,18 @@ describe '`ContentEdit.Image.fromDOMElement()`', () ->
 
 # Droppers
 
-describe '`ContentEdit.Image` drop interactions', () ->
+describe '`Image` drop interactions', () ->
 
     image = null
     region = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
-        image = new ContentEdit.Image({'src': '/foo.jpg'})
+        region = new factory.Region(document.createElement('div'))
+        image = new factory.Image({'src': '/foo.jpg'})
         region.attach(image)
 
     it 'should support dropping on Image', () ->
-        otherImage = new ContentEdit.Image({'src': '/bar.jpg'})
+        otherImage = new factory.Image({'src': '/bar.jpg'})
         region.attach(otherImage)
 
         # Check the initial order
@@ -207,7 +208,7 @@ describe '`ContentEdit.Image` drop interactions', () ->
         expect(image.nextSibling()).toBe otherImage
 
     it 'should support dropping on PreText', () ->
-        preText = new ContentEdit.PreText('pre', {}, '')
+        preText = new factory.PreText('pre', {}, '')
         region.attach(preText)
 
         # Check the initial order
@@ -235,7 +236,7 @@ describe '`ContentEdit.Image` drop interactions', () ->
         expect(image.nextSibling()).toBe preText
 
     it 'should support being dropped on by PreText', () ->
-        preText = new ContentEdit.PreText('pre', {}, '')
+        preText = new factory.PreText('pre', {}, '')
         region.attach(preText, 0)
 
         # Check the initial order
@@ -250,7 +251,7 @@ describe '`ContentEdit.Image` drop interactions', () ->
         expect(preText.nextSibling()).toBe image
 
     it 'should support dropping on Static', () ->
-        staticElm = ContentEdit.Static.fromDOMElement(
+        staticElm = factory.Static.fromDOMElement(
             document.createElement('div')
             )
         region.attach(staticElm)
@@ -280,7 +281,7 @@ describe '`ContentEdit.Image` drop interactions', () ->
         expect(image.nextSibling()).toBe staticElm
 
     it 'should support being dropped on by `moveable` Static', () ->
-        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        staticElm = new factory.Static('div', {'data-ce-moveable'}, 'foo')
         region.attach(staticElm, 0)
 
         # Check the initial order
@@ -295,7 +296,7 @@ describe '`ContentEdit.Image` drop interactions', () ->
         expect(staticElm.nextSibling()).toBe image
 
     it 'should support dropping on Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text)
 
         # Check the initial order
@@ -323,7 +324,7 @@ describe '`ContentEdit.Image` drop interactions', () ->
         expect(image.nextSibling()).toBe text
 
     it 'should support being dropped on by Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text, 0)
 
         # Check the initial order
