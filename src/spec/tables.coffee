@@ -1,42 +1,44 @@
 # Table
 
-describe '`ContentEdit.Table()`', () ->
+factory = new ContentEdit.Factory()
+
+describe '`Table()`', () ->
 
     it 'should return an instance of Table`', () ->
-        table = new ContentEdit.Table()
-        expect(table instanceof ContentEdit.Table).toBe true
+        table = new factory.Table()
+        expect(table instanceof factory.Table).toBe true
 
 
-describe '`ContentEdit.Table.cssTypeName()`', () ->
+describe '`Table.cssTypeName()`', () ->
 
     it 'should return \'table\'', () ->
-        table = new ContentEdit.Table()
+        table = new factory.Table()
         expect(table.cssTypeName()).toBe 'table'
 
 
-describe '`ContentEdit.Table.type()`', () ->
+describe '`Table.type()`', () ->
 
     it 'should return \'Table\'', () ->
-        table = new ContentEdit.Table()
+        table = new factory.Table()
         expect(table.type()).toBe 'Table'
 
 
-describe '`ContentEdit.Table.typeName()`', () ->
+describe '`Table.typeName()`', () ->
 
     it 'should return \'table\'', () ->
-        table = new ContentEdit.Table()
+        table = new factory.Table()
         expect(table.typeName()).toBe 'Table'
 
 
-describe '`ContentEdit.Table.firstSection()`', () ->
+describe '`Table.firstSection()`', () ->
 
     it 'should return the first section in the table (their position as children
         is irrelevant, the order is thead, tbody, tfoot in that order \
         ', () ->
-        table = new ContentEdit.Table()
-        thead = new ContentEdit.TableSection('thead')
-        tbody = new ContentEdit.TableSection('tbody')
-        tfoot = new ContentEdit.TableSection('tfoot')
+        table = new factory.Table()
+        thead = new factory.TableSection('thead')
+        tbody = new factory.TableSection('tbody')
+        tfoot = new factory.TableSection('tfoot')
 
         # Return null if there are no sections
         expect(table.firstSection()).toBe null
@@ -53,15 +55,15 @@ describe '`ContentEdit.Table.firstSection()`', () ->
         expect(table.firstSection()).toBe thead
 
 
-describe '`ContentEdit.Table.lastSection()`', () ->
+describe '`Table.lastSection()`', () ->
 
     it 'should return the last section in the table (their position as children
         is irrelevant, the order is thead, tbody, tfoot in that order \
         ', () ->
-        table = new ContentEdit.Table()
-        thead = new ContentEdit.TableSection('thead')
-        tbody = new ContentEdit.TableSection('tbody')
-        tfoot = new ContentEdit.TableSection('tfoot')
+        table = new factory.Table()
+        thead = new factory.TableSection('thead')
+        tbody = new factory.TableSection('tbody')
+        tfoot = new factory.TableSection('tfoot')
 
         # Return null if there are no sections
         expect(table.lastSection()).toBe null
@@ -78,46 +80,46 @@ describe '`ContentEdit.Table.lastSection()`', () ->
         expect(table.lastSection()).toBe tfoot
 
 
-describe '`ContentEdit.Table.thead()`', () ->
+describe '`Table.thead()`', () ->
 
     it 'should return the `TableSection` (thead) for the `Table` if there is \
         one', () ->
 
-        table = new ContentEdit.Table()
+        table = new factory.Table()
         expect(table.thead()).toBe null
 
-        tableHead = new ContentEdit.TableSection('thead')
+        tableHead = new factory.TableSection('thead')
         table.attach(tableHead)
         expect(table.thead()).toBe tableHead
 
 
-describe '`ContentEdit.Table.tbody()`', () ->
+describe '`Table.tbody()`', () ->
 
     it 'should return the `TableSection` (tbody) for the `Table` if there is \
         one', () ->
 
-        table = new ContentEdit.Table()
+        table = new factory.Table()
         expect(table.tbody()).toBe null
 
-        tableBody = new ContentEdit.TableSection('tbody')
+        tableBody = new factory.TableSection('tbody')
         table.attach(tableBody)
         expect(table.tbody()).toBe tableBody
 
 
-describe '`ContentEdit.Table.tfoot()`', () ->
+describe '`Table.tfoot()`', () ->
 
     it 'should return the `TableSection` (tfoot) for the `Table` if there is \
         one', () ->
 
-        table = new ContentEdit.Table()
+        table = new factory.Table()
         expect(table.tfoot()).toBe null
 
-        tableFoot = new ContentEdit.TableSection('tfoot')
+        tableFoot = new factory.TableSection('tfoot')
         table.attach(tableFoot)
         expect(table.tfoot()).toBe tableFoot
 
 
-describe '`ContentEdit.Table.fromDOMElement()`', () ->
+describe '`Table.fromDOMElement()`', () ->
 
     it 'should convert a <table> DOM element into a table element', () ->
 
@@ -134,7 +136,7 @@ describe '`ContentEdit.Table.fromDOMElement()`', () ->
 </tbody>
 '''
 
-        table = ContentEdit.Table.fromDOMElement(domTable)
+        table = factory.Table.fromDOMElement(domTable)
         expect(table.html()).toBe """
 <table>
 #{ I }<tbody>
@@ -159,7 +161,7 @@ describe '`ContentEdit.Table.fromDOMElement()`', () ->
 </tr>
 '''
 
-        table = ContentEdit.Table.fromDOMElement(domTable)
+        table = factory.Table.fromDOMElement(domTable)
         expect(table.html()).toBe """
 <table>
 #{ I }<tbody>
@@ -178,18 +180,18 @@ describe '`ContentEdit.Table.fromDOMElement()`', () ->
 
 # Droppers
 
-describe '`ContentEdit.Table` drop interactions`', () ->
+describe '`Table` drop interactions`', () ->
 
     table = null
     region = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
-        table = new ContentEdit.Table()
+        region = new factory.Region(document.createElement('div'))
+        table = new factory.Table()
         region.attach(table)
 
     it 'should support dropping on Image', () ->
-        image = new ContentEdit.Image({'src': '/bar.jpg'})
+        image = new factory.Image({'src': '/bar.jpg'})
         region.attach(image)
 
         # Check the initial order
@@ -204,7 +206,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(table.nextSibling()).toBe image
 
     it 'should support being dropped on by Image', () ->
-        image = new ContentEdit.Image({'src': '/bar.jpg'})
+        image = new factory.Image({'src': '/bar.jpg'})
         region.attach(image, 0)
 
         # Check the initial order
@@ -232,7 +234,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(image.nextSibling()).toBe table
 
     it 'should support dropping on List', () ->
-        list = new ContentEdit.Image({'src': '/bar.jpg'})
+        list = new factory.Image({'src': '/bar.jpg'})
         region.attach(list)
 
         # Check the initial order
@@ -247,7 +249,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(table.nextSibling()).toBe list
 
     it 'should support being dropped on by List', () ->
-        list = new ContentEdit.Text('p')
+        list = new factory.Text('p')
         region.attach(list, 0)
 
         # Check the initial order
@@ -262,7 +264,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(list.nextSibling()).toBe table
 
     it 'should support dropping on PreText', () ->
-        preText = new ContentEdit.PreText('pre', {}, '')
+        preText = new factory.PreText('pre', {}, '')
         region.attach(preText)
 
         # Check the initial order
@@ -277,7 +279,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(table.nextSibling()).toBe preText
 
     it 'should support being dropped on by PreText', () ->
-        preText = new ContentEdit.PreText('pre', {}, '')
+        preText = new factory.PreText('pre', {}, '')
         region.attach(preText, 0)
 
         # Check the initial order
@@ -292,7 +294,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(preText.nextSibling()).toBe table
 
     it 'should support dropping on Static', () ->
-        staticElm = ContentEdit.Static.fromDOMElement(
+        staticElm = factory.Static.fromDOMElement(
             document.createElement('div')
             )
         region.attach(staticElm)
@@ -309,7 +311,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(table.nextSibling()).toBe staticElm
 
     it 'should support being dropped on by `moveable` Static', () ->
-        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        staticElm = new factory.Static('div', {'data-ce-moveable'}, 'foo')
         region.attach(staticElm, 0)
 
         # Check the initial order
@@ -324,7 +326,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(staticElm.nextSibling()).toBe table
 
     it 'should support dropping on Table', () ->
-        otherTable = new ContentEdit.Table()
+        otherTable = new factory.Table()
         region.attach(otherTable)
 
         # Check the initial order
@@ -339,7 +341,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(table.nextSibling()).toBe otherTable
 
     it 'should support dropping on Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text)
 
         # Check the initial order
@@ -354,7 +356,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(table.nextSibling()).toBe text
 
     it 'should support being dropped on by Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text, 0)
 
         # Check the initial order
@@ -369,7 +371,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(text.nextSibling()).toBe table
 
     it 'should support dropping on Video', () ->
-        video = new ContentEdit.Video('iframe', {'src': '/foo.jpg'})
+        video = new factory.Video('iframe', {'src': '/foo.jpg'})
         region.attach(video)
 
         # Check the initial order
@@ -384,7 +386,7 @@ describe '`ContentEdit.Table` drop interactions`', () ->
         expect(table.nextSibling()).toBe video
 
     it 'should support being dropped on by Video', () ->
-        video = new ContentEdit.Video('iframe', {'src': '/foo.jpg'})
+        video = new factory.Video('iframe', {'src': '/foo.jpg'})
         region.attach(video, 0)
 
         # Check the initial order
@@ -414,28 +416,28 @@ describe '`ContentEdit.Table` drop interactions`', () ->
 
 # TableSection
 
-describe '`ContentEdit.TableSection()`', () ->
+describe '`TableSection()`', () ->
 
     it 'should return an instance of TableSection`', () ->
-        tableSection = new ContentEdit.TableSection('tbody', {})
-        expect(tableSection instanceof ContentEdit.TableSection).toBe true
+        tableSection = new factory.TableSection('tbody', {})
+        expect(tableSection instanceof factory.TableSection).toBe true
 
 
-describe '`ContentEdit.TableSection.cssTypeName()`', () ->
+describe '`TableSection.cssTypeName()`', () ->
 
     it 'should return \'table-section\'', () ->
-        tableSection = new ContentEdit.TableSection('tbody', {})
+        tableSection = new factory.TableSection('tbody', {})
         expect(tableSection.cssTypeName()).toBe 'table-section'
 
 
-describe '`ContentEdit.TableSection.type()`', () ->
+describe '`TableSection.type()`', () ->
 
     it 'should return \'TableSection\'', () ->
-        tableSection = new ContentEdit.TableSection('tbody', {})
+        tableSection = new factory.TableSection('tbody', {})
         expect(tableSection.type()).toBe 'TableSection'
 
 
-describe '`ContentEdit.TableSection.fromDOMElement()`', () ->
+describe '`TableSection.fromDOMElement()`', () ->
 
     it 'should convert a <tbody>, <tfoot> or <thead> DOM element into a table \
         section element', () ->
@@ -451,7 +453,7 @@ describe '`ContentEdit.TableSection.fromDOMElement()`', () ->
 </tr>
 '''
 
-            tableSection = ContentEdit.TableSection.fromDOMElement(
+            tableSection = factory.TableSection.fromDOMElement(
                 domTableSection
                 )
             expect(tableSection.html()).toBe """
@@ -470,28 +472,28 @@ describe '`ContentEdit.TableSection.fromDOMElement()`', () ->
 
 # TableRow
 
-describe '`ContentEdit.TableRow()`', () ->
+describe '`TableRow()`', () ->
 
     it 'should return an instance of TableRow`', () ->
-        tableRow = new ContentEdit.TableRow()
-        expect(tableRow instanceof ContentEdit.TableRow).toBe true
+        tableRow = new factory.TableRow()
+        expect(tableRow instanceof factory.TableRow).toBe true
 
 
-describe '`ContentEdit.TableRow.cssTypeName()`', () ->
+describe '`TableRow.cssTypeName()`', () ->
 
     it 'should return \'table-row\'', () ->
-        tableRow = new ContentEdit.TableRow()
+        tableRow = new factory.TableRow()
         expect(tableRow.cssTypeName()).toBe 'table-row'
 
 
-describe '`ContentEdit.TableRow.isEmpty()`', () ->
+describe '`TableRow.isEmpty()`', () ->
 
     it 'should return true if the table row is empty', () ->
 
         # tr
         domTableRow = document.createElement('tr')
         domTableRow.innerHTML = '<td></td><td></td>'
-        tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow)
+        tableRow = factory.TableRow.fromDOMElement(domTableRow)
 
         expect(tableRow.isEmpty()).toBe true
 
@@ -500,26 +502,26 @@ describe '`ContentEdit.TableRow.isEmpty()`', () ->
         # tr
         domTableRow = document.createElement('tr')
         domTableRow.innerHTML = '<td>foo</td><td></td>'
-        tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow)
+        tableRow = factory.TableRow.fromDOMElement(domTableRow)
 
         expect(tableRow.isEmpty()).toBe false
 
 
-describe '`ContentEdit.TableRow.type()`', () ->
+describe '`TableRow.type()`', () ->
 
     it 'should return \'TableRow\'', () ->
-        tableRow = new ContentEdit.TableRow()
+        tableRow = new factory.TableRow()
         expect(tableRow.type()).toBe 'TableRow'
 
 
-describe '`ContentEdit.TableRow.typeName()`', () ->
+describe '`TableRow.typeName()`', () ->
 
     it 'should return \'Table row\'', () ->
-        tableRow = new ContentEdit.TableRow()
+        tableRow = new factory.TableRow()
         expect(tableRow.typeName()).toBe 'Table row'
 
 
-describe '`ContentEdit.TableRow.fromDOMElement()`', () ->
+describe '`TableRow.fromDOMElement()`', () ->
 
     it 'should convert a <tr> DOM element into a table row element', () ->
 
@@ -532,7 +534,7 @@ describe '`ContentEdit.TableRow.fromDOMElement()`', () ->
 <td>bar</td>
 '''
 
-        tableRow = ContentEdit.TableRow.fromDOMElement(domTableRow)
+        tableRow = factory.TableRow.fromDOMElement(domTableRow)
         expect(tableRow.html()).toBe """
 <tr>
 #{ I }<td>
@@ -544,25 +546,24 @@ describe '`ContentEdit.TableRow.fromDOMElement()`', () ->
 </tr>
 """
 
-describe '`ContentEdit.TableRow` key events`', () ->
+describe '`TableRow` key events`', () ->
 
     ev = {preventDefault: () -> return}
     emptyTableRow = null
     region = null
-    root = ContentEdit.Root.get()
     tableRow = null
 
     beforeEach ->
         domElement = document.createElement('div')
         document.body.appendChild(domElement)
-        region = new ContentEdit.Region(domElement)
+        region = new factory.Region(domElement)
 
         domTable = document.createElement('table')
         domTable.innerHTML = '''<tbody>
             <tr><td></td><td>foo</td></tr>
             <tr><td></td><td></td></tr>
             </tbody>'''
-        table = ContentEdit.Table.fromDOMElement(domTable)
+        table = factory.Table.fromDOMElement(domTable)
         tableRow = table.children[0].children[0]
         emptyTableRow = table.children[0].children[1]
         region.attach(table)
@@ -620,13 +621,13 @@ describe '`ContentEdit.TableRow` key events`', () ->
 
 # Droppers
 
-describe '`ContentEdit.TableRow` drop interactions`', () ->
+describe '`TableRow` drop interactions`', () ->
 
     region = null
     table = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         domTable = document.createElement('table')
         domTable.innerHTML = '''
 <tbody>
@@ -644,7 +645,7 @@ describe '`ContentEdit.TableRow` drop interactions`', () ->
     </tr>
 </tbody>
 '''
-        table = ContentEdit.Table.fromDOMElement(domTable)
+        table = factory.Table.fromDOMElement(domTable)
         region.attach(table)
 
     it 'should support dropping on TableRow', () ->
@@ -665,46 +666,46 @@ describe '`ContentEdit.TableRow` drop interactions`', () ->
 
 # TableCell
 
-describe '`ContentEdit.TableCell()`', () ->
+describe '`TableCell()`', () ->
 
     it 'should return an instance of `TableCell`', () ->
-        tableCell = new ContentEdit.TableCell('td', {})
-        expect(tableCell instanceof ContentEdit.TableCell).toBe true
+        tableCell = new factory.TableCell('td', {})
+        expect(tableCell instanceof factory.TableCell).toBe true
 
 
-describe '`ContentEdit.TableCell.cssTypeName()`', () ->
+describe '`TableCell.cssTypeName()`', () ->
 
     it 'should return \'table-cell\'', () ->
-        tableCell = new ContentEdit.TableCell('td', {})
+        tableCell = new factory.TableCell('td', {})
         expect(tableCell.cssTypeName()).toBe 'table-cell'
 
 
-describe '`ContentEdit.TableCell.tableCellText()`', () ->
+describe '`TableCell.tableCellText()`', () ->
 
     it 'should return any associated TableCellText element, or null if there
         isn\'t one', () ->
 
         # Build a table cell with a child text node
-        tableCell = new ContentEdit.TableCell('td')
+        tableCell = new factory.TableCell('td')
         expect(tableCell.tableCellText()).toBe null
 
-        tableCellText = new ContentEdit.TableCellText('foo')
+        tableCellText = new factory.TableCellText('foo')
         tableCell.attach(tableCellText)
         expect(tableCell.tableCellText()).toBe tableCellText
 
 
-describe '`ContentEdit.TableCell.type()`', () ->
+describe '`TableCell.type()`', () ->
 
     it 'should return \'table-cell\'', () ->
-        tableCell = new ContentEdit.TableCell('td', {})
+        tableCell = new factory.TableCell('td', {})
         expect(tableCell.type()).toBe 'TableCell'
 
 
-describe '`ContentEdit.TableCell.html()`', () ->
+describe '`TableCell.html()`', () ->
 
     it 'should return a HTML string for the table cell element', () ->
-        tableCell = new ContentEdit.TableCell('td', {'class': 'foo'})
-        tableCellText = new ContentEdit.TableCellText('bar')
+        tableCell = new factory.TableCell('td', {'class': 'foo'})
+        tableCellText = new factory.TableCellText('bar')
         tableCell.attach(tableCellText)
 
         expect(tableCell.html()).toBe '<td class="foo">\n' +
@@ -712,7 +713,7 @@ describe '`ContentEdit.TableCell.html()`', () ->
             '</td>'
 
 
-describe '`ContentEdit.TableCell.fromDOMElement()`', () ->
+describe '`TableCell.fromDOMElement()`', () ->
 
     it 'should convert a <td> or <th> DOM element into a table cell \
         element', () ->
@@ -723,7 +724,7 @@ describe '`ContentEdit.TableCell.fromDOMElement()`', () ->
         domTableCell= document.createElement('td')
         domTableCell.innerHTML = 'foo'
 
-        tableCell = ContentEdit.TableCell.fromDOMElement(domTableCell)
+        tableCell = factory.TableCell.fromDOMElement(domTableCell)
         expect(tableCell.html()).toBe """
 <td>
 #{ I }foo
@@ -734,7 +735,7 @@ describe '`ContentEdit.TableCell.fromDOMElement()`', () ->
         domTableCell= document.createElement('th')
         domTableCell.innerHTML = 'bar'
 
-        tableCell = ContentEdit.TableCell.fromDOMElement(domTableCell)
+        tableCell = factory.TableCell.fromDOMElement(domTableCell)
         expect(tableCell.html()).toBe """
 <th>
 #{ I }bar
@@ -744,30 +745,29 @@ describe '`ContentEdit.TableCell.fromDOMElement()`', () ->
 
 # TableCellText
 
-describe '`ContentEdit.TableCellText()`', () ->
+describe '`TableCellText()`', () ->
 
     it 'should return an instance of TableCellText', () ->
-        tableCellText = new ContentEdit.TableCellText('foo')
-        expect(tableCellText instanceof ContentEdit.TableCellText).toBe true
+        tableCellText = new factory.TableCellText('foo')
+        expect(tableCellText instanceof factory.TableCellText).toBe true
 
 
-describe '`ContentEdit.TableCellText.cssTypeName()`', () ->
+describe '`TableCellText.cssTypeName()`', () ->
 
     it 'should return \'table-cell-text\'', () ->
-        tableCellText = new ContentEdit.TableCellText('foo')
+        tableCellText = new factory.TableCellText('foo')
         expect(tableCellText.cssTypeName()).toBe 'table-cell-text'
 
 
-describe '`ContentEdit.TableCellText.type()`', () ->
+describe '`TableCellText.type()`', () ->
 
     it 'should return \'TableCellText\'', () ->
-        tableCellText = new ContentEdit.TableCellText('foo')
+        tableCellText = new factory.TableCellText('foo')
         expect(tableCellText.type()).toBe 'TableCellText'
 
 
-describe 'ContentEdit.TableCellText.blur()', () ->
+describe 'TableCellText.blur()', () ->
 
-    root = ContentEdit.Root.get()
     region = null
     table = null
     tableCell = null
@@ -785,8 +785,8 @@ describe 'ContentEdit.TableCellText.blur()', () ->
 </tbody>
 '''
 
-        table = ContentEdit.Table.fromDOMElement(domTable)
-        region = new ContentEdit.Region(document.getElementById('test'))
+        table = factory.Table.fromDOMElement(domTable)
+        region = new factory.Region(document.getElementById('test'))
         region.attach(table)
         tableCell = table.tbody().children[0].children[0]
         tableCellText = tableCell.tableCellText()
@@ -817,7 +817,7 @@ describe 'ContentEdit.TableCellText.blur()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the blur event
-        root.bind('blur', foo.handleFoo)
+        factory.root.bind('blur', foo.handleFoo)
 
         # Detach the node
         tableCellText.blur()
@@ -827,17 +827,16 @@ describe 'ContentEdit.TableCellText.blur()', () ->
 describe 'ContentEdit.TableCellText.html()', () ->
 
     it 'should return a HTML string for the table cell text element', () ->
-        tableCellText = new ContentEdit.TableCellText('bar <b>zee</b>')
+        tableCellText = new factory.TableCellText('bar <b>zee</b>')
         expect(tableCellText.html()).toBe 'bar <b>zee</b>'
 
 
 # Key events
 
-describe '`ContentEdit.TableCellText` key events`', () ->
+describe '`TableCellText` key events`', () ->
 
     INDENT = ContentEdit.INDENT
     ev = {preventDefault: () -> return}
-    root = ContentEdit.Root.get()
     region = null
     table = null
     tbody = null
@@ -861,7 +860,7 @@ describe '`ContentEdit.TableCellText` key events`', () ->
 <p>bar</p>
 '''
 
-        region = new ContentEdit.Region(document.getElementById('test'))
+        region = new factory.Region(document.getElementById('test'))
         table = region.children[1]
         tbody = table.tbody()
 
@@ -879,12 +878,12 @@ describe '`ContentEdit.TableCellText` key events`', () ->
         tableCellText._keyDown(ev)
 
         otherTableCellText = tbody.children[1].children[0].tableCellText()
-        expect(root.focused()).toBe otherTableCellText
+        expect(factory.root.focused()).toBe otherTableCellText
 
         # Next content element
         new ContentSelect.Range(3, 3).select(otherTableCellText.domElement())
-        root.focused()._keyDown(ev)
-        expect(root.focused()).toBe region.children[2]
+        factory.root.focused()._keyDown(ev)
+        expect(factory.root.focused()).toBe region.children[2]
 
     it 'should support up arrow nav to table cell below or previous content \
         element if we\'re in the first row', () ->
@@ -896,11 +895,11 @@ describe '`ContentEdit.TableCellText` key events`', () ->
         tableCellText._keyUp(ev)
 
         otherTableCellText = tbody.children[0].children[0].tableCellText()
-        expect(root.focused()).toBe otherTableCellText
+        expect(factory.root.focused()).toBe otherTableCellText
 
         # Previous content element
-        root.focused()._keyUp(ev)
-        expect(root.focused()).toBe region.children[0]
+        factory.root.focused()._keyUp(ev)
+        expect(factory.root.focused()).toBe region.children[0]
 
     it 'should support return nav to next content element', () ->
         tableCellText = tbody.children[0].children[0].tableCellText()
@@ -909,7 +908,7 @@ describe '`ContentEdit.TableCellText` key events`', () ->
         tableCellText._keyReturn(ev)
 
         otherTableCellText = tbody.children[0].children[1].tableCellText()
-        expect(root.focused()).toBe otherTableCellText
+        expect(factory.root.focused()).toBe otherTableCellText
 
     it 'should support using tab to nav to next table cell', () ->
         tableCellText = tbody.children[0].children[0].tableCellText()
@@ -918,7 +917,7 @@ describe '`ContentEdit.TableCellText` key events`', () ->
         tableCellText._keyTab(ev)
 
         otherTableCellText = tbody.children[0].children[1].tableCellText()
-        expect(root.focused()).toBe otherTableCellText
+        expect(factory.root.focused()).toBe otherTableCellText
 
     it 'should support tab creating a new body row if last table cell in last \
         row of the table body focused', () ->
@@ -931,7 +930,7 @@ describe '`ContentEdit.TableCellText` key events`', () ->
 
         expect(tbody.children.length).toBe rows + 1
         otherTableCellText = tbody.children[rows].children[0].tableCellText()
-        expect(root.focused()).toBe otherTableCellText
+        expect(factory.root.focused()).toBe otherTableCellText
 
     it 'should support using shift-tab to nav to previous table cell', () ->
         tableCellText = tbody.children[1].children[0].tableCellText()
@@ -942,7 +941,7 @@ describe '`ContentEdit.TableCellText` key events`', () ->
         tableCellText._keyTab(ev)
 
         otherTableCellText = tbody.children[0].children[1].tableCellText()
-        expect(root.focused()).toBe otherTableCellText
+        expect(factory.root.focused()).toBe otherTableCellText
 
     it 'should not create an new body row on tab if spawn is disallowed', () ->
 

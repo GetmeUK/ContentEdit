@@ -3,20 +3,21 @@ testDomElement = document.createElement('div')
 testDomElement.setAttribute('id', 'test')
 document.body.appendChild(testDomElement)
 
+factory = new ContentEdit.Factory()
 
 # Node
 
-describe 'ContentEdit.Node()', () ->
+describe 'Node()', () ->
 
-    it 'should create `ContentEdit.Node` instance', () ->
-        node = new ContentEdit.Node()
-        expect(node instanceof ContentEdit.Node).toBe true
+    it 'should create `Node` instance', () ->
+        node = new factory.Node()
+        expect(node instanceof factory.Node).toBe true
 
 
-describe 'ContentEdit.Node.lastModified()', () ->
+describe 'Node.lastModified()', () ->
 
     it 'should return a date last modified if the node has been tainted', () ->
-        node = new ContentEdit.Node()
+        node = new factory.Node()
 
         # Initially the node should not be marked as modified
         expect(node.lastModified()).toBe null
@@ -27,50 +28,50 @@ describe 'ContentEdit.Node.lastModified()', () ->
         expect(node.lastModified()).not.toBe null
 
 
-describe 'ContentEdit.Node.parent()', () ->
+describe 'Node.parent()', () ->
 
     it 'should return the parent node collection for the node', () ->
 
         # Create a collection and add a node to it
-        collection = new ContentEdit.NodeCollection()
-        node = new ContentEdit.Node()
+        collection = new factory.NodeCollection()
+        node = new factory.Node()
         collection.attach(node)
 
         expect(node.parent()).toBe collection
 
 
-describe 'ContentEdit.Node.parents()', () ->
+describe 'Node.parents()', () ->
 
     it 'should return an ascending list of all the node\'s parents', () ->
 
         # Create a node with 2 parents
-        grandParent = new ContentEdit.NodeCollection()
-        parent = new ContentEdit.NodeCollection()
+        grandParent = new factory.NodeCollection()
+        parent = new factory.NodeCollection()
         grandParent.attach(parent)
-        node = new ContentEdit.Node()
+        node = new factory.Node()
         parent.attach(node)
 
         expect(node.parents()).toEqual [parent, grandParent]
 
 
-describe 'ContentEdit.Node.html()', () ->
+describe 'Node.html()', () ->
 
     it 'should raise a not implemented error', () ->
-        node = new ContentEdit.Node()
+        node = new factory.Node()
         expect(node.html).toThrow new Error('`html` not implemented')
 
 
-describe 'ContentEdit.Node.type()', () ->
+describe 'Node.type()', () ->
 
     it 'should return \'Node\'', () ->
 
         # Create a collection and add a node to it
-        node = new ContentEdit.Node()
+        node = new factory.Node()
 
         expect(node.type()).toBe 'Node'
 
 
-describe 'ContentEdit.Node.bind()', () ->
+describe 'Node.bind()', () ->
 
     it 'should bind a function so that it\'s called whenever the event is \
         triggered', () ->
@@ -83,7 +84,7 @@ describe 'ContentEdit.Node.bind()', () ->
         spyOn(foo, 'handleFoo')
 
         # Create a node and bind the function to an event
-        node = new ContentEdit.Node()
+        node = new factory.Node()
         node.bind('foo', foo.handleFoo)
 
         # Trigger the event
@@ -92,7 +93,7 @@ describe 'ContentEdit.Node.bind()', () ->
         expect(foo.handleFoo).toHaveBeenCalled()
 
 
-describe 'ContentEdit.Node.trigger()', () ->
+describe 'Node.trigger()', () ->
 
     it 'should trigger an event against the node with specified \
         arguments', () ->
@@ -105,7 +106,7 @@ describe 'ContentEdit.Node.trigger()', () ->
         spyOn(foo, 'handleFoo')
 
         # Create a node and bind the function to an event
-        node = new ContentEdit.Node()
+        node = new factory.Node()
         node.bind('foo', foo.handleFoo)
 
         # Trigger the event
@@ -114,7 +115,7 @@ describe 'ContentEdit.Node.trigger()', () ->
         expect(foo.handleFoo).toHaveBeenCalledWith(123)
 
 
-describe 'ContentEdit.Node.unbind()', () ->
+describe 'Node.unbind()', () ->
 
     it 'should unbind a function previously bound for an event from the \
         node', () ->
@@ -127,7 +128,7 @@ describe 'ContentEdit.Node.unbind()', () ->
         spyOn(foo, 'handleFoo')
 
         # Create a node and bind the function to an event
-        node = new ContentEdit.Node()
+        node = new factory.Node()
         node.bind('foo', foo.handleFoo)
 
         # Unbind the function
@@ -139,13 +140,13 @@ describe 'ContentEdit.Node.unbind()', () ->
         expect(foo.handleFoo).not.toHaveBeenCalled()
 
 
-describe 'ContentEdit.Node.commit()', () ->
+describe 'Node.commit()', () ->
 
     node = null
 
     beforeEach ->
         # Create a tainted node
-        node = new ContentEdit.Node()
+        node = new factory.Node()
         node.taint()
 
     it 'should set the last modified date of the node to null', () ->
@@ -162,22 +163,21 @@ describe 'ContentEdit.Node.commit()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the commit event
-        root = ContentEdit.Root.get()
-        root.bind('commit', foo.handleFoo)
+        factory.root.bind('commit', foo.handleFoo)
 
         # Commit the node
         node.commit()
         expect(foo.handleFoo).toHaveBeenCalledWith(node)
 
 
-describe 'ContentEdit.Node.taint()', () ->
+describe 'Node.taint()', () ->
 
     it 'should set the last modified date of the node, it\'s parents and the \
         root', () ->
 
         # Create a collection and add a node to it
-        collection = new ContentEdit.NodeCollection()
-        node = new ContentEdit.Node()
+        collection = new factory.NodeCollection()
+        node = new factory.Node()
         collection.attach(node)
 
         # Taint the node
@@ -185,12 +185,12 @@ describe 'ContentEdit.Node.taint()', () ->
 
         expect(node.lastModified()).not.toBe null
         expect(node.parent().lastModified()).toBe node.lastModified()
-        expect(ContentEdit.Root.get().lastModified()).toBe node.lastModified()
+        expect(factory.root.lastModified()).toBe node.lastModified()
 
     it 'should trigger the taint event against the root', () ->
 
         # Create a node
-        node = new ContentEdit.Node()
+        node = new factory.Node()
 
         # Create a function to call when the event is triggered
         foo = {
@@ -200,24 +200,23 @@ describe 'ContentEdit.Node.taint()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the taint event
-        root = ContentEdit.Root.get()
-        root.bind('taint', foo.handleFoo)
+        factory.root.bind('taint', foo.handleFoo)
 
         # Commit the node
         node.taint()
         expect(foo.handleFoo).toHaveBeenCalledWith(node)
 
 
-describe 'ContentEdit.Node.closest()', () ->
+describe 'Node.closest()', () ->
 
     it 'should return the first ancestor (ascending order) to match the that \
         returns true for the specified test function.', () ->
 
         # Create a node with 2 parents
-        grandParent = new ContentEdit.NodeCollection()
-        parent = new ContentEdit.NodeCollection()
+        grandParent = new factory.NodeCollection()
+        parent = new factory.NodeCollection()
         grandParent.attach(parent)
-        node = new ContentEdit.Node()
+        node = new factory.Node()
         parent.attach(node)
 
         # Mark the parents with attributes we can test for
@@ -228,17 +227,17 @@ describe 'ContentEdit.Node.closest()', () ->
         expect(node.closest (node) -> return node.bar).toBe parent
 
 
-describe 'ContentEdit.Node.next()', () ->
+describe 'Node.next()', () ->
 
     it 'should return the node next to this node in the tree', () ->
 
         # Create a node tree
-        collectionA = new ContentEdit.NodeCollection()
-        nodeA = new ContentEdit.Node()
+        collectionA = new factory.NodeCollection()
+        nodeA = new factory.Node()
         collectionA.attach(nodeA)
 
-        collectionB = new ContentEdit.NodeCollection()
-        nodeB = new ContentEdit.Node()
+        collectionB = new factory.NodeCollection()
+        nodeB = new factory.Node()
         collectionA.attach(collectionB)
         collectionB.attach(nodeB)
 
@@ -246,51 +245,51 @@ describe 'ContentEdit.Node.next()', () ->
         expect(nodeA.next().next()).toBe nodeB
 
 
-describe 'ContentEdit.Node.nextContent()', () ->
+describe 'Node.nextContent()', () ->
 
     it 'should return the next node in the tree that supports the `content`
         attribute', () ->
 
         # Create a node tree containing a text element (e.g has a `content`
         # attribute).
-        collectionA = new ContentEdit.NodeCollection()
-        nodeA = new ContentEdit.Node()
+        collectionA = new factory.NodeCollection()
+        nodeA = new factory.Node()
         collectionA.attach(nodeA)
 
-        collectionB = new ContentEdit.NodeCollection()
-        nodeB = new ContentEdit.Text('p', {}, 'testing')
+        collectionB = new factory.NodeCollection()
+        nodeB = new factory.Text('p', {}, 'testing')
         collectionA.attach(collectionB)
         collectionB.attach(nodeB)
 
         expect(collectionA.nextContent()).toBe nodeB
 
 
-describe 'ContentEdit.Node.nextSibling()', () ->
+describe 'Node.nextSibling()', () ->
 
     it 'should return the node next to this node with the same parent', () ->
 
         # Create a collection with 2 child nodes
-        collection = new ContentEdit.NodeCollection()
-        nodeA = new ContentEdit.Node()
+        collection = new factory.NodeCollection()
+        nodeA = new factory.Node()
         collection.attach(nodeA)
-        nodeB = new ContentEdit.Node()
+        nodeB = new factory.Node()
         collection.attach(nodeB)
 
         expect(nodeA.nextSibling()).toBe nodeB
 
 
-describe 'ContentEdit.Node.nextWithTest()', () ->
+describe 'Node.nextWithTest()', () ->
 
     it 'should return the next node in the tree that matches or `undefined`
         if there are none', () ->
 
         # Create a node tree containing
-        collectionA = new ContentEdit.NodeCollection()
-        nodeA = new ContentEdit.Node()
+        collectionA = new factory.NodeCollection()
+        nodeA = new factory.Node()
         collectionA.attach(nodeA)
 
-        collectionB = new ContentEdit.NodeCollection()
-        nodeB = new ContentEdit.Node()
+        collectionB = new factory.NodeCollection()
+        nodeB = new factory.Node()
         collectionA.attach(collectionB)
         collectionB.attach(nodeB)
 
@@ -303,17 +302,17 @@ describe 'ContentEdit.Node.nextWithTest()', () ->
             ).toBe undefined
 
 
-describe 'ContentEdit.Node.previous()', () ->
+describe 'Node.previous()', () ->
 
     it 'should return the node previous to this node in the tree', () ->
 
         # Create a node tree
-        collectionA = new ContentEdit.NodeCollection()
-        nodeA = new ContentEdit.Node()
+        collectionA = new factory.NodeCollection()
+        nodeA = new factory.Node()
         collectionA.attach(nodeA)
 
-        collectionB = new ContentEdit.NodeCollection()
-        nodeB = new ContentEdit.Node()
+        collectionB = new factory.NodeCollection()
+        nodeB = new factory.Node()
         collectionA.attach(collectionB)
         collectionB.attach(nodeB)
 
@@ -321,51 +320,51 @@ describe 'ContentEdit.Node.previous()', () ->
         expect(nodeB.previous().previous()).toBe nodeA
 
 
-describe 'ContentEdit.Node.nextContent()', () ->
+describe 'Node.nextContent()', () ->
 
     it 'should return the previous node in the tree that supports the `content`
         attribute', () ->
 
         # Create a node tree containing a text element (e.g has a `content`
         # attribute).
-        collectionA = new ContentEdit.NodeCollection()
-        nodeA = new ContentEdit.Text('p', {}, 'testing')
+        collectionA = new factory.NodeCollection()
+        nodeA = new factory.Text('p', {}, 'testing')
         collectionA.attach(nodeA)
 
-        collectionB = new ContentEdit.NodeCollection()
-        nodeB = new ContentEdit.Node()
+        collectionB = new factory.NodeCollection()
+        nodeB = new factory.Node()
         collectionA.attach(collectionB)
         collectionB.attach(nodeB)
 
         expect(nodeB.previousContent()).toBe nodeA
 
 
-describe 'ContentEdit.Node.previousSibling()', () ->
+describe 'Node.previousSibling()', () ->
 
     it 'should return the node previous to this node with the same parent', () ->
 
         # Create a collection with 2 child nodes
-        collection = new ContentEdit.NodeCollection()
-        nodeA = new ContentEdit.Node()
+        collection = new factory.NodeCollection()
+        nodeA = new factory.Node()
         collection.attach(nodeA)
-        nodeB = new ContentEdit.Node()
+        nodeB = new factory.Node()
         collection.attach(nodeB)
 
         expect(nodeB.previousSibling()).toBe nodeA
 
 
-describe 'ContentEdit.Node.previousWithTest()', () ->
+describe 'Node.previousWithTest()', () ->
 
     it 'should return the previous node in the tree that matches or `undefined`
         if there are none', () ->
 
         # Create a node tree
-        collectionA = new ContentEdit.NodeCollection()
-        nodeA = new ContentEdit.Node()
+        collectionA = new factory.NodeCollection()
+        nodeA = new factory.Node()
         collectionA.attach(nodeA)
 
-        collectionB = new ContentEdit.NodeCollection()
-        nodeB = new ContentEdit.Node()
+        collectionB = new factory.NodeCollection()
+        nodeB = new factory.Node()
         collectionA.attach(collectionB)
         collectionB.attach(nodeB)
 
@@ -378,65 +377,65 @@ describe 'ContentEdit.Node.previousWithTest()', () ->
             ).toBe undefined
 
 
-describe 'ContentEdit.Node.@fromDOMElement()', () ->
+describe 'Node.@fromDOMElement()', () ->
 
     it 'should raise a not implemented error', () ->
         expect(
-            ContentEdit.Node.fromDOMElement
+            factory.Node.fromDOMElement
             ).toThrow new Error('`fromDOMElement` not implemented')
 
 
 # NodeCollection
 
-describe 'ContentEdit.NodeCollection()', () ->
+describe 'NodeCollection()', () ->
 
-    it 'should create `ContentEdit.NodeCollection` instance', () ->
-        collection = new ContentEdit.NodeCollection()
-        expect(collection instanceof ContentEdit.NodeCollection).toBe true
+    it 'should create `NodeCollection` instance', () ->
+        collection = new factory.NodeCollection()
+        expect(collection instanceof factory.NodeCollection).toBe true
 
 
-describe 'ContentEdit.NodeCollection.descendants()', () ->
+describe 'NodeCollection.descendants()', () ->
 
     it 'should return a (flat) list of all the descendants for the \
         collection', () ->
 
         # Create a node tree
-        collectionA = new ContentEdit.NodeCollection()
-        nodeA = new ContentEdit.Node()
+        collectionA = new factory.NodeCollection()
+        nodeA = new factory.Node()
         collectionA.attach(nodeA)
 
-        collectionB = new ContentEdit.NodeCollection()
-        nodeB = new ContentEdit.Node()
+        collectionB = new factory.NodeCollection()
+        nodeB = new factory.Node()
         collectionA.attach(collectionB)
         collectionB.attach(nodeB)
 
         expect(collectionA.descendants()).toEqual [nodeA, collectionB, nodeB]
 
 
-describe 'ContentEdit.NodeCollection.isMounted()', () ->
+describe 'NodeCollection.isMounted()', () ->
 
     it 'should always return false', () ->
-        collection = new ContentEdit.NodeCollection()
+        collection = new factory.NodeCollection()
         expect(collection.isMounted()).toBe false
 
 
-describe 'ContentEdit.NodeCollection.type()', () ->
+describe 'NodeCollection.type()', () ->
 
     it 'should return \'NodeCollection\'', () ->
 
         # Create a collection and add a node to it
-        collection = new ContentEdit.NodeCollection()
+        collection = new factory.NodeCollection()
 
         expect(collection.type()).toBe 'NodeCollection'
 
 
-describe 'ContentEdit.NodeCollection.attach()', () ->
+describe 'NodeCollection.attach()', () ->
 
     it 'should attach a node to a node collection', () ->
 
         # Create a collection and add a node to it
-        collection = new ContentEdit.NodeCollection()
-        node = new ContentEdit.Node()
+        collection = new factory.NodeCollection()
+        node = new factory.Node()
         collection.attach(node)
 
         expect(collection.children[0]).toBe node
@@ -444,14 +443,14 @@ describe 'ContentEdit.NodeCollection.attach()', () ->
     it 'should attach a node to a node collection at the specified index', () ->
 
         # Create a collection and add some nodes to it
-        collection = new ContentEdit.NodeCollection()
+        collection = new factory.NodeCollection()
 
         for i in [0...5]
-            otherNode = new ContentEdit.Node()
+            otherNode = new factory.Node()
             collection.attach(otherNode)
 
         # Inser a node at a specific index
-        node = new ContentEdit.Node()
+        node = new factory.Node()
         collection.attach(node, 2)
 
         expect(collection.children[2]).toBe node
@@ -466,18 +465,17 @@ describe 'ContentEdit.NodeCollection.attach()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the attach event
-        root = ContentEdit.Root.get()
-        root.bind('attach', foo.handleFoo)
+        factory.root.bind('attach', foo.handleFoo)
 
         # Create a collection and add a node to it
-        collection = new ContentEdit.NodeCollection()
-        node = new ContentEdit.Node()
+        collection = new factory.NodeCollection()
+        node = new factory.Node()
         collection.attach(node)
 
         expect(foo.handleFoo).toHaveBeenCalledWith(collection, node)
 
 
-describe 'ContentEdit.NodeCollection.commit()', () ->
+describe 'NodeCollection.commit()', () ->
 
     collectionA = null
     collectionB = null
@@ -485,9 +483,9 @@ describe 'ContentEdit.NodeCollection.commit()', () ->
 
     beforeEach ->
         # Create a node tree
-        collectionA = new ContentEdit.NodeCollection()
-        collectionB = new ContentEdit.NodeCollection()
-        node = new ContentEdit.Node()
+        collectionA = new factory.NodeCollection()
+        collectionB = new factory.NodeCollection()
+        node = new factory.Node()
         collectionA.attach(collectionB)
         collectionB.attach(node)
 
@@ -511,22 +509,21 @@ describe 'ContentEdit.NodeCollection.commit()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for commit event
-        root = ContentEdit.Root.get()
-        root.bind('commit', foo.handleFoo)
+        factory.root.bind('commit', foo.handleFoo)
 
         # Commit the node
         collectionA.commit()
         expect(foo.handleFoo).toHaveBeenCalledWith(collectionA)
 
 
-describe 'ContentEdit.NodeCollection.detach()', () ->
+describe 'NodeCollection.detach()', () ->
 
     collection = null
     node = null
 
     beforeEach ->
-        collection = new ContentEdit.NodeCollection()
-        node = new ContentEdit.Node()
+        collection = new factory.NodeCollection()
+        node = new factory.Node()
         collection.attach(node)
 
     it 'should detach a node from the node collection', () ->
@@ -546,8 +543,7 @@ describe 'ContentEdit.NodeCollection.detach()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the detach event
-        root = ContentEdit.Root.get()
-        root.bind('detach', foo.handleFoo)
+        factory.root.bind('detach', foo.handleFoo)
 
         # Detach the node
         collection.detach(node)
@@ -556,17 +552,17 @@ describe 'ContentEdit.NodeCollection.detach()', () ->
 
 # Element
 
-describe 'ContentEdit.Element()', () ->
+describe 'Element()', () ->
 
-    it 'should create `ContentEdit.Element` instance', () ->
-        element = new ContentEdit.Element('div', {'class': 'foo'})
-        expect(element instanceof ContentEdit.Element).toBe true
+    it 'should create `Element` instance', () ->
+        element = new factory.Element('div', {'class': 'foo'})
+        expect(element instanceof factory.Element).toBe true
 
 
-describe 'ContentEdit.Element.attributes()', () ->
+describe 'Element.attributes()', () ->
 
     it 'should return a copy of the elements attributes', () ->
-        element = new ContentEdit.Element(
+        element = new factory.Element(
             'div',
             {'class': 'foo', 'data-test': ''}
             )
@@ -576,35 +572,35 @@ describe 'ContentEdit.Element.attributes()', () ->
             }
 
 
-describe 'ContentEdit.Element.cssTypeName()', () ->
+describe 'Element.cssTypeName()', () ->
 
     it 'should return \'element\'', () ->
-        element = new ContentEdit.Element('div', {'class': 'foo'})
+        element = new factory.Element('div', {'class': 'foo'})
         expect(element.cssTypeName()).toBe 'element'
 
 
-describe 'ContentEdit.Element.domElement()', () ->
+describe 'Element.domElement()', () ->
 
     it 'should return a DOM element if mounted', () ->
 
         # We can't test this directly against an Element instance as they can't
         # be mounted so instead we use a Text element.
-        element = new ContentEdit.Text('p')
+        element = new factory.Text('p')
         expect(element.domElement()).toBe null
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
 
         expect(element.domElement()).not.toBe null
 
 
-describe 'ContentEdit.Element.isFocused()', () ->
+describe 'Element.isFocused()', () ->
 
     it 'should return true if element is focused', () ->
 
         # Create an element to give focus to
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         expect(element.isFocused()).toBe false
 
         # Focus on the element
@@ -612,45 +608,45 @@ describe 'ContentEdit.Element.isFocused()', () ->
         expect(element.isFocused()).toBe true
 
 
-describe 'ContentEdit.Element.isMounted()', () ->
+describe 'Element.isMounted()', () ->
 
     it 'should return true if the element is mounted in the DOM', () ->
 
         # We can't test this directly against an Element instance as they can't
         # be mounted so instead we use a Text element.
-        element = new ContentEdit.Text('p')
+        element = new factory.Text('p')
         expect(element.isMounted()).toBe false
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
 
         expect(element.isMounted()).toBe true
 
 
-describe 'ContentEdit.Element.type()', () ->
+describe 'Element.type()', () ->
 
     it 'should return \'Element\'', () ->
 
         # Create a collection and add a node to it
-        element = new ContentEdit.Element('div', {'class': 'foo'})
+        element = new factory.Element('div', {'class': 'foo'})
 
         expect(element.type()).toBe 'Element'
 
 
-describe '`ContentEdit.Element.typeName()`', () ->
+describe '`Element.typeName()`', () ->
 
     it 'should return \'Element\'', () ->
-        element = new ContentEdit.Element('div', {'class': 'foo'})
+        element = new factory.Element('div', {'class': 'foo'})
         expect(element.typeName()).toBe 'Element'
 
 
-describe 'ContentEdit.Element.addCSSClass()', () ->
+describe 'Element.addCSSClass()', () ->
 
     it 'should add a CSS class to the element', () ->
 
         # Create an element and add a CSS class to it
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         element.addCSSClass('foo')
         expect(element.hasCSSClass('foo')).toBe true
 
@@ -659,21 +655,21 @@ describe 'ContentEdit.Element.addCSSClass()', () ->
         expect(element.hasCSSClass('bar')).toBe true
 
 
-describe 'ContentEdit.Element.attr()', () ->
+describe 'Element.attr()', () ->
 
     it 'should set/get an attribute for the element', () ->
 
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         element.attr('foo', 'bar')
         expect(element.attr('foo')).toBe 'bar'
 
 
-describe 'ContentEdit.Element.blur()', () ->
+describe 'Element.blur()', () ->
 
     it 'should blur an element', () ->
 
         # Create and focus an element
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         element.focus()
         expect(element.isFocused()).toBe true
 
@@ -691,20 +687,19 @@ describe 'ContentEdit.Element.blur()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the blur event
-        root = ContentEdit.Root.get()
-        root.bind('blur', foo.handleFoo)
+        factory.root.bind('blur', foo.handleFoo)
 
         # Detach the node
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         element.focus()
         element.blur()
         expect(foo.handleFoo).toHaveBeenCalledWith(element)
 
-describe 'ContentEdit.Element.can()', () ->
+describe 'Element.can()', () ->
 
     it 'should set/get whether a behaviour is allowed for the element', () ->
 
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
 
         # Expect the remove behaviour to be true initially (all behaviours are
         # are initially allowed by default against elements).
@@ -714,11 +709,11 @@ describe 'ContentEdit.Element.can()', () ->
         element.can('remove', false)
         expect(element.can('remove')).toBe false
 
-describe 'ContentEdit.Element.createDraggingDOMElement()', () ->
+describe 'Element.createDraggingDOMElement()', () ->
 
     it 'should create a helper DOM element', () ->
-        element = new ContentEdit.Element('div')
-        region = new ContentEdit.Region(document.createElement('div'))
+        element = new factory.Element('div')
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
 
         # Get the helper DOM element
@@ -728,32 +723,31 @@ describe 'ContentEdit.Element.createDraggingDOMElement()', () ->
         expect(helper.tagName.toLowerCase()).toBe 'div'
 
 
-describe 'ContentEdit.Element.drag()', () ->
+describe 'Element.drag()', () ->
 
     it 'should call `startDragging` against the root element', () ->
 
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
 
         # Spy on the startDragging method of root
-        root = ContentEdit.Root.get()
-        spyOn(root, 'startDragging')
+        spyOn(factory.root, 'startDragging')
 
         # Drag the element
         element.drag(0, 0)
 
-        expect(root.startDragging).toHaveBeenCalledWith(element, 0, 0)
-        root.cancelDragging()
+        expect(factory.root.startDragging).toHaveBeenCalledWith(element, 0, 0)
+        factory.root.cancelDragging()
 
     it 'should trigger the `drag` event against the root', () ->
 
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
 
         # Create a function to call when the event is triggered
@@ -764,71 +758,69 @@ describe 'ContentEdit.Element.drag()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the unmount event
-        root = ContentEdit.Root.get()
-        root.bind('drag', foo.handleFoo)
+        factory.root.bind('drag', foo.handleFoo)
 
         # Mount the element
         element.drag(0, 0)
         expect(foo.handleFoo).toHaveBeenCalledWith(element)
-        root.cancelDragging()
+        factory.root.cancelDragging()
 
     it 'should do nothing if the `drag` behavior is not allowed', () ->
 
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
 
         # Disallow dragging of the element
         element.can('drag', false)
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
 
         # Spy on the startDragging method of root
-        root = ContentEdit.Root.get()
-        spyOn(root, 'startDragging')
+        spyOn(factory.root, 'startDragging')
 
         # Attempt to drag the element
         element.drag(0, 0)
 
-        expect(root.startDragging).not.toHaveBeenCalled()
+        expect(factory.root.startDragging).not.toHaveBeenCalled()
 
 
-describe 'ContentEdit.Element.drop()', () ->
+describe 'Element.drop()', () ->
 
     it 'should select a function from the elements droppers map for the element
         being dropped on to this element', () ->
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
 
         # Create 2 elements that can be dropped on each other (we can't use
         # Element instances so we use Image elements instead).
-        imageA = new ContentEdit.Image()
+        imageA = new factory.Image()
         region.attach(imageA)
 
-        imageB = new ContentEdit.Image()
+        imageB = new factory.Image()
         region.attach(imageB)
 
         # Spy on the dropper function
-        spyOn(ContentEdit.Image.droppers, 'Image')
+        spyOn(factory.Image.droppers, 'Image')
 
         # Drop the image
         imageA.drop(imageB, ['below', 'center'])
         expect(
-            ContentEdit.Image.droppers['Image']
+            factory.Image.droppers['Image']
             ).toHaveBeenCalledWith(imageA, imageB, ['below', 'center'])
 
     it 'should trigger the `drop` event against the root', () ->
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
 
         # Create 2 elements that can be dropped on each other (we can't use
         # Element instances so we use Image elements instead).
-        imageA = new ContentEdit.Image()
+        imageA = new factory.Image()
         region.attach(imageA)
 
-        imageB = new ContentEdit.Image()
+        imageB = new factory.Image()
         region.attach(imageB)
 
         # Create a function to call when the event is triggered
@@ -839,8 +831,7 @@ describe 'ContentEdit.Element.drop()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the unmount event
-        root = ContentEdit.Root.get()
-        root.bind('drop', foo.handleFoo)
+        factory.root.bind('drop', foo.handleFoo)
 
         # Drop the image on valid target
         imageA.drop(imageB, ['below', 'center'])
@@ -857,33 +848,33 @@ describe 'ContentEdit.Element.drop()', () ->
     it 'should do nothing if the `drop` behavior is not allowed', () ->
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
 
         # Create 2 elements that can be dropped on each other (we can't use
         # Element instances so we use Image elements instead).
-        imageA = new ContentEdit.Image()
+        imageA = new factory.Image()
         region.attach(imageA)
 
-        imageB = new ContentEdit.Image()
+        imageB = new factory.Image()
         region.attach(imageB)
 
         # Disallow imageA accepting drops
         imageA.can('drop', false)
 
         # Spy on the dropper function
-        spyOn(ContentEdit.Image.droppers, 'Image')
+        spyOn(factory.Image.droppers, 'Image')
 
         # Drop the image
         imageA.drop(imageB, ['below', 'center'])
-        expect(ContentEdit.Image.droppers['Image']).not.toHaveBeenCalled()
+        expect(factory.Image.droppers['Image']).not.toHaveBeenCalled()
 
 
-describe 'ContentEdit.Element.focus()', () ->
+describe 'Element.focus()', () ->
 
     it 'should focus an element', () ->
 
         # Create and focus an element
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         element.focus()
         expect(element.isFocused()).toBe true
 
@@ -897,21 +888,20 @@ describe 'ContentEdit.Element.focus()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the focus event
-        root = ContentEdit.Root.get()
-        root.bind('focus', foo.handleFoo)
+        factory.root.bind('focus', foo.handleFoo)
 
         # Detach the node
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         element.focus()
         expect(foo.handleFoo).toHaveBeenCalledWith(element)
 
 
-describe 'ContentEdit.Element.hasCSSClass()', () ->
+describe 'Element.hasCSSClass()', () ->
 
     it 'should return true if the element has the specified class', () ->
 
         # Create an element and add some classes
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         element.addCSSClass('foo')
         element.addCSSClass('bar')
 
@@ -919,67 +909,67 @@ describe 'ContentEdit.Element.hasCSSClass()', () ->
         expect(element.hasCSSClass('bar')).toBe true
 
 
-describe 'ContentEdit.Element.merge()', () ->
+describe 'Element.merge()', () ->
 
     it 'should select a function from the elements mergers map for the element
         being merged with this element', () ->
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
 
         # Create 2 elements that can be merged with each other (we can't use
         # Element instances so we use text elements instead).
-        textA = new ContentEdit.Text('p', {}, 'a')
+        textA = new factory.Text('p', {}, 'a')
         region.attach(textA)
 
-        textB = new ContentEdit.Text('p', {}, 'b')
+        textB = new factory.Text('p', {}, 'b')
         region.attach(textB)
 
         # Spy on the merger function
-        spyOn(ContentEdit.Text.mergers, 'Text')
+        spyOn(factory.Text.mergers, 'Text')
 
         # Drop the image
         textA.merge(textB)
 
         expect(
-            ContentEdit.Text.mergers['Text']
+            factory.Text.mergers['Text']
             ).toHaveBeenCalledWith(textB, textA)
 
     it 'should do nothing if the `merge` behavior is not allowed', () ->
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
 
         # Create 2 elements that can be merged with each other (we can't use
         # Element instances so we use text elements instead).
-        textA = new ContentEdit.Text('p', {}, 'a')
+        textA = new factory.Text('p', {}, 'a')
         region.attach(textA)
 
-        textB = new ContentEdit.Text('p', {}, 'b')
+        textB = new factory.Text('p', {}, 'b')
         region.attach(textB)
 
         # Disallow merge for textA
         textA.can('merge', false)
 
         # Spy on the merger function
-        spyOn(ContentEdit.Text.mergers, 'Text')
+        spyOn(factory.Text.mergers, 'Text')
 
         # Drop the image
         textA.merge(textB)
 
-        expect(ContentEdit.Text.mergers['Text']).not.toHaveBeenCalled()
+        expect(factory.Text.mergers['Text']).not.toHaveBeenCalled()
 
 
-describe 'ContentEdit.Element.mount()', () ->
+describe 'Element.mount()', () ->
 
     element = null
     region = null
 
     beforeEach ->
-        element = new ContentEdit.Element('p')
+        element = new factory.Element('p')
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
         element.unmount()
 
@@ -997,19 +987,18 @@ describe 'ContentEdit.Element.mount()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the mount event
-        root = ContentEdit.Root.get()
-        root.bind('mount', foo.handleFoo)
+        factory.root.bind('mount', foo.handleFoo)
 
         # Mount the element
         element.mount()
         expect(foo.handleFoo).toHaveBeenCalledWith(element)
 
 
-describe 'ContentEdit.Element.removeAttr()', () ->
+describe 'Element.removeAttr()', () ->
 
     it 'should remove an attribute from the element', () ->
         # Create a node and set an attribute against it
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         element.attr('foo', 'bar')
         expect(element.attr('foo')).toBe 'bar'
 
@@ -1017,12 +1006,12 @@ describe 'ContentEdit.Element.removeAttr()', () ->
         expect(element.attr('foo')).toBe undefined
 
 
-describe 'ContentEdit.Element.removeCSSClass()', () ->
+describe 'Element.removeCSSClass()', () ->
 
     it 'should remove a CSS class from the element', () ->
 
         # Create an element and add CSS classes to it
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         element.addCSSClass('foo')
         element.addCSSClass('bar')
         expect(element.hasCSSClass('foo')).toBe true
@@ -1036,11 +1025,11 @@ describe 'ContentEdit.Element.removeCSSClass()', () ->
         expect(element.hasCSSClass('bar')).toBe false
 
 
-describe 'ContentEdit.Element.tagName()', () ->
+describe 'Element.tagName()', () ->
 
     it 'should set/get the tag name for the element', () ->
 
-        element = new ContentEdit.Element('div')
+        element = new factory.Element('div')
         expect(element.tagName()).toBe 'div'
 
         # Change the tag name
@@ -1048,16 +1037,16 @@ describe 'ContentEdit.Element.tagName()', () ->
         expect(element.tagName()).toBe 'dt'
 
 
-describe 'ContentEdit.Element.unmount()', () ->
+describe 'Element.unmount()', () ->
 
     element = null
     region = null
 
     beforeEach ->
-        element = new ContentEdit.Element('p')
+        element = new factory.Element('p')
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
 
     it 'should unmount the element from the DOM', () ->
@@ -1074,15 +1063,14 @@ describe 'ContentEdit.Element.unmount()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the unmount event
-        root = ContentEdit.Root.get()
-        root.bind('unmount', foo.handleFoo)
+        factory.root.bind('unmount', foo.handleFoo)
 
         # Mount the element
         element.unmount()
         expect(foo.handleFoo).toHaveBeenCalledWith(element)
 
 
-describe 'ContentEdit.Element.@getDOMElementAttributes()', () ->
+describe 'Element.@getDOMElementAttributes()', () ->
 
     it 'should return attributes from a DOM element as a dictionary', () ->
 
@@ -1092,7 +1080,7 @@ describe 'ContentEdit.Element.@getDOMElementAttributes()', () ->
         domElement.setAttribute('id', 'bar')
         domElement.setAttribute('contenteditable', '')
 
-        attributes = ContentEdit.Element.getDOMElementAttributes(domElement)
+        attributes = factory.Element.getDOMElementAttributes(domElement)
         expect(attributes).toEqual {
             'class': 'foo',
             'id': 'bar',
@@ -1102,42 +1090,42 @@ describe 'ContentEdit.Element.@getDOMElementAttributes()', () ->
 
 # ElementCollection
 
-describe 'ContentEdit.ElementCollection()', () ->
+describe 'ElementCollection()', () ->
 
-    it 'should create `ContentEdit.ElementCollection` instance`', () ->
-        collection = new ContentEdit.ElementCollection('dl', {'class': 'foo'})
-        expect(collection instanceof ContentEdit.ElementCollection).toBe true
+    it 'should create `ElementCollection` instance`', () ->
+        collection = new factory.ElementCollection('dl', {'class': 'foo'})
+        expect(collection instanceof factory.ElementCollection).toBe true
 
 
-describe 'ContentEdit.ElementCollection.cssTypeName()', () ->
+describe 'ElementCollection.cssTypeName()', () ->
 
     it 'should return \'element-collection\'', () ->
-        element = new ContentEdit.ElementCollection('div', {'class': 'foo'})
+        element = new factory.ElementCollection('div', {'class': 'foo'})
         expect(element.cssTypeName()).toBe 'element-collection'
 
 
-describe 'ContentEdit.ElementCollection.isMounted()', () ->
+describe 'ElementCollection.isMounted()', () ->
 
     it 'should return true if the element is mounted in the DOM', () ->
 
         # We can't test this directly against an ElementColleciton instance as
         # they can't be mounted so instead we use a List element.
-        collection = new ContentEdit.List('ul')
+        collection = new factory.List('ul')
         expect(collection.isMounted()).toBe false
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(collection)
 
         expect(collection.isMounted()).toBe true
 
 
-describe 'ContentEdit.ElementCollection.html()', () ->
+describe 'ElementCollection.html()', () ->
 
     it 'should return a HTML string for the collection', () ->
 
-        collection = new ContentEdit.ElementCollection('div', {'class': 'foo'})
-        text = new ContentEdit.Text('p', {}, 'test')
+        collection = new factory.ElementCollection('div', {'class': 'foo'})
+        text = new factory.Text('p', {}, 'test')
         collection.attach(text)
 
         expect(collection.html()).toBe(
@@ -1149,22 +1137,22 @@ describe 'ContentEdit.ElementCollection.html()', () ->
             )
 
 
-describe '`ContentEdit.ElementCollection.type()`', () ->
+describe '`ElementCollection.type()`', () ->
 
     it 'should return \'ElementCollection\'', () ->
-        collection = new ContentEdit.ElementCollection('div', {'class': 'foo'})
+        collection = new factory.ElementCollection('div', {'class': 'foo'})
         expect(collection.type()).toBe 'ElementCollection'
 
 
-describe 'ContentEdit.ElementCollection.createDraggingDOMElement()', () ->
+describe 'ElementCollection.createDraggingDOMElement()', () ->
 
     it 'should create a helper DOM element', () ->
         # Mount a collection and text element
-        collection = new ContentEdit.ElementCollection('div')
-        element = new ContentEdit.Element('p')
+        collection = new factory.ElementCollection('div')
+        element = new factory.Element('p')
         collection.attach(element)
 
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(collection)
 
         # Get the helper DOM element
@@ -1174,7 +1162,7 @@ describe 'ContentEdit.ElementCollection.createDraggingDOMElement()', () ->
         expect(helper.tagName.toLowerCase()).toBe 'div'
 
 
-describe 'ContentEdit.ElementCollection.detach()', () ->
+describe 'ElementCollection.detach()', () ->
 
     collection = null
     elementA = null
@@ -1182,15 +1170,15 @@ describe 'ContentEdit.ElementCollection.detach()', () ->
     region = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
 
-        collection = new ContentEdit.ElementCollection('div')
+        collection = new factory.ElementCollection('div')
         region.attach(collection)
 
-        elementA = new ContentEdit.Element('p')
+        elementA = new factory.Element('p')
         collection.attach(elementA)
 
-        elementB = new ContentEdit.Element('p')
+        elementB = new factory.Element('p')
         collection.attach(elementB)
 
     it 'should detach an element from the element collection', () ->
@@ -1216,27 +1204,26 @@ describe 'ContentEdit.ElementCollection.detach()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the detach event
-        root = ContentEdit.Root.get()
-        root.bind('detach', foo.handleFoo)
+        factory.root.bind('detach', foo.handleFoo)
 
         # Detach the node
         collection.detach(elementA)
         expect(foo.handleFoo).toHaveBeenCalledWith(collection, elementA)
 
 
-describe 'ContentEdit.ElementCollection.mount()', () ->
+describe 'ElementCollection.mount()', () ->
 
     collection = null
     element = null
     region = null
 
     beforeEach ->
-        collection = new ContentEdit.ElementCollection('div')
-        element = new ContentEdit.Element('p')
+        collection = new factory.ElementCollection('div')
+        element = new factory.Element('p')
         collection.attach(element)
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(collection)
         element.unmount()
 
@@ -1255,8 +1242,7 @@ describe 'ContentEdit.ElementCollection.mount()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the mount event
-        root = ContentEdit.Root.get()
-        root.bind('mount', foo.handleFoo)
+        factory.root.bind('mount', foo.handleFoo)
 
         # Mount the element
         collection.mount()
@@ -1264,19 +1250,19 @@ describe 'ContentEdit.ElementCollection.mount()', () ->
         expect(foo.handleFoo).toHaveBeenCalledWith(element)
 
 
-describe 'ContentEdit.ElementCollection.unmount()', () ->
+describe 'ElementCollection.unmount()', () ->
 
     collection = null
     element = null
     region = null
 
     beforeEach ->
-        collection = new ContentEdit.ElementCollection('div')
-        element = new ContentEdit.Element('p')
+        collection = new factory.ElementCollection('div')
+        element = new factory.Element('p')
         collection.attach(element)
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(collection)
 
     it 'should unmount the collection and it\'s children from the DOM', () ->
@@ -1294,8 +1280,7 @@ describe 'ContentEdit.ElementCollection.unmount()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the unmount event
-        root = ContentEdit.Root.get()
-        root.bind('unmount', foo.handleFoo)
+        factory.root.bind('unmount', foo.handleFoo)
 
         # Mount the element
         collection.unmount()
@@ -1305,25 +1290,25 @@ describe 'ContentEdit.ElementCollection.unmount()', () ->
 
 # ResizableElement
 
-describe 'ContentEdit.ResizableElement()', () ->
+describe 'ResizableElement()', () ->
 
-    it 'should create `ContentEdit.ResizableElement` instance`', () ->
-        element = new ContentEdit.ResizableElement('div', {'class': 'foo'})
-        expect(element instanceof ContentEdit.ResizableElement).toBe true
+    it 'should create `ResizableElement` instance`', () ->
+        element = new factory.ResizableElement('div', {'class': 'foo'})
+        expect(element instanceof factory.ResizableElement).toBe true
 
 
-describe 'ContentEdit.ResizableElement.aspectRatio()', () ->
+describe 'ResizableElement.aspectRatio()', () ->
 
     it 'should return the 1', () ->
-        element = new ContentEdit.ResizableElement('div')
+        element = new factory.ResizableElement('div')
         expect(element.aspectRatio()).toBe 1
 
 
-describe 'ContentEdit.ResizableElement.maxSize()', () ->
+describe 'ResizableElement.maxSize()', () ->
 
     element = null
     beforeEach ->
-        element = new ContentEdit.ResizableElement('div', {
+        element = new factory.ResizableElement('div', {
             'height': 200,
             'width': 200
             })
@@ -1339,11 +1324,11 @@ describe 'ContentEdit.ResizableElement.maxSize()', () ->
         expect(element.maxSize()).toEqual [1000, 1000]
 
 
-describe 'ContentEdit.ResizableElement.minSize()', () ->
+describe 'ResizableElement.minSize()', () ->
 
     element = null
     beforeEach ->
-        element = new ContentEdit.ResizableElement('div', {
+        element = new factory.ResizableElement('div', {
             'height': 200,
             'width': 200
             })
@@ -1359,26 +1344,26 @@ describe 'ContentEdit.ResizableElement.minSize()', () ->
         expect(element.minSize()).toEqual [100, 100]
 
 
-describe '`ContentEdit.ResizableElement.type()`', () ->
+describe '`ResizableElement.type()`', () ->
 
     it 'should return \'ResizableElement\'', () ->
-        element = new ContentEdit.ResizableElement('div', {'class': 'foo'})
+        element = new factory.ResizableElement('div', {'class': 'foo'})
         expect(element.type()).toBe 'ResizableElement'
 
 
-describe 'ContentEdit.ResizableElement.mount()', () ->
+describe 'ResizableElement.mount()', () ->
 
     element = null
     region = null
 
     beforeEach ->
-        element = new ContentEdit.ResizableElement('div', {
+        element = new factory.ResizableElement('div', {
             'height': 200,
             'width': 200
             })
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
         element.unmount()
 
@@ -1399,35 +1384,33 @@ describe 'ContentEdit.ResizableElement.mount()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the mount event
-        root = ContentEdit.Root.get()
-        root.bind('mount', foo.handleFoo)
+        factory.root.bind('mount', foo.handleFoo)
 
         # Mount the element
         element.mount()
         expect(foo.handleFoo).toHaveBeenCalledWith(element)
 
 
-describe 'ContentEdit.Element.resize()', () ->
+describe 'Element.resize()', () ->
 
     it 'should call `startResizing` against the root element', () ->
 
-        element = new ContentEdit.ResizableElement('div', {
+        element = new factory.ResizableElement('div', {
             'height': 200,
             'width': 200
             })
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
 
         # Spy on the startDragging method of root
-        root = ContentEdit.Root.get()
-        spyOn(root, 'startResizing')
+        spyOn(factory.root, 'startResizing')
 
         # Drag the element
         element.resize(['top', 'left'], 0, 0)
 
-        expect(root.startResizing).toHaveBeenCalledWith(
+        expect(factory.root.startResizing).toHaveBeenCalledWith(
             element,
             ['top', 'left']
             0,
@@ -1437,7 +1420,7 @@ describe 'ContentEdit.Element.resize()', () ->
 
     it 'should do nothing if the `resize` behavior is not allowed', () ->
 
-        element = new ContentEdit.ResizableElement('div', {
+        element = new factory.ResizableElement('div', {
             'height': 200,
             'width': 200
             })
@@ -1446,24 +1429,23 @@ describe 'ContentEdit.Element.resize()', () ->
         element.can('resize', false)
 
         # Mount the element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(element)
 
         # Spy on the startDragging method of root
-        root = ContentEdit.Root.get()
-        spyOn(root, 'startResizing')
+        spyOn(factory.root, 'startResizing')
 
         # Drag the element
         element.resize(['top', 'left'], 0, 0)
 
-        expect(root.startResizing).not.toHaveBeenCalled()
+        expect(factory.root.startResizing).not.toHaveBeenCalled()
 
 
-describe 'ContentEdit.Element.size()', () ->
+describe 'Element.size()', () ->
 
     it 'should set/get the size of the element', () ->
 
-        element = new ContentEdit.ResizableElement('div', {
+        element = new factory.ResizableElement('div', {
             'height': 200,
             'width': 200
             })

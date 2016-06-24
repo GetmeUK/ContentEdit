@@ -30,5 +30,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/GetmeUK/ContentEdit.git"
-  }
+  },
+  "license": "MIT"
 }

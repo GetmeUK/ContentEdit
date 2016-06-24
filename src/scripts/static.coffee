@@ -1,4 +1,8 @@
-class ContentEdit.Static extends ContentEdit.Element
+class Static extends ContentEdit.Factory.class('Element')
+
+    # Register `Static` class in Abstract factory
+    # Associate tag `static` with this class
+    ContentEdit.Factory.register(@, 'Static', 'static')
 
     # A non-editable (static) HTML element.
 
@@ -128,7 +132,7 @@ class ContentEdit.Static extends ContentEdit.Element
     # Class properties
 
     @droppers:
-        'Static': ContentEdit.Element._dropVert
+        'Static': ContentEdit.Factory.class('Element')._dropVert
 
     # Class methods
 
@@ -139,7 +143,3 @@ class ContentEdit.Static extends ContentEdit.Element
             @getDOMElementAttributes(domElement),
             domElement.innerHTML
             )
-
-
-# Register `ContentEdit.Static` the class with associated tag names
-ContentEdit.TagNames.get().register(ContentEdit.Static, 'static')
