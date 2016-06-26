@@ -1,43 +1,45 @@
 # Region
 
-describe '`ContentEdit.Region()`', () ->
+factory = new ContentEdit.Factory()
+
+describe '`Region()`', () ->
 
     it 'should return an instance of Region`', () ->
-        region = new ContentEdit.Region(document.createElement('div'))
-        expect(region instanceof ContentEdit.Region).toBe true
+        region = new factory.Region(document.createElement('div'))
+        expect(region instanceof factory.Region).toBe true
 
 
-describe '`ContentEdit.Region.domElement()`', () ->
+describe '`Region.domElement()`', () ->
 
     it 'should return the DOM element the region was initialized with', () ->
         domElement = document.createElement('div')
-        region = new ContentEdit.Region(domElement)
+        region = new factory.Region(domElement)
         expect(region.domElement()).toBe domElement
 
 
-describe '`ContentEdit.Region.isMounted()`', () ->
+describe '`Region.isMounted()`', () ->
 
     it 'should always return true', () ->
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         expect(region.isMounted()).toBe true
 
 
-describe '`ContentEdit.Region.type()`', () ->
+describe '`Region.type()`', () ->
 
     it 'should return \'Region\'', () ->
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         expect(region.type()).toBe 'Region'
 
 
-describe '`ContentEdit.Region.html()`', () ->
+describe '`Region.html()`', () ->
 
     it 'should return a HTML string for the region', () ->
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
 
         # Add a set of elements to the region
-        region.attach(new ContentEdit.Text('p', {}, 'one'))
-        region.attach(new ContentEdit.Text('p', {}, 'two'))
-        region.attach(new ContentEdit.Text('p', {}, 'three'))
+        region.attach(new factory.Text('p', {}, 'one'))
+        region.attach(new factory.Text('p', {}, 'two'))
+        region.attach(new factory.Text('p', {}, 'three'))
 
         expect(region.html()).toBe(
             '<p>\n' +

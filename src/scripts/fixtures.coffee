@@ -1,4 +1,7 @@
-class ContentEdit.Fixture extends ContentEdit.NodeCollection
+class Fixture extends ContentEdit.Factory.class('NodeCollection')
+
+    # Register `Fixture` class in Abstract factory
+    ContentEdit.Factory.register(@, 'Fixture')
 
     # Fixtures take a DOM element and convert it to a single editable element,
     # this allows the creation of field like regions within a page.
@@ -10,15 +13,13 @@ class ContentEdit.Fixture extends ContentEdit.NodeCollection
         @_domElement = domElement
 
         # Convert the existing contents of the DOM element to editable elements
-        tagNames = ContentEdit.TagNames.get()
-
         # Find the class associated with this fixtures tag name
         if @_domElement.getAttribute("data-ce-tag")
-            cls = tagNames.match(@_domElement.getAttribute("data-ce-tag"))
+            cls = @_factory.classByTag(@_domElement.getAttribute("data-ce-tag"))
         else
-            cls = tagNames.match(@_domElement.tagName)
+            cls = @_factory.classByTag(@_domElement.tagName)
 
-        # Convert the node to a ContentEdit.Element
+        # Convert the node to a Element
         element = cls.fromDOMElement(@_domElement)
 
         # Modify the mount method for the element
@@ -28,7 +29,7 @@ class ContentEdit.Fixture extends ContentEdit.NodeCollection
         element.mount()
 
         # Trigger a ready event for the region
-        ContentEdit.Root.get().trigger('ready', this)
+        @_factory.root.trigger('ready', this)
 
     # Read-only properties
 

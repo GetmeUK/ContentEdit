@@ -1,4 +1,18 @@
-class ContentEdit.Text extends ContentEdit.Element
+class Text extends ContentEdit.Factory.class('Element')
+
+    # Register `Text` class in Abstract factory
+    # Associate tags with this class
+    ContentEdit.Factory.register(@, 'Text',
+        'address',
+        'blockquote',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'p'
+    )
 
     # An editable body of text (e.g <address>, <blockquote>, <h1-h6>, <p>).
 
@@ -231,7 +245,7 @@ class ContentEdit.Text extends ContentEdit.Element
         # https://github.com/GetmeUK/ContentTools/issues/118
         #
         # Anthony Blackshaw <ant@getme.co.uk>, 2016-01-30
-        if @content.length() == 0 and ContentEdit.Root.get().focused() is this
+        if @content.length() == 0 and @_factory.root.get().focused() is this
             ev.preventDefault()
             if document.activeElement != this._domElement
                 this._domElement.focus()
@@ -318,9 +332,10 @@ class ContentEdit.Text extends ContentEdit.Element
         else
             # If no element was found this must be the last content node found
             # so trigger an event for external code to manage a region switch.
-            ContentEdit.Root.get().trigger(
+            @_factory.root.trigger(
                 'previous-region',
-                @closest (node) -> node.type() is 'Region'
+                @closest (node) ->
+                    node.type() is 'Fixture' or node.type() is 'Region'
                 )
 
     _keyReturn: (ev) ->
@@ -410,7 +425,7 @@ class ContentEdit.Text extends ContentEdit.Element
         else
             # If no element was found this must be the last content node found
             # so trigger an event for external code to manage a region switch.
-            ContentEdit.Root.get().trigger(
+            @_factory.root.trigger(
                 'next-region',
                 @closest (node) ->
                     node.type() is 'Fixture' or node.type() is 'Region'
@@ -454,8 +469,8 @@ class ContentEdit.Text extends ContentEdit.Element
     # Class properties
 
     @droppers:
-        'Static': ContentEdit.Element._dropVert
-        'Text': ContentEdit.Element._dropVert
+        'Static': ContentEdit.Factory.class('Element')._dropVert
+        'Text': ContentEdit.Factory.class('Element')._dropVert
 
     @mergers:
 
@@ -495,22 +510,11 @@ class ContentEdit.Text extends ContentEdit.Element
             )
 
 
-# Register `ContentEdit.Text` the class with associated tag names
-ContentEdit.TagNames.get().register(
-    ContentEdit.Text,
-    'address',
-    'blockquote',
-    'h1',
-    'h2',
-    'h3',
-    'h4',
-    'h5',
-    'h6',
-    'p'
-    )
+class PreText extends ContentEdit.Factory.class('Text')
 
-
-class ContentEdit.PreText extends ContentEdit.Text
+    # Register `PreText` class in Abstract factory
+    # Associate tag `pre` with this class
+    ContentEdit.Factory.register(@, 'PreText', 'pre')
 
     # An editable body of preserved text (e.g <pre>).
 
@@ -521,7 +525,7 @@ class ContentEdit.PreText extends ContentEdit.Text
         else
             @content = new HTMLString.String(content, true)
 
-        ContentEdit.Element.call(this, tagName, attributes)
+        ContentEdit.Factory.class('Element').call(this, tagName, attributes)
 
     # Read-only properties
 
@@ -662,9 +666,9 @@ class ContentEdit.PreText extends ContentEdit.Text
     # Class properties
 
     @droppers:
-        'PreText': ContentEdit.Element._dropVert
-        'Static': ContentEdit.Element._dropVert
-        'Text': ContentEdit.Element._dropVert
+        'PreText': ContentEdit.Factory.class('Element')._dropVert
+        'Static': ContentEdit.Factory.class('Element')._dropVert
+        'Text': ContentEdit.Factory.class('Element')._dropVert
 
     @mergers: {}
 
@@ -677,7 +681,3 @@ class ContentEdit.PreText extends ContentEdit.Text
             @getDOMElementAttributes(domElement),
             domElement.innerHTML
             )
-
-
-# Register `ContentEdit.PreText` the class with associated tag names
-ContentEdit.TagNames.get().register(ContentEdit.PreText, 'pre')

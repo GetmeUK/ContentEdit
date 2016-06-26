@@ -1,4 +1,7 @@
-class _Root extends ContentEdit.Node
+class Root extends ContentEdit.Factory.class("Node")
+
+    # Register `Root` class in Abstract factory
+    ContentEdit.Factory.register(@, "Root")
 
     # The root node manages state and listens for events for all nodes. However
     # it is not the root of the tree, individual editable regions within the
@@ -255,15 +258,3 @@ class _Root extends ContentEdit.Node
 
         # Remove resizing class from body
         ContentEdit.removeCSSClass(document.body, 'ce--resizing')
-
-
-class ContentEdit.Root
-
-    # The `ContentEdit.Root` class is a singleton, this code provides access to
-    # the singleton instance of the protected `_Root` class which is initialized
-    # the first time the class method `get` is called.
-
-    instance = null
-
-    @get: () ->
-        instance ?= new _Root()

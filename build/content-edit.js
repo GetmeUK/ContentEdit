@@ -1626,11 +1626,11 @@
 }).call(this);
 
 (function() {
-  var ContentEdit, exports, _Root, _TagNames, _mergers,
+  var ContentEdit, Element, ElementCollection, Fixture, Image, List, ListItem, ListItemText, Node, NodeCollection, PreText, Region, ResizableElement, Root, Static, Table, TableCell, TableCellText, TableRow, TableSection, Text, Video, exports, _mergers,
     __slice = [].slice,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   ContentEdit = {
@@ -1754,49 +1754,85 @@
     exports = module.exports = ContentEdit;
   }
 
-  _TagNames = (function() {
-    function _TagNames() {
-      this._tagNames = {};
-    }
+  ContentEdit.Factory = (function() {
+    Factory._classes = {};
 
-    _TagNames.prototype.register = function() {
-      var cls, tagName, tagNames, _i, _len, _results;
-      cls = arguments[0], tagNames = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    Factory._tags = {};
+
+    Factory.register = function() {
+      var classInstance, className, tagName, tagNames, _i, _len, _results;
+      classInstance = arguments[0], className = arguments[1], tagNames = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+      this._classes[className] = classInstance;
       _results = [];
       for (_i = 0, _len = tagNames.length; _i < _len; _i++) {
         tagName = tagNames[_i];
-        _results.push(this._tagNames[tagName.toLowerCase()] = cls);
+        _results.push(this._tags[tagName.toLowerCase()] = className);
       }
       return _results;
     };
 
-    _TagNames.prototype.match = function(tagName) {
-      if (this._tagNames[tagName.toLowerCase()]) {
-        return this._tagNames[tagName.toLowerCase()];
+    Factory["class"] = function(className) {
+      if (!this._classes[className]) {
+        console.error("Expected class names: " + (Object.keys(this._classes).join(', ')));
+        throw new Error("Unexpect class name: " + className);
       }
-      return ContentEdit.Static;
+      return this._classes[className];
     };
 
-    return _TagNames;
+    Factory.classNameByTag = function(tagName) {
+      tagName = tagName.toLowerCase();
+      if (!this._tags[tagName]) {
+        console.error("Expected tag names: " + (Object.keys(this._tags).join(', ')));
+        throw new Error("Unexpect tag name: " + tagName);
+      }
+      return this._tags[tagName];
+    };
+
+    Factory.classByTag = function(tagName) {
+      return this["class"](this.classNameByTag(tagName));
+    };
+
+    function Factory() {
+      var Root, classInstance, className, _ref;
+      Root = ContentEdit.Factory["class"]('Root');
+      this.root = new Root();
+      _ref = ContentEdit.Factory._classes;
+      for (className in _ref) {
+        classInstance = _ref[className];
+        this[className] = (function(classInstance, factory) {
+          var Wrapper;
+          Wrapper = (function(_super) {
+            __extends(Wrapper, _super);
+
+            function Wrapper() {
+              var args;
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+              this._factory = factory;
+              classInstance.prototype.constructor.apply(this, args);
+            }
+
+            return Wrapper;
+
+          })(classInstance);
+          Wrapper._factory = factory;
+          return Wrapper;
+        })(classInstance, this);
+      }
+    }
+
+    Factory.prototype.classByTag = function(tagName) {
+      var className;
+      className = ContentEdit.Factory.classNameByTag(tagName);
+      return this[className];
+    };
+
+    return Factory;
 
   })();
 
-  ContentEdit.TagNames = (function() {
-    var instance;
+  Node = (function() {
+    ContentEdit.Factory.register(Node, 'Node');
 
-    function TagNames() {}
-
-    instance = null;
-
-    TagNames.get = function() {
-      return instance != null ? instance : instance = new _TagNames();
-    };
-
-    return TagNames;
-
-  })();
-
-  ContentEdit.Node = (function() {
     function Node() {
       this._bindings = {};
       this._parent = null;
@@ -1887,11 +1923,11 @@
 
     Node.prototype.commit = function() {
       this._modified = null;
-      return ContentEdit.Root.get().trigger('commit', this);
+      return this._factory.root.trigger('commit', this);
     };
 
     Node.prototype.taint = function() {
-      var now, parent, root, _i, _len, _ref;
+      var now, parent, _i, _len, _ref;
       now = Date.now();
       this._modified = now;
       _ref = this.parents();
@@ -1899,9 +1935,8 @@
         parent = _ref[_i];
         parent._modified = now;
       }
-      root = ContentEdit.Root.get();
-      root._modified = now;
-      return root.trigger('taint', this);
+      this._factory.root._modified = now;
+      return this._factory.root.trigger('taint', this);
     };
 
     Node.prototype.closest = function(testFunc) {
@@ -2033,8 +2068,10 @@
 
   })();
 
-  ContentEdit.NodeCollection = (function(_super) {
+  NodeCollection = (function(_super) {
     __extends(NodeCollection, _super);
+
+    ContentEdit.Factory.register(NodeCollection, 'NodeCollection');
 
     function NodeCollection() {
       NodeCollection.__super__.constructor.call(this);
@@ -2077,7 +2114,7 @@
         node.mount();
       }
       this.taint();
-      return ContentEdit.Root.get().trigger('attach', this, node);
+      return this._factory.root.trigger('attach', this, node);
     };
 
     NodeCollection.prototype.commit = function() {
@@ -2088,7 +2125,7 @@
         descendant._modified = null;
       }
       this._modified = null;
-      return ContentEdit.Root.get().trigger('commit', this);
+      return this._factory.root.trigger('commit', this);
     };
 
     NodeCollection.prototype.detach = function(node) {
@@ -2103,15 +2140,17 @@
       this.children.splice(nodeIndex, 1);
       node._parent = null;
       this.taint();
-      return ContentEdit.Root.get().trigger('detach', this, node);
+      return this._factory.root.trigger('detach', this, node);
     };
 
     return NodeCollection;
 
-  })(ContentEdit.Node);
+  })(ContentEdit.Factory["class"]('Node'));
 
-  ContentEdit.Element = (function(_super) {
+  Element = (function(_super) {
     __extends(Element, _super);
+
+    ContentEdit.Factory.register(Element, 'Element');
 
     function Element(tagName, attributes) {
       Element.__super__.constructor.call(this);
@@ -2152,7 +2191,7 @@
     };
 
     Element.prototype.isFocused = function() {
-      return ContentEdit.Root.get().focused() === this;
+      return this._factory.root.focused() === this;
     };
 
     Element.prototype.isMounted = function() {
@@ -2197,12 +2236,10 @@
     };
 
     Element.prototype.blur = function() {
-      var root;
-      root = ContentEdit.Root.get();
       if (this.isFocused()) {
         this._removeCSSClass('ce-element--focused');
-        root._focused = null;
-        return root.trigger('blur', this);
+        this._factory.root._focused = null;
+        return this._factory.root.trigger('blur', this);
       }
     };
 
@@ -2225,53 +2262,47 @@
     };
 
     Element.prototype.drag = function(x, y) {
-      var root;
       if (!(this.isMounted() && this.can('drag'))) {
         return;
       }
-      root = ContentEdit.Root.get();
-      root.startDragging(this, x, y);
-      return root.trigger('drag', this);
+      this._factory.root.startDragging(this, x, y);
+      return this._factory.root.trigger('drag', this);
     };
 
     Element.prototype.drop = function(element, placement) {
-      var root;
       if (!this.can('drop')) {
         return;
       }
-      root = ContentEdit.Root.get();
       if (element) {
         element._removeCSSClass('ce-element--drop');
         element._removeCSSClass("ce-element--drop-" + placement[0]);
         element._removeCSSClass("ce-element--drop-" + placement[1]);
         if (this.constructor.droppers[element.type()]) {
           this.constructor.droppers[element.type()](this, element, placement);
-          root.trigger('drop', this, element, placement);
+          this._factory.root.trigger('drop', this, element, placement);
           return;
         } else if (element.constructor.droppers[this.type()]) {
           element.constructor.droppers[this.type()](this, element, placement);
-          root.trigger('drop', this, element, placement);
+          this._factory.root.trigger('drop', this, element, placement);
           return;
         }
       }
-      return root.trigger('drop', this, null, null);
+      return this._factory.root.trigger('drop', this, null, null);
     };
 
     Element.prototype.focus = function(supressDOMFocus) {
-      var root;
-      root = ContentEdit.Root.get();
       if (this.isFocused()) {
         return;
       }
-      if (root.focused()) {
-        root.focused().blur();
+      if (this._factory.root.focused()) {
+        this._factory.root.focused().blur();
       }
       this._addCSSClass('ce-element--focused');
-      root._focused = this;
+      this._factory.root._focused = this;
       if (this.isMounted() && !supressDOMFocus) {
         this.domElement().focus();
       }
-      return root.trigger('focus', this);
+      return this._factory.root.trigger('focus', this);
     };
 
     Element.prototype.hasCSSClass = function(className) {
@@ -2327,7 +2358,7 @@
       if (this.isFocused()) {
         this._addCSSClass('ce-element--focused');
       }
-      return ContentEdit.Root.get().trigger('mount', this);
+      return this._factory.root.trigger('mount', this);
     };
 
     Element.prototype.removeAttr = function(name) {
@@ -2394,7 +2425,7 @@
         this._domElement.parentNode.removeChild(this._domElement);
       }
       this._domElement = null;
-      return ContentEdit.Root.get().trigger('unmount', this);
+      return this._factory.root.trigger('unmount', this);
     };
 
     Element.prototype._addDOMEventListeners = function() {
@@ -2493,18 +2524,15 @@
     };
 
     Element.prototype._onMouseOut = function(ev) {
-      var dragging, root;
       this._removeCSSClass('ce-element--over');
-      root = ContentEdit.Root.get();
-      dragging = root.dragging();
-      if (dragging) {
+      if (this._factory.root.dragging()) {
         this._removeCSSClass('ce-element--drop');
         this._removeCSSClass('ce-element--drop-above');
         this._removeCSSClass('ce-element--drop-below');
         this._removeCSSClass('ce-element--drop-center');
         this._removeCSSClass('ce-element--drop-left');
         this._removeCSSClass('ce-element--drop-right');
-        return root._dropTarget = null;
+        return this._factory.root._dropTarget = null;
       }
     };
 
@@ -2513,27 +2541,26 @@
     Element.prototype._onNativeDrop = function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
-      return ContentEdit.Root.get().trigger('native-drop', this, ev);
+      return this._factory.root.trigger('native-drop', this, ev);
     };
 
     Element.prototype._onPaste = function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
-      return ContentEdit.Root.get().trigger('paste', this, ev);
+      return this._factory.root.trigger('paste', this, ev);
     };
 
     Element.prototype._onOver = function(ev) {
-      var dragging, root;
+      var dragging;
       this._addCSSClass('ce-element--over');
-      root = ContentEdit.Root.get();
-      dragging = root.dragging();
+      dragging = this._factory.root.dragging();
       if (!dragging) {
         return;
       }
       if (dragging === this) {
         return;
       }
-      if (root._dropTarget) {
+      if (this._factory.root._dropTarget) {
         return;
       }
       if (!this.can('drop')) {
@@ -2543,7 +2570,7 @@
         return;
       }
       this._addCSSClass('ce-element--drop');
-      return root._dropTarget = this;
+      return this._factory.root._dropTarget = this;
     };
 
     Element.prototype._removeDOMEventListeners = function() {
@@ -2669,16 +2696,18 @@
 
     return Element;
 
-  })(ContentEdit.Node);
+  })(ContentEdit.Factory["class"]('Node'));
 
-  ContentEdit.ElementCollection = (function(_super) {
+  ElementCollection = (function(_super) {
     __extends(ElementCollection, _super);
 
-    ElementCollection.extend(ContentEdit.NodeCollection);
+    ContentEdit.Factory.register(ElementCollection, 'ElementCollection');
+
+    ElementCollection.extend(ContentEdit.Factory["class"]('NodeCollection'));
 
     function ElementCollection(tagName, attributes) {
       ElementCollection.__super__.constructor.call(this, tagName, attributes);
-      ContentEdit.NodeCollection.prototype.constructor.call(this);
+      this._factory.NodeCollection.prototype.constructor.call(this);
     }
 
     ElementCollection.prototype.cssTypeName = function() {
@@ -2708,7 +2737,7 @@
     };
 
     ElementCollection.prototype.detach = function(element) {
-      ContentEdit.NodeCollection.prototype.detach.call(this, element);
+      this._factory.NodeCollection.prototype.detach.call(this, element);
       if (this.children.length === 0 && this.parent()) {
         return this.parent().detach(this);
       }
@@ -2770,10 +2799,12 @@
 
     return ElementCollection;
 
-  })(ContentEdit.Element);
+  })(ContentEdit.Factory["class"]('Element'));
 
-  ContentEdit.ResizableElement = (function(_super) {
+  ResizableElement = (function(_super) {
     __extends(ResizableElement, _super);
+
+    ContentEdit.Factory.register(ResizableElement, 'ResizableElement');
 
     function ResizableElement(tagName, attributes) {
       ResizableElement.__super__.constructor.call(this, tagName, attributes);
@@ -2818,7 +2849,7 @@
       if (!(this.isMounted() && this.can('resize'))) {
         return;
       }
-      return ContentEdit.Root.get().startResizing(this, corner, x, y, true);
+      return this._factory.root.startResizing(this, corner, x, y, true);
     };
 
     ResizableElement.prototype.size = function(newSize) {
@@ -2925,16 +2956,17 @@
 
     return ResizableElement;
 
-  })(ContentEdit.Element);
+  })(ContentEdit.Factory["class"]('Element'));
 
-  ContentEdit.Region = (function(_super) {
+  Region = (function(_super) {
     __extends(Region, _super);
 
+    ContentEdit.Factory.register(Region, 'Region');
+
     function Region(domElement) {
-      var c, childNode, childNodes, cls, element, tagNames, _i, _len;
+      var c, childNode, childNodes, cls, element, _i, _len;
       Region.__super__.constructor.call(this);
       this._domElement = domElement;
-      tagNames = ContentEdit.TagNames.get();
       childNodes = (function() {
         var _i, _len, _ref, _results;
         _ref = this._domElement.childNodes;
@@ -2951,16 +2983,16 @@
           continue;
         }
         if (childNode.getAttribute("data-ce-tag")) {
-          cls = tagNames.match(childNode.getAttribute("data-ce-tag"));
+          cls = this._factory.classByTag(childNode.getAttribute("data-ce-tag"));
         } else {
-          cls = tagNames.match(childNode.tagName);
+          cls = this._factory.classByTag(childNode.tagName);
         }
         element = cls.fromDOMElement(childNode);
         this._domElement.removeChild(childNode);
         if (element) {
           this.attach(element);
         }
-        ContentEdit.Root.get().trigger('ready', this);
+        this._factory.root.trigger('ready', this);
       }
     }
 
@@ -2995,26 +3027,27 @@
 
     return Region;
 
-  })(ContentEdit.NodeCollection);
+  })(ContentEdit.Factory["class"]('NodeCollection'));
 
-  ContentEdit.Fixture = (function(_super) {
+  Fixture = (function(_super) {
     __extends(Fixture, _super);
 
+    ContentEdit.Factory.register(Fixture, 'Fixture');
+
     function Fixture(domElement) {
-      var cls, element, tagNames;
+      var cls, element;
       Fixture.__super__.constructor.call(this);
       this._domElement = domElement;
-      tagNames = ContentEdit.TagNames.get();
       if (this._domElement.getAttribute("data-ce-tag")) {
-        cls = tagNames.match(this._domElement.getAttribute("data-ce-tag"));
+        cls = this._factory.classByTag(this._domElement.getAttribute("data-ce-tag"));
       } else {
-        cls = tagNames.match(this._domElement.tagName);
+        cls = this._factory.classByTag(this._domElement.tagName);
       }
       element = cls.fromDOMElement(this._domElement);
       this.children = [element];
       element._parent = this;
       element.mount();
-      ContentEdit.Root.get().trigger('ready', this);
+      this._factory.root.trigger('ready', this);
     }
 
     Fixture.prototype.domElement = function() {
@@ -3048,17 +3081,19 @@
 
     return Fixture;
 
-  })(ContentEdit.NodeCollection);
+  })(ContentEdit.Factory["class"]('NodeCollection'));
 
-  _Root = (function(_super) {
-    __extends(_Root, _super);
+  Root = (function(_super) {
+    __extends(Root, _super);
 
-    function _Root() {
+    ContentEdit.Factory.register(Root, "Root");
+
+    function Root() {
       this._onStopResizing = __bind(this._onStopResizing, this);
       this._onResize = __bind(this._onResize, this);
       this._onStopDragging = __bind(this._onStopDragging, this);
       this._onDrag = __bind(this._onDrag, this);
-      _Root.__super__.constructor.call(this);
+      Root.__super__.constructor.call(this);
       this._focused = null;
       this._dragging = null;
       this._dropTarget = null;
@@ -3067,27 +3102,27 @@
       this._resizingInit = null;
     }
 
-    _Root.prototype.dragging = function() {
+    Root.prototype.dragging = function() {
       return this._dragging;
     };
 
-    _Root.prototype.dropTarget = function() {
+    Root.prototype.dropTarget = function() {
       return this._dropTarget;
     };
 
-    _Root.prototype.focused = function() {
+    Root.prototype.focused = function() {
       return this._focused;
     };
 
-    _Root.prototype.resizing = function() {
+    Root.prototype.resizing = function() {
       return this._resizing;
     };
 
-    _Root.prototype.type = function() {
+    Root.prototype.type = function() {
       return 'Root';
     };
 
-    _Root.prototype.cancelDragging = function() {
+    Root.prototype.cancelDragging = function() {
       if (!this._dragging) {
         return;
       }
@@ -3100,7 +3135,7 @@
       return ContentEdit.removeCSSClass(document.body, 'ce--dragging');
     };
 
-    _Root.prototype.startDragging = function(element, x, y) {
+    Root.prototype.startDragging = function(element, x, y) {
       if (this._dragging) {
         return;
       }
@@ -3115,7 +3150,7 @@
       return ContentEdit.addCSSClass(document.body, 'ce--dragging');
     };
 
-    _Root.prototype._getDropPlacement = function(x, y) {
+    Root.prototype._getDropPlacement = function(x, y) {
       var horz, rect, vert, _ref;
       if (!this._dropTarget) {
         return null;
@@ -3135,7 +3170,7 @@
       return [vert, horz];
     };
 
-    _Root.prototype._onDrag = function(ev) {
+    Root.prototype._onDrag = function(ev) {
       var placement, _ref, _ref1;
       ContentSelect.Range.unselectAll();
       this._draggingDOMElement.style.left = "" + ev.pageX + "px";
@@ -3156,14 +3191,14 @@
       }
     };
 
-    _Root.prototype._onStopDragging = function(ev) {
+    Root.prototype._onStopDragging = function(ev) {
       var placement;
       placement = this._getDropPlacement(ev.clientX, ev.clientY);
       this._dragging.drop(this._dropTarget, placement);
       return this.cancelDragging();
     };
 
-    _Root.prototype.startResizing = function(element, corner, x, y, fixed) {
+    Root.prototype.startResizing = function(element, corner, x, y, fixed) {
       var measureDom, parentDom;
       if (this._resizing) {
         return;
@@ -3187,7 +3222,7 @@
       return ContentEdit.addCSSClass(document.body, 'ce--resizing');
     };
 
-    _Root.prototype._onResize = function(ev) {
+    Root.prototype._onResize = function(ev) {
       var height, width, x, y;
       ContentSelect.Range.unselectAll();
       x = this._resizingInit.origin[0] - ev.clientX;
@@ -3208,7 +3243,7 @@
       return this._resizing.size([width, height]);
     };
 
-    _Root.prototype._onStopResizing = function(ev) {
+    Root.prototype._onStopResizing = function(ev) {
       document.removeEventListener('mousemove', this._onResize);
       document.removeEventListener('mouseup', this._onStopResizing);
       this._resizing._removeCSSClass('ce-element--resizing');
@@ -3218,27 +3253,14 @@
       return ContentEdit.removeCSSClass(document.body, 'ce--resizing');
     };
 
-    return _Root;
-
-  })(ContentEdit.Node);
-
-  ContentEdit.Root = (function() {
-    var instance;
-
-    function Root() {}
-
-    instance = null;
-
-    Root.get = function() {
-      return instance != null ? instance : instance = new _Root();
-    };
-
     return Root;
 
-  })();
+  })(ContentEdit.Factory["class"]("Node"));
 
-  ContentEdit.Static = (function(_super) {
+  Static = (function(_super) {
     __extends(Static, _super);
+
+    ContentEdit.Factory.register(Static, 'Static', 'static');
 
     function Static(tagName, attributes, content) {
       Static.__super__.constructor.call(this, tagName, attributes);
@@ -3322,7 +3344,7 @@
     };
 
     Static.droppers = {
-      'Static': ContentEdit.Element._dropVert
+      'Static': ContentEdit.Factory["class"]('Element')._dropVert
     };
 
     Static.fromDOMElement = function(domElement) {
@@ -3331,12 +3353,12 @@
 
     return Static;
 
-  })(ContentEdit.Element);
+  })(ContentEdit.Factory["class"]('Element'));
 
-  ContentEdit.TagNames.get().register(ContentEdit.Static, 'static');
-
-  ContentEdit.Text = (function(_super) {
+  Text = (function(_super) {
     __extends(Text, _super);
+
+    ContentEdit.Factory.register(Text, 'Text', 'address', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p');
 
     function Text(tagName, attributes, content) {
       Text.__super__.constructor.call(this, tagName, attributes);
@@ -3521,7 +3543,7 @@
           return _this.drag(ev.pageX, ev.pageY);
         };
       })(this), ContentEdit.DRAG_HOLD_DURATION);
-      if (this.content.length() === 0 && ContentEdit.Root.get().focused() === this) {
+      if (this.content.length() === 0 && this._factory.root.get().focused() === this) {
         ev.preventDefault();
         if (document.activeElement !== this._domElement) {
           this._domElement.focus();
@@ -3595,8 +3617,8 @@
         selection = new ContentSelect.Range(previous.content.length(), previous.content.length());
         return selection.select(previous.domElement());
       } else {
-        return ContentEdit.Root.get().trigger('previous-region', this.closest(function(node) {
-          return node.type() === 'Region';
+        return this._factory.root.trigger('previous-region', this.closest(function(node) {
+          return node.type() === 'Fixture' || node.type() === 'Region';
         }));
       }
     };
@@ -3657,7 +3679,7 @@
         selection = new ContentSelect.Range(0, 0);
         return selection.select(next.domElement());
       } else {
-        return ContentEdit.Root.get().trigger('next-region', this.closest(function(node) {
+        return this._factory.root.trigger('next-region', this.closest(function(node) {
           return node.type() === 'Fixture' || node.type() === 'Region';
         }));
       }
@@ -3695,8 +3717,8 @@
     };
 
     Text.droppers = {
-      'Static': ContentEdit.Element._dropVert,
-      'Text': ContentEdit.Element._dropVert
+      'Static': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Text': ContentEdit.Factory["class"]('Element')._dropVert
     };
 
     Text.mergers = {
@@ -3724,12 +3746,12 @@
 
     return Text;
 
-  })(ContentEdit.Element);
+  })(ContentEdit.Factory["class"]('Element'));
 
-  ContentEdit.TagNames.get().register(ContentEdit.Text, 'address', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p');
-
-  ContentEdit.PreText = (function(_super) {
+  PreText = (function(_super) {
     __extends(PreText, _super);
+
+    ContentEdit.Factory.register(PreText, 'PreText', 'pre');
 
     function PreText(tagName, attributes, content) {
       if (content instanceof HTMLString.String) {
@@ -3737,7 +3759,7 @@
       } else {
         this.content = new HTMLString.String(content, true);
       }
-      ContentEdit.Element.call(this, tagName, attributes);
+      ContentEdit.Factory["class"]('Element').call(this, tagName, attributes);
     }
 
     PreText.prototype.cssTypeName = function() {
@@ -3842,9 +3864,9 @@
     };
 
     PreText.droppers = {
-      'PreText': ContentEdit.Element._dropVert,
-      'Static': ContentEdit.Element._dropVert,
-      'Text': ContentEdit.Element._dropVert
+      'PreText': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Static': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Text': ContentEdit.Factory["class"]('Element')._dropVert
     };
 
     PreText.mergers = {};
@@ -3855,12 +3877,12 @@
 
     return PreText;
 
-  })(ContentEdit.Text);
+  })(ContentEdit.Factory["class"]('Text'));
 
-  ContentEdit.TagNames.get().register(ContentEdit.PreText, 'pre');
-
-  ContentEdit.Image = (function(_super) {
+  Image = (function(_super) {
     __extends(Image, _super);
+
+    ContentEdit.Factory.register(Image, 'Image', 'img');
 
     function Image(attributes, a) {
       var size;
@@ -3943,10 +3965,10 @@
     };
 
     Image.droppers = {
-      'Image': ContentEdit.Element._dropBoth,
-      'PreText': ContentEdit.Element._dropBoth,
-      'Static': ContentEdit.Element._dropBoth,
-      'Text': ContentEdit.Element._dropBoth
+      'Image': ContentEdit.Factory["class"]('Element')._dropBoth,
+      'PreText': ContentEdit.Factory["class"]('Element')._dropBoth,
+      'Static': ContentEdit.Factory["class"]('Element')._dropBoth,
+      'Text': ContentEdit.Factory["class"]('Element')._dropBoth
     };
 
     Image.placements = ['above', 'below', 'left', 'right', 'center'];
@@ -3997,12 +4019,12 @@
 
     return Image;
 
-  })(ContentEdit.ResizableElement);
+  })(ContentEdit.Factory["class"]('ResizableElement'));
 
-  ContentEdit.TagNames.get().register(ContentEdit.Image, 'img');
-
-  ContentEdit.Video = (function(_super) {
+  Video = (function(_super) {
     __extends(Video, _super);
+
+    ContentEdit.Factory.register(Video, 'Video', 'iframe', 'video');
 
     function Video(tagName, attributes, sources) {
       var size;
@@ -4108,11 +4130,11 @@
     };
 
     Video.droppers = {
-      'Image': ContentEdit.Element._dropBoth,
-      'PreText': ContentEdit.Element._dropBoth,
-      'Static': ContentEdit.Element._dropBoth,
-      'Text': ContentEdit.Element._dropBoth,
-      'Video': ContentEdit.Element._dropBoth
+      'Image': ContentEdit.Factory["class"]('Element')._dropBoth,
+      'PreText': ContentEdit.Factory["class"]('Element')._dropBoth,
+      'Static': ContentEdit.Factory["class"]('Element')._dropBoth,
+      'Text': ContentEdit.Factory["class"]('Element')._dropBoth,
+      'Video': ContentEdit.Factory["class"]('Element')._dropBoth
     };
 
     Video.placements = ['above', 'below', 'left', 'right', 'center'];
@@ -4141,12 +4163,12 @@
 
     return Video;
 
-  })(ContentEdit.ResizableElement);
+  })(ContentEdit.Factory["class"]('ResizableElement'));
 
-  ContentEdit.TagNames.get().register(ContentEdit.Video, 'iframe', 'video');
-
-  ContentEdit.List = (function(_super) {
+  List = (function(_super) {
     __extends(List, _super);
+
+    ContentEdit.Factory.register(List, 'List', 'ol', 'ul');
 
     function List(tagName, attributes) {
       List.__super__.constructor.call(this, tagName, attributes);
@@ -4173,12 +4195,12 @@
     };
 
     List.droppers = {
-      'Image': ContentEdit.Element._dropBoth,
-      'List': ContentEdit.Element._dropVert,
-      'PreText': ContentEdit.Element._dropVert,
-      'Static': ContentEdit.Element._dropVert,
-      'Text': ContentEdit.Element._dropVert,
-      'Video': ContentEdit.Element._dropBoth
+      'Image': ContentEdit.Factory["class"]('Element')._dropBoth,
+      'List': ContentEdit.Factory["class"]('Element')._dropVert,
+      'PreText': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Static': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Text': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Video': ContentEdit.Factory["class"]('Element')._dropBoth
     };
 
     List.fromDOMElement = function(domElement) {
@@ -4202,7 +4224,7 @@
         if (childNode.tagName.toLowerCase() !== 'li') {
           continue;
         }
-        list.attach(ContentEdit.ListItem.fromDOMElement(childNode));
+        list.attach(this._factory.ListItem.fromDOMElement(childNode));
       }
       if (list.children.length === 0) {
         return null;
@@ -4212,12 +4234,12 @@
 
     return List;
 
-  })(ContentEdit.ElementCollection);
+  })(ContentEdit.Factory["class"]('ElementCollection'));
 
-  ContentEdit.TagNames.get().register(ContentEdit.List, 'ol', 'ul');
-
-  ContentEdit.ListItem = (function(_super) {
+  ListItem = (function(_super) {
     __extends(ListItem, _super);
+
+    ContentEdit.Factory.register(ListItem, 'ListItem');
 
     function ListItem(attributes) {
       ListItem.__super__.constructor.call(this, 'li', attributes);
@@ -4272,7 +4294,7 @@
       }
       sibling = this.previousSibling();
       if (!sibling.list()) {
-        sibling.attach(new ContentEdit.List(sibling.parent().tagName()));
+        sibling.attach(new this._factory.List(sibling.parent().tagName()));
       }
       this.listItemText().storeState();
       this.parent().detach(this);
@@ -4310,7 +4332,7 @@
         parent.detach(this);
         grandParent.parent().attach(this, grandParent.parent().children.indexOf(grandParent) + 1);
         if (siblings.length && !this.list()) {
-          this.attach(new ContentEdit.List(parent.tagName()));
+          this.attach(new this._factory.List(parent.tagName()));
         }
         for (_i = 0, _len = siblings.length; _i < _len; _i++) {
           sibling = siblings[_i];
@@ -4319,7 +4341,7 @@
         }
         return this.listItemText().restoreState();
       } else {
-        text = new ContentEdit.Text('p', this.attr('class') ? {
+        text = new this._factory.Text('p', this.attr('class') ? {
           'class': this.attr('class')
         } : {}, this.listItemText().content);
         selection = null;
@@ -4332,7 +4354,7 @@
           list = null;
           if (parent.children.length === 1) {
             if (this.list()) {
-              list = new ContentEdit.List(parent.tagName());
+              list = new this._factory.List(parent.tagName());
             }
             grandParent.detach(parent);
           } else {
@@ -4363,7 +4385,7 @@
         } else {
           parent.detach(this);
           grandParent.attach(text, parentIndex + 1);
-          list = new ContentEdit.List(parent.tagName());
+          list = new this._factory.List(parent.tagName());
           grandParent.attach(list, parentIndex + 2);
           if (this.list()) {
             _ref1 = this.list().children.slice();
@@ -4416,10 +4438,10 @@
         }
       }
       content = content.replace(/^\s+|\s+$/g, '');
-      listItemText = new ContentEdit.ListItemText(content);
+      listItemText = new this._factory.ListItemText(content);
       listItem.attach(listItemText);
       if (listDOMElement) {
-        listElement = ContentEdit.List.fromDOMElement(listDOMElement);
+        listElement = this._factory.List.fromDOMElement(listDOMElement);
         listItem.attach(listElement);
       }
       return listItem;
@@ -4427,10 +4449,12 @@
 
     return ListItem;
 
-  })(ContentEdit.ElementCollection);
+  })(ContentEdit.Factory["class"]('ElementCollection'));
 
-  ContentEdit.ListItemText = (function(_super) {
+  ListItemText = (function(_super) {
     __extends(ListItemText, _super);
+
+    ContentEdit.Factory.register(ListItemText, 'ListItemText');
 
     function ListItemText(content) {
       ListItemText.__super__.constructor.call(this, 'div', {}, content);
@@ -4455,7 +4479,7 @@
         this._domElement.blur();
         this._domElement.removeAttribute('contenteditable');
       }
-      return ContentEdit.Element.prototype.blur.call(this);
+      return this._factory.Element.prototype.blur.call(this);
     };
 
     ListItemText.prototype.can = function(behaviour, allowed) {
@@ -4481,12 +4505,12 @@
 
     ListItemText.prototype._onMouseDown = function(ev) {
       var initDrag;
-      ContentEdit.Element.prototype._onMouseDown.call(this, ev);
+      this._factory.Element.prototype._onMouseDown.call(this, ev);
       initDrag = (function(_this) {
         return function() {
           var listRoot;
-          if (ContentEdit.Root.get().dragging() === _this) {
-            ContentEdit.Root.get().cancelDragging();
+          if (_this._factory.root.dragging() === _this) {
+            _this._factory.root.cancelDragging();
             listRoot = _this.closest(function(node) {
               return node.parent().type() === 'Region';
             });
@@ -4505,14 +4529,14 @@
       if (this._dragTimeout) {
         clearTimeout(this._dragTimeout);
       }
-      return ContentEdit.Element.prototype._onMouseMove.call(this, ev);
+      return this._factory.Element.prototype._onMouseMove.call(this, ev);
     };
 
     ListItemText.prototype._onMouseUp = function(ev) {
       if (this._dragTimeout) {
         clearTimeout(this._dragTimeout);
       }
-      return ContentEdit.Element.prototype._onMouseUp.call(this, ev);
+      return this._factory.Element.prototype._onMouseUp.call(this, ev);
     };
 
     ListItemText.prototype._keyTab = function(ev) {
@@ -4545,11 +4569,11 @@
       this.content = tip.trim();
       this.updateInnerHTML();
       grandParent = this.parent().parent();
-      listItem = new ContentEdit.ListItem(this.attr('class') ? {
+      listItem = new this._factory.ListItem(this.attr('class') ? {
         'class': this.attr('class')
       } : {});
       grandParent.attach(listItem, grandParent.children.indexOf(this.parent()) + 1);
-      listItem.attach(new ContentEdit.ListItemText(tail.trim()));
+      listItem.attach(new this._factory.ListItemText(tail.trim()));
       list = this.parent().list();
       if (list) {
         this.parent().detach(list);
@@ -4572,7 +4596,7 @@
         targetParent = target.parent();
         elementParent.remove();
         elementParent.detach(element);
-        listItem = new ContentEdit.ListItem(elementParent._attributes);
+        listItem = new element._factory.ListItem(elementParent._attributes);
         listItem.attach(element);
         if (targetParent.list() && placement[0] === 'below') {
           targetParent.list().attach(listItem, 0);
@@ -4590,10 +4614,10 @@
           targetParent = target.parent();
           element.parent().detach(element);
           cssClass = element.attr('class');
-          listItem = new ContentEdit.ListItem(cssClass ? {
+          listItem = new element._factory.ListItem(cssClass ? {
             'class': cssClass
           } : {});
-          listItem.attach(new ContentEdit.ListItemText(element.content));
+          listItem.attach(new element._factory.ListItemText(element.content));
           if (targetParent.list() && placement[0] === 'below') {
             targetParent.list().attach(listItem, 0);
             return;
@@ -4609,7 +4633,7 @@
           }
         } else {
           cssClass = element.attr('class');
-          text = new ContentEdit.Text('p', cssClass ? {
+          text = new element._factory.Text('p', cssClass ? {
             'class': cssClass
           } : {}, element.content);
           element.parent().remove();
@@ -4651,14 +4675,16 @@
 
     return ListItemText;
 
-  })(ContentEdit.Text);
+  })(ContentEdit.Factory["class"]('Text'));
 
-  _mergers = ContentEdit.ListItemText.mergers;
+  _mergers = ListItemText.mergers;
 
   _mergers['Text'] = _mergers['ListItemText'];
 
-  ContentEdit.Table = (function(_super) {
+  Table = (function(_super) {
     __extends(Table, _super);
+
+    ContentEdit.Factory.register(Table, 'Table', 'table');
 
     function Table(attributes) {
       Table.__super__.constructor.call(this, 'table', attributes);
@@ -4730,13 +4756,13 @@
     };
 
     Table.droppers = {
-      'Image': ContentEdit.Element._dropBoth,
-      'List': ContentEdit.Element._dropVert,
-      'PreText': ContentEdit.Element._dropVert,
-      'Static': ContentEdit.Element._dropVert,
-      'Table': ContentEdit.Element._dropVert,
-      'Text': ContentEdit.Element._dropVert,
-      'Video': ContentEdit.Element._dropBoth
+      'Image': ContentEdit.Factory["class"]('Element')._dropBoth,
+      'List': ContentEdit.Factory["class"]('Element')._dropVert,
+      'PreText': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Static': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Table': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Text': ContentEdit.Factory["class"]('Element')._dropVert,
+      'Video': ContentEdit.Factory["class"]('Element')._dropBoth
     };
 
     Table.fromDOMElement = function(domElement) {
@@ -4766,16 +4792,16 @@
           case 'tbody':
           case 'tfoot':
           case 'thead':
-            section = ContentEdit.TableSection.fromDOMElement(childNode);
+            section = this._factory.TableSection.fromDOMElement(childNode);
             table.attach(section);
             break;
           case 'tr':
-            orphanRows.push(ContentEdit.TableRow.fromDOMElement(childNode));
+            orphanRows.push(this._factory.TableRow.fromDOMElement(childNode));
         }
       }
       if (orphanRows.length > 0) {
         if (!table._getChild('tbody')) {
-          table.attach(new ContentEdit.TableSection('tbody'));
+          table.attach(new this._factory.TableSection('tbody'));
         }
         for (_j = 0, _len1 = orphanRows.length; _j < _len1; _j++) {
           row = orphanRows[_j];
@@ -4790,12 +4816,12 @@
 
     return Table;
 
-  })(ContentEdit.ElementCollection);
+  })(ContentEdit.Factory["class"]('ElementCollection'));
 
-  ContentEdit.TagNames.get().register(ContentEdit.Table, 'table');
-
-  ContentEdit.TableSection = (function(_super) {
+  TableSection = (function(_super) {
     __extends(TableSection, _super);
+
+    ContentEdit.Factory.register(TableSection, 'TableSection');
 
     function TableSection(tagName, attributes) {
       TableSection.__super__.constructor.call(this, tagName, attributes);
@@ -4835,17 +4861,19 @@
         if (childNode.tagName.toLowerCase() !== 'tr') {
           continue;
         }
-        section.attach(ContentEdit.TableRow.fromDOMElement(childNode));
+        section.attach(this._factory.TableRow.fromDOMElement(childNode));
       }
       return section;
     };
 
     return TableSection;
 
-  })(ContentEdit.ElementCollection);
+  })(ContentEdit.Factory["class"]('ElementCollection'));
 
-  ContentEdit.TableRow = (function(_super) {
+  TableRow = (function(_super) {
     __extends(TableRow, _super);
+
+    ContentEdit.Factory.register(TableRow, 'TableRow');
 
     function TableRow(attributes) {
       TableRow.__super__.constructor.call(this, 'tr', attributes);
@@ -4882,7 +4910,7 @@
     };
 
     TableRow.droppers = {
-      'TableRow': ContentEdit.Element._dropVert
+      'TableRow': ContentEdit.Factory["class"]('Element')._dropVert
     };
 
     TableRow.fromDOMElement = function(domElement) {
@@ -4907,17 +4935,19 @@
         if (!(tagName === 'td' || tagName === 'th')) {
           continue;
         }
-        row.attach(ContentEdit.TableCell.fromDOMElement(childNode));
+        row.attach(this._factory.TableCell.fromDOMElement(childNode));
       }
       return row;
     };
 
     return TableRow;
 
-  })(ContentEdit.ElementCollection);
+  })(ContentEdit.Factory["class"]('ElementCollection'));
 
-  ContentEdit.TableCell = (function(_super) {
+  TableCell = (function(_super) {
     __extends(TableCell, _super);
+
+    ContentEdit.Factory.register(TableCell, 'TableCell');
 
     function TableCell(tagName, attributes) {
       TableCell.__super__.constructor.call(this, tagName, attributes);
@@ -4963,17 +4993,19 @@
     TableCell.fromDOMElement = function(domElement) {
       var tableCell, tableCellText;
       tableCell = new this(domElement.tagName, this.getDOMElementAttributes(domElement));
-      tableCellText = new ContentEdit.TableCellText(domElement.innerHTML.replace(/^\s+|\s+$/g, ''));
+      tableCellText = new this._factory.TableCellText(domElement.innerHTML.replace(/^\s+|\s+$/g, ''));
       tableCell.attach(tableCellText);
       return tableCell;
     };
 
     return TableCell;
 
-  })(ContentEdit.ElementCollection);
+  })(ContentEdit.Factory["class"]('ElementCollection'));
 
-  ContentEdit.TableCellText = (function(_super) {
+  TableCellText = (function(_super) {
     __extends(TableCellText, _super);
+
+    ContentEdit.Factory.register(TableCellText, 'TableCellText');
 
     function TableCellText(content) {
       TableCellText.__super__.constructor.call(this, 'div', {}, content);
@@ -5027,7 +5059,7 @@
         this._domElement.blur();
         this._domElement.removeAttribute('contenteditable');
       }
-      return ContentEdit.Element.prototype.blur.call(this);
+      return this._factory.Element.prototype.blur.call(this);
     };
 
     TableCellText.prototype.can = function(behaviour, allowed) {
@@ -5053,13 +5085,13 @@
 
     TableCellText.prototype._onMouseDown = function(ev) {
       var initDrag;
-      ContentEdit.Element.prototype._onMouseDown.call(this, ev);
+      this._factory.Element.prototype._onMouseDown.call(this, ev);
       initDrag = (function(_this) {
         return function() {
           var cell, table;
           cell = _this.parent();
-          if (ContentEdit.Root.get().dragging() === cell.parent()) {
-            ContentEdit.Root.get().cancelDragging();
+          if (_this._factory.root.dragging() === cell.parent()) {
+            _this._factory.root.cancelDragging();
             table = cell.parent().parent().parent();
             return table.drag(ev.pageX, ev.pageY);
           } else {
@@ -5127,7 +5159,7 @@
         if (next) {
           return next.focus();
         } else {
-          return ContentEdit.Root.get().trigger('next-region', this.closest(function(node) {
+          return this._factory.root.trigger('next-region', this.closest(function(node) {
             return node.type() === 'Fixture' || node.type() === 'Region';
           }));
         }
@@ -5164,12 +5196,12 @@
         }
         grandParent = cell.parent().parent();
         if (grandParent.tagName() === 'tbody' && this._isLastInSection()) {
-          row = new ContentEdit.TableRow();
+          row = new this._factory.TableRow();
           _ref = cell.parent().children;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             child = _ref[_i];
-            newCell = new ContentEdit.TableCell(child.tagName(), child._attributes);
-            newCellText = new ContentEdit.TableCellText('');
+            newCell = new this._factory.TableCell(child.tagName(), child._attributes);
+            newCellText = new this._factory.TableCellText('');
             newCell.attach(newCellText);
             row.attach(newCell);
           }
@@ -5198,7 +5230,7 @@
         if (previous) {
           return previous.focus();
         } else {
-          return ContentEdit.Root.get().trigger('previous-region', this.closest(function(node) {
+          return this._factory.root.trigger('previous-region', this.closest(function(node) {
             return node.type() === 'Fixture' || node.type() === 'Region';
           }));
         }
@@ -5218,6 +5250,6 @@
 
     return TableCellText;
 
-  })(ContentEdit.Text);
+  })(ContentEdit.Factory["class"]('Text'));
 
 }).call(this);

@@ -1,4 +1,8 @@
-class ContentEdit.List extends ContentEdit.ElementCollection
+class List extends ContentEdit.Factory.class('ElementCollection')
+
+    # Register `List` class in Abstract factory
+    # Associate tags `ol`, `ul` with this class
+    ContentEdit.Factory.register(@, 'List', 'ol', 'ul')
 
     # An editable list (e.g <ol>, <ul>).
 
@@ -33,12 +37,12 @@ class ContentEdit.List extends ContentEdit.ElementCollection
     # Class properties
 
     @droppers:
-        'Image': ContentEdit.Element._dropBoth
-        'List': ContentEdit.Element._dropVert
-        'PreText': ContentEdit.Element._dropVert
-        'Static': ContentEdit.Element._dropVert
-        'Text': ContentEdit.Element._dropVert
-        'Video': ContentEdit.Element._dropBoth
+        'Image': ContentEdit.Factory.class('Element')._dropBoth
+        'List': ContentEdit.Factory.class('Element')._dropVert
+        'PreText': ContentEdit.Factory.class('Element')._dropVert
+        'Static': ContentEdit.Factory.class('Element')._dropVert
+        'Text': ContentEdit.Factory.class('Element')._dropVert
+        'Video': ContentEdit.Factory.class('Element')._dropBoth
 
     # Class methods
 
@@ -67,7 +71,7 @@ class ContentEdit.List extends ContentEdit.ElementCollection
                 continue
 
             # Parse the item
-            list.attach(ContentEdit.ListItem.fromDOMElement(childNode))
+            list.attach(@_factory.ListItem.fromDOMElement(childNode))
 
         # If the list is empty then don't create it
         if list.children.length == 0
@@ -76,16 +80,15 @@ class ContentEdit.List extends ContentEdit.ElementCollection
         return list
 
 
-# Register `ContentEdit.List` the class with associated tag names
-ContentEdit.TagNames.get().register(ContentEdit.List, 'ol', 'ul')
+class ListItem extends ContentEdit.Factory.class('ElementCollection')
 
-
-class ContentEdit.ListItem extends ContentEdit.ElementCollection
+    # Register `ListItem` class in Abstract factory
+    ContentEdit.Factory.register(@, 'ListItem')
 
     # An editable list item (e.g <li>).
     #
     # NOTE: The list item element is a collection of at most 2 elements, an
-    # `ContentEdit.ListItemText` and optionally a `ContentEdit.List` item.
+    # `ListItemText` and optionally a `List` item.
 
     constructor: (attributes) ->
         super('li', attributes)
@@ -141,7 +144,7 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
         # have a list add one.
         sibling = @previousSibling()
         unless sibling.list()
-            sibling.attach(new ContentEdit.List(sibling.parent().tagName()))
+            sibling.attach(new @_factory.List(sibling.parent().tagName()))
 
         @listItemText().storeState()
 
@@ -194,7 +197,7 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
             # Indent all the siblings that follow the item so that they become
             # it's children.
             if siblings.length and not @list()
-                @attach(new ContentEdit.List(parent.tagName()))
+                @attach(new @_factory.List(parent.tagName()))
 
             for sibling in siblings
                 sibling.parent().detach(sibling)
@@ -204,7 +207,7 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
 
         else
             # Cast the item as a text element (<P>)
-            text = new ContentEdit.Text(
+            text = new @_factory.Text(
                 'p',
                 if @attr('class') then {'class': @attr('class')} else {},
                 @listItemText().content
@@ -234,7 +237,7 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
                     # If there are children then we need to create a new list to
                     # insert them into once the items parent has been detached.
                     if @list()
-                        list = new ContentEdit.List(parent.tagName())
+                        list = new @_factory.List(parent.tagName())
 
                     grandParent.detach(parent)
 
@@ -279,7 +282,7 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
 
                 # Move the children and siblings to a new list after the new
                 # text element
-                list = new ContentEdit.List(parent.tagName())
+                list = new @_factory.List(parent.tagName())
                 grandParent.attach(list, parentIndex + 2)
 
                 # Children
@@ -344,18 +347,21 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
 
         content = content.replace(/^\s+|\s+$/g, '')
 
-        listItemText = new ContentEdit.ListItemText(content)
+        listItemText = new @_factory.ListItemText(content)
         listItem.attach(listItemText)
 
         # List
         if listDOMElement
-            listElement = ContentEdit.List.fromDOMElement(listDOMElement)
+            listElement = @_factory.List.fromDOMElement(listDOMElement)
             listItem.attach(listElement)
 
         return listItem
 
 
-class ContentEdit.ListItemText extends ContentEdit.Text
+class ListItemText extends ContentEdit.Factory.class('Text')
+
+    # Register `ListItemText` class in Abstract factory
+    ContentEdit.Factory.register(@, 'ListItemText')
 
     # The text component of an editable list item (e.g <li> -> TEXT_NODE).
 
@@ -395,7 +401,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
             # Stop the element from being editable
             @_domElement.removeAttribute('contenteditable')
 
-        ContentEdit.Element::blur.call(this)
+        @_factory.Element::blur.call(this)
 
     can: (behaviour, allowed) ->
         # The allowed behaviour for a ListItemText instance reflects its parent
@@ -425,19 +431,19 @@ class ContentEdit.ListItemText extends ContentEdit.Text
 
     _onMouseDown: (ev) ->
         # Give the element focus
-        ContentEdit.Element::_onMouseDown.call(this, ev)
+        @_factory.Element::_onMouseDown.call(this, ev)
 
         # Lists support dragging of list items or the root list. The drag is
         # initialized by clicking and holding the mouse down on a list item text
         # element, how long the user holds the mouse down determines which
         # element is dragged (the parent list item or the list root).
         initDrag = () =>
-            if ContentEdit.Root.get().dragging() == this
+            if @_factory.root.dragging() == this
                 # We're currently dragging the list item so switch to dragging
                 # the list root.
 
                 # Cancel dragging the list item
-                ContentEdit.Root.get().cancelDragging()
+                @_factory.root.cancelDragging()
 
                 # Find the list root and start dragging it
                 listRoot = @closest (node) ->
@@ -466,7 +472,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
         if @_dragTimeout
             clearTimeout(@_dragTimeout)
 
-        ContentEdit.Element::_onMouseMove.call(this, ev)
+        @_factory.Element::_onMouseMove.call(this, ev)
 
     _onMouseUp: (ev) ->
         # If we're waiting to see if the user wants to drag the element, stop
@@ -474,7 +480,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
         if @_dragTimeout
             clearTimeout(@_dragTimeout)
 
-        ContentEdit.Element::_onMouseUp.call(this, ev)
+        @_factory.Element::_onMouseUp.call(this, ev)
 
     # Key handlers
 
@@ -518,14 +524,14 @@ class ContentEdit.ListItemText extends ContentEdit.Text
 
         # Attach the new element
         grandParent = @parent().parent()
-        listItem = new ContentEdit.ListItem(
+        listItem = new @_factory.ListItem(
             if @attr('class') then {'class': @attr('class')} else {}
             )
         grandParent.attach(
             listItem,
             grandParent.children.indexOf(@parent()) + 1
             )
-        listItem.attach(new ContentEdit.ListItemText(tail.trim()))
+        listItem.attach(new @_factory.ListItemText(tail.trim()))
 
         # Move any associated list to the new list item
         list = @parent().list()
@@ -553,7 +559,8 @@ class ContentEdit.ListItemText extends ContentEdit.Text
             # Remove the list item from the
             elementParent.remove()
             elementParent.detach(element)
-            listItem = new ContentEdit.ListItem(elementParent._attributes)
+
+            listItem = new element._factory.ListItem(elementParent._attributes)
             listItem.attach(element)
 
             # If the drop target has children and we're dropping below add it as
@@ -582,10 +589,10 @@ class ContentEdit.ListItemText extends ContentEdit.Text
 
                 # Convert the text item to a list item
                 cssClass = element.attr('class')
-                listItem = new ContentEdit.ListItem(
+                listItem = new element._factory.ListItem(
                     if cssClass then {'class': cssClass} else {}
                     )
-                listItem.attach(new ContentEdit.ListItemText(element.content))
+                listItem.attach(new element._factory.ListItemText(element.content))
 
                 # If the drop target has children and we're dropping below add
                 # it as the first item in the associated list.
@@ -616,7 +623,7 @@ class ContentEdit.ListItemText extends ContentEdit.Text
             else
                 # Convert the list item text to a text element
                 cssClass = element.attr('class')
-                text = new ContentEdit.Text(
+                text = new element._factory.Text(
                     'p',
                     if cssClass then {'class': cssClass} else {},
                     element.content
@@ -672,5 +679,5 @@ class ContentEdit.ListItemText extends ContentEdit.Text
             target.taint()
 
 # Duplicate mergers for other element types
-_mergers = ContentEdit.ListItemText.mergers
+_mergers = ListItemText.mergers
 _mergers['Text'] = _mergers['ListItemText']

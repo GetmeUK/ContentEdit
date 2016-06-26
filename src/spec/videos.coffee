@@ -1,44 +1,46 @@
 # Video
 
-describe '`ContentEdit.Video()`', () ->
+factory = new ContentEdit.Factory()
+
+describe '`Video()`', () ->
 
     it 'should return an instance of Video`', () ->
-        video = new ContentEdit.Video('video', {}, [])
-        expect(video instanceof ContentEdit.Video).toBe true
+        video = new factory.Video('video', {}, [])
+        expect(video instanceof factory.Video).toBe true
 
 
-describe '`ContentEdit.Video.cssTypeName()`', () ->
+describe '`Video.cssTypeName()`', () ->
 
     it 'should return \'video\'', () ->
-        video = new ContentEdit.Video('video', {}, [])
+        video = new factory.Video('video', {}, [])
         expect(video.cssTypeName()).toBe 'video'
 
 
-describe '`ContentEdit.Video.type()`', () ->
+describe '`Video.type()`', () ->
 
     it 'should return \'video\'', () ->
-        video = new ContentEdit.Video('video', {}, [])
+        video = new factory.Video('video', {}, [])
         expect(video.type()).toBe 'Video'
 
 
-describe '`ContentEdit.Video.typeName()`', () ->
+describe '`Video.typeName()`', () ->
 
     it 'should return \'video\'', () ->
-        video = new ContentEdit.Video('video', {}, [])
+        video = new factory.Video('video', {}, [])
         expect(video.typeName()).toBe 'Video'
 
 
-describe '`ContentEdit.Video.createDraggingDOMElement()`', () ->
+describe '`Video.createDraggingDOMElement()`', () ->
 
     region = null
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
 
     it 'should create a helper DOM element using the sources list for <video> \
         elements', () ->
 
         # Mount an image to a region
-        video = new ContentEdit.Video('video', {}, [{'src': 'foo.mp4'}])
+        video = new factory.Video('video', {}, [{'src': 'foo.mp4'}])
         region.attach(video)
 
         # Get the helper DOM element
@@ -52,7 +54,7 @@ describe '`ContentEdit.Video.createDraggingDOMElement()`', () ->
         elements (e.g iframes)', () ->
 
         # Mount an image to a region
-        video = new ContentEdit.Video('iframe', {'src': 'foo.mp4'})
+        video = new factory.Video('iframe', {'src': 'foo.mp4'})
         region.attach(video)
 
         # Get the helper DOM element
@@ -63,13 +65,13 @@ describe '`ContentEdit.Video.createDraggingDOMElement()`', () ->
         expect(helper.innerHTML).toBe 'foo.mp4'
 
 
-describe '`ContentEdit.Video.html()`', () ->
+describe '`Video.html()`', () ->
 
     it 'should return a HTML string for the image', () ->
         INDENT = ContentEdit.INDENT
 
         # As a <video> element
-        video = new ContentEdit.Video(
+        video = new factory.Video(
             'video',
             {'controls': ''},
             [
@@ -83,21 +85,21 @@ describe '`ContentEdit.Video.html()`', () ->
             '</video>'
 
         # As an <iframe> element
-        video = new ContentEdit.Video(
+        video = new factory.Video(
             'iframe',
             {'src': 'foo.mp4'}
             )
         expect(video.html()).toBe '<iframe src="foo.mp4"></iframe>'
 
 
-describe '`ContentEdit.Video.mount()`', () ->
+describe '`Video.mount()`', () ->
 
     videoA = null
     videoB = null
     region = null
 
     beforeEach ->
-        videoA = new ContentEdit.Video(
+        videoA = new factory.Video(
             'video',
             {'controls': ''},
             [
@@ -105,13 +107,13 @@ describe '`ContentEdit.Video.mount()`', () ->
                 {'src': 'bar.ogg', 'type': 'video/ogg'}
                 ]
             )
-        videoB = new ContentEdit.Video(
+        videoB = new factory.Video(
             'iframe',
             {'src': 'foo.mp4'}
             )
 
         # Mount the videos
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(videoA)
         region.attach(videoB)
         videoA.unmount()
@@ -133,15 +135,14 @@ describe '`ContentEdit.Video.mount()`', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the mount event
-        root = ContentEdit.Root.get()
-        root.bind('mount', foo.handleFoo)
+        factory.root.bind('mount', foo.handleFoo)
 
         # Mount the image
         videoA.mount()
         expect(foo.handleFoo).toHaveBeenCalledWith(videoA)
 
 
-describe '`ContentEdit.Video.fromDOMElement()`', () ->
+describe '`Video.fromDOMElement()`', () ->
 
     INDENT = ContentEdit.INDENT
 
@@ -153,7 +154,7 @@ describe '`ContentEdit.Video.fromDOMElement()`', () ->
         domVideo.innerHTML += '<source src="bar.ogg" type="video/ogg">'
 
         # Convert the DOM element into an video element
-        video = ContentEdit.Video.fromDOMElement(domVideo)
+        video = factory.Video.fromDOMElement(domVideo)
         expect(video.html()).toBe '<video controls>\n' +
                 "#{ INDENT }<source src=\"foo.mp4\" type=\"video/mp4\">\n" +
                 "#{ INDENT }<source src=\"bar.ogg\" type=\"video/ogg\">\n" +
@@ -166,24 +167,24 @@ describe '`ContentEdit.Video.fromDOMElement()`', () ->
         domVideo.setAttribute('src', 'foo.mp4')
 
         # Convert the DOM element into an video element
-        video = ContentEdit.Video.fromDOMElement(domVideo)
+        video = factory.Video.fromDOMElement(domVideo)
         expect(video.html()).toBe '<iframe src="foo.mp4"></iframe>'
 
 
 # Droppers
 
-describe '`ContentEdit.Video` drop interactions`', () ->
+describe '`Video` drop interactions`', () ->
 
     video = null
     region = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
-        video = new ContentEdit.Video('iframe', {'src': '/foo.jpg'})
+        region = new factory.Region(document.createElement('div'))
+        video = new factory.Video('iframe', {'src': '/foo.jpg'})
         region.attach(video)
 
     it 'should support dropping on Image', () ->
-        image = new ContentEdit.Image({'src': '/bar.jpg'})
+        image = new factory.Image({'src': '/bar.jpg'})
         region.attach(image)
 
         # Check the initial order
@@ -211,7 +212,7 @@ describe '`ContentEdit.Video` drop interactions`', () ->
         expect(video.nextSibling()).toBe image
 
     it 'should support being dropped on by Image', () ->
-        image = new ContentEdit.Image({'src': '/bar.jpg'})
+        image = new factory.Image({'src': '/bar.jpg'})
         region.attach(image, 0)
 
         # Check the initial order
@@ -239,7 +240,7 @@ describe '`ContentEdit.Video` drop interactions`', () ->
         expect(image.nextSibling()).toBe video
 
     it 'should support dropping on PreText', () ->
-        preText = new ContentEdit.PreText('pre', {}, '')
+        preText = new factory.PreText('pre', {}, '')
         region.attach(preText)
 
         # Check the initial order
@@ -267,7 +268,7 @@ describe '`ContentEdit.Video` drop interactions`', () ->
         expect(video.nextSibling()).toBe preText
 
     it 'should support being dropped on by PreText', () ->
-        preText = new ContentEdit.PreText('pre', {}, '')
+        preText = new factory.PreText('pre', {}, '')
         region.attach(preText, 0)
 
         # Check the initial order
@@ -282,7 +283,7 @@ describe '`ContentEdit.Video` drop interactions`', () ->
         expect(preText.nextSibling()).toBe video
 
     it 'should support dropping on Static', () ->
-        staticElm = ContentEdit.Static.fromDOMElement(
+        staticElm = factory.Static.fromDOMElement(
             document.createElement('div')
             )
         region.attach(staticElm)
@@ -312,7 +313,7 @@ describe '`ContentEdit.Video` drop interactions`', () ->
         expect(video.nextSibling()).toBe staticElm
 
     it 'should support being dropped on by `moveable` Static', () ->
-        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        staticElm = new factory.Static('div', {'data-ce-moveable'}, 'foo')
         region.attach(staticElm, 0)
 
         # Check the initial order
@@ -327,7 +328,7 @@ describe '`ContentEdit.Video` drop interactions`', () ->
         expect(staticElm.nextSibling()).toBe video
 
     it 'should support dropping on Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text)
 
         # Check the initial order
@@ -355,7 +356,7 @@ describe '`ContentEdit.Video` drop interactions`', () ->
         expect(video.nextSibling()).toBe text
 
     it 'should support being dropped on by Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text, 0)
 
         # Check the initial order
@@ -370,7 +371,7 @@ describe '`ContentEdit.Video` drop interactions`', () ->
         expect(text.nextSibling()).toBe video
 
     it 'should support dropping on Video', () ->
-        otherVideo = new ContentEdit.Video('iframe', {'src': '/foo.jpg'})
+        otherVideo = new factory.Video('iframe', {'src': '/foo.jpg'})
         region.attach(otherVideo)
 
         # Check the initial order

@@ -1,4 +1,8 @@
-class ContentEdit.Video extends ContentEdit.ResizableElement
+class Video extends ContentEdit.Factory.class('ResizableElement')
+
+    # Register `Video` class in Abstract factory
+    # Associate tags `iframe`, `video` with this class
+    ContentEdit.Factory.register(@, 'Video', 'iframe', 'video')
 
     # An editable video (e.g <video><source src="..." type="..."></video>).
     # The `Video` element supports 2 special tags to allow the the size of the
@@ -128,11 +132,11 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
     # Class properties
 
     @droppers:
-        'Image': ContentEdit.Element._dropBoth
-        'PreText': ContentEdit.Element._dropBoth
-        'Static': ContentEdit.Element._dropBoth
-        'Text': ContentEdit.Element._dropBoth
-        'Video': ContentEdit.Element._dropBoth
+        'Image': ContentEdit.Factory.class('Element')._dropBoth
+        'PreText': ContentEdit.Factory.class('Element')._dropBoth
+        'Static': ContentEdit.Factory.class('Element')._dropBoth
+        'Text': ContentEdit.Factory.class('Element')._dropBoth
+        'Video': ContentEdit.Factory.class('Element')._dropBoth
 
     # List of allowed drop placements for the class, supported values are:
     @placements: ['above', 'below', 'left', 'right', 'center']
@@ -155,7 +159,3 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
             @getDOMElementAttributes(domElement),
             sources
             )
-
-
-# Register `ContentEdit.Video` the class with associated tag names
-ContentEdit.TagNames.get().register(ContentEdit.Video, 'iframe', 'video')

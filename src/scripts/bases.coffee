@@ -1,10 +1,12 @@
-class ContentEdit.Node
+class Node
+
+    # Register `Node` class in Abstract factory
+    ContentEdit.Factory.register(@, 'Node')
 
     # Editable content is structured as a tree, each node in the tree is an
     # instance of a class that inherits from the base `Node` class.
 
     constructor: () ->
-
         # Event bindings for the node
         @_bindings = {}
 
@@ -101,7 +103,7 @@ class ContentEdit.Node
         # Mark the node as being unmodified
         @_modified = null
 
-        ContentEdit.Root.get().trigger('commit', this)
+        @_factory.root.trigger('commit', this)
 
     taint: () ->
         # Mark the node as being modified
@@ -113,10 +115,9 @@ class ContentEdit.Node
             parent._modified = now
 
         # Mark the root as modified
-        root = ContentEdit.Root.get()
-        root._modified = now
+        @_factory.root._modified = now
 
-        root.trigger('taint', this)
+        @_factory.root.trigger('taint', this)
 
     # Navigation methods
 
@@ -261,7 +262,10 @@ class ContentEdit.Node
         throw new Error('`fromDOMElement` not implemented')
 
 
-class ContentEdit.NodeCollection extends ContentEdit.Node
+class NodeCollection extends ContentEdit.Factory.class('Node')
+
+    # Register `NodeCollection` class in Abstract factory
+    ContentEdit.Factory.register(@, 'NodeCollection')
 
     # The `NodeCollection` class is used to implement nodes that parent a
     # collection of child nodes (for example the root or a region).
@@ -325,7 +329,7 @@ class ContentEdit.NodeCollection extends ContentEdit.Node
         # Mark the colleciton as modified
         @taint()
 
-        ContentEdit.Root.get().trigger('attach', this, node)
+        @_factory.root.trigger('attach', this, node)
 
     commit: () ->
         # Mark the node and all of it's children as being unmodified
@@ -337,7 +341,7 @@ class ContentEdit.NodeCollection extends ContentEdit.Node
         # Commit collection
         @_modified = null
 
-        ContentEdit.Root.get().trigger('commit', this)
+        @_factory.root.trigger('commit', this)
 
     detach: (node) ->
         # Detach the specified node from the collection
@@ -360,10 +364,13 @@ class ContentEdit.NodeCollection extends ContentEdit.Node
         # Mark the collection as modified
         @taint()
 
-        ContentEdit.Root.get().trigger('detach', this, node)
+        @_factory.root.trigger('detach', this, node)
 
 
-class ContentEdit.Element extends ContentEdit.Node
+class Element extends ContentEdit.Factory.class('Node')
+
+    # Register `Element` class in Abstract factory
+    ContentEdit.Factory.register(@, 'Element')
 
     # The `Element` class is used to implement nodes that appear as HTML
     # elements.
@@ -415,7 +422,7 @@ class ContentEdit.Element extends ContentEdit.Node
 
     isFocused: () ->
         # Return true if the element currently has focus
-        return ContentEdit.Root.get().focused() == this
+        return @_factory.root.focused() == this
 
     isMounted: () ->
         # Return true if the node is mounted in the DOM
@@ -474,11 +481,10 @@ class ContentEdit.Element extends ContentEdit.Node
 
     blur: () ->
         # Remove focus from the element
-        root = ContentEdit.Root.get()
         if @isFocused()
             @_removeCSSClass('ce-element--focused')
-            root._focused = null
-            root.trigger('blur', this)
+            @_factory.root._focused = null
+            @_factory.root.trigger('blur', this)
 
     can: (behaviour, allowed) ->
         # Get/Set the behaviour allowed for an element
@@ -510,9 +516,8 @@ class ContentEdit.Element extends ContentEdit.Node
         unless @isMounted() and @can('drag')
             return
 
-        root = ContentEdit.Root.get()
-        root.startDragging(this, x, y)
-        root.trigger('drag', this)
+        @_factory.root.startDragging(this, x, y)
+        @_factory.root.trigger('drag', this)
 
     drop: (element, placement) ->
         # Drop the element into a new position in the editable structure, if no
@@ -521,7 +526,6 @@ class ContentEdit.Element extends ContentEdit.Node
         unless @can('drop')
             return
 
-        root = ContentEdit.Root.get()
         if element
             # Remove the drop class from the element
             element._removeCSSClass('ce-element--drop')
@@ -535,7 +539,7 @@ class ContentEdit.Element extends ContentEdit.Node
                     element,
                     placement
                     )
-                root.trigger('drop', this, element, placement)
+                @_factory.root.trigger('drop', this, element, placement)
                 return
 
             else if element.constructor.droppers[@type()]
@@ -544,34 +548,33 @@ class ContentEdit.Element extends ContentEdit.Node
                     element,
                     placement
                     )
-                root.trigger('drop', this, element, placement)
+                @_factory.root.trigger('drop', this, element, placement)
                 return
 
         # The drop was unsuccessful so trigger drop event without target or
         # placement.
-        root.trigger('drop', this, null, null)
+        @_factory.root.trigger('drop', this, null, null)
 
     focus: (supressDOMFocus) ->
         # Focus the element
-        root = ContentEdit.Root.get()
 
         # Does this element already have focus
         if @isFocused()
             return
 
         # Is there an existing element with focus? If so we need to blur it
-        if root.focused()
-            root.focused().blur()
+        if @_factory.root.focused()
+            @_factory.root.focused().blur()
 
         # Set this element as focused
         @_addCSSClass('ce-element--focused')
-        root._focused = this
+        @_factory.root._focused = this
 
         # Focus on the element
         if @isMounted() and not supressDOMFocus
             @domElement().focus()
 
-        root.trigger('focus', this)
+        @_factory.root.trigger('focus', this)
 
     hasCSSClass: (className) ->
         # Return true if the element has the specified CSS class
@@ -647,7 +650,7 @@ class ContentEdit.Element extends ContentEdit.Node
         if @isFocused()
             @_addCSSClass('ce-element--focused')
 
-        ContentEdit.Root.get().trigger('mount', this)
+        @_factory.root.trigger('mount', this)
 
     removeAttr: (name) ->
         # Remove an attribute from the element
@@ -734,7 +737,7 @@ class ContentEdit.Element extends ContentEdit.Node
         @_domElement = null
 
         # Trigger the unmount event
-        ContentEdit.Root.get().trigger('unmount', this)
+        @_factory.root.trigger('unmount', this)
 
     # Event handlers
 
@@ -817,16 +820,14 @@ class ContentEdit.Element extends ContentEdit.Node
         @_removeCSSClass('ce-element--over')
 
         # If the element is the current drop target we need to remove it
-        root = ContentEdit.Root.get()
-        dragging = root.dragging()
-        if dragging
+        if @_factory.root.dragging()
             @_removeCSSClass('ce-element--drop')
             @_removeCSSClass('ce-element--drop-above')
             @_removeCSSClass('ce-element--drop-below')
             @_removeCSSClass('ce-element--drop-center')
             @_removeCSSClass('ce-element--drop-left')
             @_removeCSSClass('ce-element--drop-right')
-            root._dropTarget = null
+            @_factory.root._dropTarget = null
 
     _onMouseUp: (ev) ->
         # No default behaviour
@@ -836,21 +837,20 @@ class ContentEdit.Element extends ContentEdit.Node
         # are expected to handle native drop support.
         ev.preventDefault()
         ev.stopPropagation()
-        ContentEdit.Root.get().trigger('native-drop', this, ev)
+        @_factory.root.trigger('native-drop', this, ev)
 
     _onPaste: (ev) ->
         # By default we don't support paste events and external libraries
         # are expected to handle paste support.
         ev.preventDefault()
         ev.stopPropagation()
-        ContentEdit.Root.get().trigger('paste', this, ev)
+        @_factory.root.trigger('paste', this, ev)
 
     _onOver: (ev) ->
         @_addCSSClass('ce-element--over')
 
         # Check an elment is currently being dragged
-        root = ContentEdit.Root.get()
-        dragging = root.dragging()
+        dragging = @_factory.root.dragging()
         unless dragging
             return
 
@@ -859,7 +859,7 @@ class ContentEdit.Element extends ContentEdit.Node
             return
 
         # Check we don't already have a drop target
-        if root._dropTarget
+        if @_factory.root._dropTarget
             return
 
         # Check this element is allowed to receive drops
@@ -873,7 +873,7 @@ class ContentEdit.Element extends ContentEdit.Node
 
         # Mark the element as a drop target
         @_addCSSClass('ce-element--drop')
-        root._dropTarget = @
+        @_factory.root._dropTarget = @
 
     _removeDOMEventListeners: () ->
         # The method is called before the element is removed from the DOM,
@@ -1029,16 +1029,19 @@ class ContentEdit.Element extends ContentEdit.Node
         target.parent().attach(element, insertIndex)
 
 
-class ContentEdit.ElementCollection extends ContentEdit.Element
+class ElementCollection extends ContentEdit.Factory.class('Element')
+
+    # Register `ElementCollection` class in Abstract factory
+    ContentEdit.Factory.register(@, 'ElementCollection')
 
     # The `ElementCollection` class is used to implement elements that parent
     # a collection of child elements (for example a list or a table row).
 
-    @extend ContentEdit.NodeCollection
+    @extend ContentEdit.Factory.class('NodeCollection')
 
     constructor: (tagName, attributes) ->
         super(tagName, attributes)
-        ContentEdit.NodeCollection::constructor.call(this)
+        @_factory.NodeCollection::constructor.call(this)
 
     # Read-only properties
 
@@ -1077,7 +1080,7 @@ class ContentEdit.ElementCollection extends ContentEdit.Element
 
     detach: (element) ->
         # Detach the specified element from the collection
-        ContentEdit.NodeCollection::detach.call(this, element)
+        @_factory.NodeCollection::detach.call(this, element)
 
         # Remove the collection if it's empty
         if @children.length == 0 and @parent()
@@ -1125,7 +1128,10 @@ class ContentEdit.ElementCollection extends ContentEdit.Element
     focus: undefined
 
 
-class ContentEdit.ResizableElement extends ContentEdit.Element
+class ResizableElement extends ContentEdit.Factory.class('Element')
+
+    # Register `ResizableElement` class in Abstract factory
+    ContentEdit.Factory.register(@, 'ResizableElement')
 
     # The `ResizableElement` class is used to implement elements that can be
     # resized (for example an image or video).
@@ -1208,7 +1214,7 @@ class ContentEdit.ResizableElement extends ContentEdit.Element
         unless @isMounted() and @can('resize')
             return
 
-        ContentEdit.Root.get().startResizing(this, corner, x, y, true)
+        @_factory.root.startResizing(this, corner, x, y, true)
 
     size: (newSize) ->
         # Get/Set the size of the element
