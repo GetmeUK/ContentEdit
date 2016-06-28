@@ -83,7 +83,9 @@
 
   })();
 
-  window.FSM = FSM;
+  if (typeof window !== 'undefined') {
+    window.FSM = FSM;
+  }
 
   if (typeof module !== 'undefined' && module.exports) {
     exports = module.exports = FSM;
@@ -1221,6 +1223,9 @@
       _results = [];
       for (_i = 0, _len = tags.length; _i < _len; _i++) {
         tag = tags[_i];
+        if (Array.isArray(tag)) {
+          continue;
+        }
         if (tag.selfClosing()) {
           if (!this.isTag()) {
             this._tags.unshift(tag.copy());
