@@ -2936,37 +2936,9 @@
     __extends(Region, _super);
 
     function Region(domElement) {
-      var c, childNode, childNodes, cls, element, tagNames, _i, _len;
       Region.__super__.constructor.call(this);
       this._domElement = domElement;
-      tagNames = ContentEdit.TagNames.get();
-      childNodes = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this._domElement.childNodes;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
-          _results.push(c);
-        }
-        return _results;
-      }).call(this);
-      for (_i = 0, _len = childNodes.length; _i < _len; _i++) {
-        childNode = childNodes[_i];
-        if (childNode.nodeType !== 1) {
-          continue;
-        }
-        if (childNode.getAttribute("data-ce-tag")) {
-          cls = tagNames.match(childNode.getAttribute("data-ce-tag"));
-        } else {
-          cls = tagNames.match(childNode.tagName);
-        }
-        element = cls.fromDOMElement(childNode);
-        this._domElement.removeChild(childNode);
-        if (element) {
-          this.attach(element);
-        }
-        ContentEdit.Root.get().trigger('ready', this);
-      }
+      this.setContent(domElement);
     }
 
     Region.prototype.domElement = function() {
@@ -2996,6 +2968,49 @@
         }
         return _results;
       }).call(this)).join('\n').trim();
+    };
+
+    Region.prototype.setContent = function(domElementOrHTML) {
+      var c, child, childNode, childNodes, cls, domElement, element, tagNames, wrapper, _i, _j, _len, _len1, _ref;
+      domElement = domElementOrHTML;
+      if (domElementOrHTML.childNodes === void 0) {
+        wrapper = document.createElement('div');
+        wrapper.innerHTML = domElementOrHTML;
+        domElement = wrapper;
+      }
+      _ref = this.children.slice();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child = _ref[_i];
+        this.detach(child);
+      }
+      tagNames = ContentEdit.TagNames.get();
+      childNodes = (function() {
+        var _j, _len1, _ref1, _results;
+        _ref1 = domElement.childNodes;
+        _results = [];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          c = _ref1[_j];
+          _results.push(c);
+        }
+        return _results;
+      })();
+      for (_j = 0, _len1 = childNodes.length; _j < _len1; _j++) {
+        childNode = childNodes[_j];
+        if (childNode.nodeType !== 1) {
+          continue;
+        }
+        if (childNode.getAttribute("data-ce-tag")) {
+          cls = tagNames.match(childNode.getAttribute("data-ce-tag"));
+        } else {
+          cls = tagNames.match(childNode.tagName);
+        }
+        element = cls.fromDOMElement(childNode);
+        domElement.removeChild(childNode);
+        if (element) {
+          this.attach(element);
+        }
+      }
+      return ContentEdit.Root.get().trigger('ready', this);
     };
 
     return Region;

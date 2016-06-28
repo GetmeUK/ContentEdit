@@ -1288,6 +1288,20 @@
     });
   });
 
+  describe('`ContentEdit.Region.setContent()`', function() {
+    return it('should set content for the region', function() {
+      var domContent, htmlContent, region;
+      region = new ContentEdit.Region(document.createElement('div'));
+      domContent = document.createElement('div');
+      domContent.innerHTML = '<h1>test with DOM</h1>';
+      htmlContent = '<h2>test with HTML</h2>';
+      region.setContent(domContent);
+      expect(region.html()).toBe('<h1>\n' + ("" + ContentEdit.INDENT + "test with DOM\n") + '</h1>');
+      region.setContent(htmlContent);
+      return expect(region.html()).toBe('<h2>\n' + ("" + ContentEdit.INDENT + "test with HTML\n") + '</h2>');
+    });
+  });
+
   describe('`ContentEdit.Root.get()`', function() {
     return it('should return a singleton instance of Root`', function() {
       var root;

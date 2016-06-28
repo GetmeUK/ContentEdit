@@ -50,3 +50,33 @@ describe '`ContentEdit.Region.html()`', () ->
             "#{ ContentEdit.INDENT }three\n" +
             '</p>'
             )
+
+describe '`ContentEdit.Region.setContent()`', () ->
+
+    it 'should set content for the region', () ->
+        region = new ContentEdit.Region(document.createElement('div'))
+
+        # Build the DOM content
+        domContent = document.createElement('div')
+        domContent.innerHTML = '<h1>test with DOM</h1>'
+
+        # Build the HTML Content
+        htmlContent = '<h2>test with HTML</h2>'
+
+        # Set the content using a DOM element
+        region.setContent(domContent)
+
+        expect(region.html()).toBe(
+            '<h1>\n' +
+            "#{ ContentEdit.INDENT }test with DOM\n" +
+            '</h1>'
+            )
+
+        # Set the content using a HTML string
+        region.setContent(htmlContent)
+
+        expect(region.html()).toBe(
+            '<h2>\n' +
+            "#{ ContentEdit.INDENT }test with HTML\n" +
+            '</h2>'
+            )
