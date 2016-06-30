@@ -542,6 +542,8 @@ class ContentEdit.ListItemText extends ContentEdit.Text
             selection = new ContentSelect.Range(0, tip.length())
             selection.select(@_domElement)
 
+        @taint()
+
     # Class properties
 
     @droppers:
