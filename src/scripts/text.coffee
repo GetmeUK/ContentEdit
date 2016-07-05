@@ -654,10 +654,15 @@ class ContentEdit.PreText extends ContentEdit.Text
         if @_domElement.innerHTML[@_domElement.innerHTML.length - 1] == '\u200B'
             return
 
-        # Add the ZWS and reset the selection
-        @storeState()
-        @_domElement.lastChild.textContent += '\u200B'
-        @restoreState()
+        # Add the ZWS and restore the state (only if the state isn't already
+        # set).
+        if this._savedSelection
+            @_domElement.lastChild.textContent += '\u200B'
+
+        else
+            @storeState()
+            @_domElement.lastChild.textContent += '\u200B'
+            @restoreState()
 
     # Class properties
 
