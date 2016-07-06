@@ -573,26 +573,6 @@ class ContentEdit.PreText extends ContentEdit.Text
 
     # Event handlers
 
-    _onKeyUp: (ev) ->
-        @_ensureEndZWS()
-
-        # Keep the content in sync with the HTML and check if it's been modified
-        # by the key events.
-        snapshot = @content.html()
-
-        # Update the content for the element
-        html = @_domElement.innerHTML
-        html = html.replace(/\u200B$/g, '')
-
-        @content = new HTMLString.String(html, @content.preserveWhitespace())
-
-        # If the snap-shot has changed mark the node as modified
-        newSnaphot = @content.html()
-        if snapshot != newSnaphot
-            @taint()
-
-        @_flagIfEmpty()
-
     _keyBack: (ev) ->
 
         # If the selection is within the known content behave as normal...
@@ -641,6 +621,24 @@ class ContentEdit.PreText extends ContentEdit.Text
 
     # Private methods
 
+    _syncContent: (ev) ->
+        @_ensureEndZWS()
+
+        # Keep the content in sync with the HTML and check if it's been modified
+        # by the key events.
+        snapshot = @content.html()
+        @content = new HTMLString.String(
+            @_domElement.innerHTML.replace(/\u200B$/g, ''),
+            @content.preserveWhitespace()
+            )
+
+        # If the snap-shot has changed mark the node as modified
+        newSnapshot = @content.html()
+        if snapshot != newSnapshot
+            @taint()
+
+        @_flagIfEmpty()
+
     _ensureEndZWS: () ->
         # HACK: Append an zero-width-space (ZWS) character to the DOM elements
         # inner HTML to ensure the caret position moves when a newline is added
@@ -651,17 +649,30 @@ class ContentEdit.PreText extends ContentEdit.Text
         if not @_domElement.lastChild
             return
 
-        if @_domElement.innerHTML[@_domElement.innerHTML.length - 1] == '\u200B'
-            return
+        html = @_domElement.innerHTML
+        if html[html.length - 1] == '\u200B'
+            if html.indexOf('\u200B') < html.length - 1
+                return
 
         # Add the ZWS and restore the state (only if the state isn't already
         # set).
-        if this._savedSelection
+        _addZWS = () =>
+            # Clear any erroneous ZWS characters
+            if html.indexOf('\u200B') > -1
+                @_domElement.innerHTML = html.replace(/\u200B/g, '')
+
+            # Add the ZWS character as a text node to the end of the element's
+            # HTML.
             @_domElement.lastChild.textContent += '\u200B'
+
+        # Check to see if the state of the element has already been captured or
+        # if we need to capture it before updating the the contents.
+        if this._savedSelection
+            _addZWS()
 
         else
             @storeState()
-            @_domElement.lastChild.textContent += '\u200B'
+            _addZWS()
             @restoreState()
 
     # Class properties
