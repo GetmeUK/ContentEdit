@@ -39,6 +39,7 @@ module.exports = (grunt) ->
                         'src/spec/tag-names.coffee'
                         'src/spec/bases.coffee'
                         'src/spec/regions.coffee'
+                        'src/spec/fixtures.coffee'
                         'src/spec/root.coffee'
                         'src/spec/static.coffee'
                         'src/spec/text.coffee'

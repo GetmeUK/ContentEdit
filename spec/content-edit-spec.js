@@ -1302,6 +1302,92 @@
     });
   });
 
+  describe('`ContentEdit.Fixture()`', function() {
+    return it('should return an instance of Fixture`', function() {
+      var child, div, fixture, p;
+      div = document.createElement('div');
+      p = document.createElement('p');
+      p.innerHTML = 'foo <b>bar</b>';
+      div.appendChild(p);
+      fixture = new ContentEdit.Fixture(p);
+      expect(fixture instanceof ContentEdit.Fixture).toBe(true);
+      child = fixture.children[0];
+      expect(child.isFixed()).toBe(true);
+      expect(child.can('drag')).toBe(false);
+      expect(child.can('drop')).toBe(false);
+      expect(child.can('merge')).toBe(false);
+      expect(child.can('remove')).toBe(false);
+      expect(child.can('resize')).toBe(false);
+      return expect(child.can('spawn')).toBe(false);
+    });
+  });
+
+  describe('`ContentEdit.Fixture.domElement()`', function() {
+    return it('should return the DOM element of the child `Element` it wraps', function() {
+      var div, fixture, p;
+      div = document.createElement('div');
+      p = document.createElement('p');
+      p.innerHTML = 'foo <b>bar</b>';
+      div.appendChild(p);
+      fixture = new ContentEdit.Fixture(p);
+      return expect(fixture.domElement()).toBe(fixture.children[0].domElement());
+    });
+  });
+
+  describe('`ContentEdit.Fixture.isMounted()`', function() {
+    return it('should always return true', function() {
+      var div, fixture, p;
+      div = document.createElement('div');
+      p = document.createElement('p');
+      p.innerHTML = 'foo <b>bar</b>';
+      div.appendChild(p);
+      fixture = new ContentEdit.Fixture(p);
+      return expect(fixture.isMounted()).toBe(true);
+    });
+  });
+
+  describe('`ContentEdit.Fixture.html()`', function() {
+    return it('should return a HTML string for the fixture', function() {
+      var div, fixture, p;
+      div = document.createElement('div');
+      p = document.createElement('p');
+      p.innerHTML = 'foo <b>bar</b>';
+      div.appendChild(p);
+      fixture = new ContentEdit.Fixture(p);
+      return expect(fixture.html()).toBe("foo <b>bar</b>");
+    });
+  });
+
+  describe('`ContentEdit.Fixture` text behaviour', function() {
+    return it('should return trigger next/previous-region event when tab key is pressed', function() {
+      var child, div, fixture, handlers, p, root;
+      root = ContentEdit.Root.get();
+      div = document.createElement('div');
+      p = document.createElement('p');
+      p.innerHTML = 'foo <b>bar</b>';
+      div.appendChild(p);
+      fixture = new ContentEdit.Fixture(p);
+      child = fixture.children[0];
+      handlers = {
+        nextRegion: function() {},
+        previousRegion: function() {}
+      };
+      spyOn(handlers, 'nextRegion');
+      spyOn(handlers, 'previousRegion');
+      root.bind('next-region', handlers.nextRegion);
+      root.bind('previous-region', handlers.previousRegion);
+      child._keyTab({
+        preventDefault: function() {}
+      });
+      expect(handlers.nextRegion).toHaveBeenCalledWith(fixture);
+      child._keyTab({
+        preventDefault: function() {},
+        shiftKey: true
+      });
+      return expect(handlers.previousRegion).toHaveBeenCalledWith(fixture);
+    });
+  });
+
   describe('`ContentEdit.Root.get()`', function() {
     return it('should return a singleton instance of Root`', function() {
       var root;

@@ -320,7 +320,8 @@ class ContentEdit.Text extends ContentEdit.Element
             # so trigger an event for external code to manage a region switch.
             ContentEdit.Root.get().trigger(
                 'previous-region',
-                @closest (node) -> node.type() is 'Region'
+                @closest (node) ->
+                    node.type() is 'Fixture' or node.type() is 'Region'
                 )
 
     _keyReturn: (ev) ->
@@ -418,6 +419,26 @@ class ContentEdit.Text extends ContentEdit.Element
 
     _keyTab: (ev) ->
         ev.preventDefault()
+
+        # If this is a fixture element then we trigger a switch region event to
+        # allow external code to manage.
+        if @isFixed()
+
+            # If the shift key is held down then we reverse the switch to the
+            # `previous-region` event.
+            if ev.shiftKey
+                ContentEdit.Root.get().trigger(
+                    'previous-region',
+                    @closest (node) ->
+                        node.type() is 'Fixture' or node.type() is 'Region'
+                    )
+
+            else
+                ContentEdit.Root.get().trigger(
+                    'next-region',
+                    @closest (node) ->
+                        node.type() is 'Fixture' or node.type() is 'Region'
+                    )
 
     _keyUp: (ev) ->
         @_keyLeft(ev)
