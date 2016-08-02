@@ -327,8 +327,10 @@ class ContentEdit.Text extends ContentEdit.Element
     _keyReturn: (ev) ->
         ev.preventDefault()
 
-        # If the element only contains whitespace do nothing
-        if @content.isWhitespace()
+        # If the element only contains whitespace and we're not being asked to
+        # insert a line break.
+        if @content.isWhitespace() and
+                not ev.shiftKey ^ ContentEdit.PREFER_LINE_BREAKS
             return
 
         # Split the element at the text caret
@@ -350,7 +352,8 @@ class ContentEdit.Text extends ContentEdit.Element
                 # appears to be the only way to get the browsers to consistently
                 # provide the expected behaviour (see issue #101 on
                 # ContentTools).
-                if not @content.characters[insertAt - 1].isTag('br')
+                if @content.length() == 0 or
+                        not @content.characters[insertAt - 1].isTag('br')
                     lineBreakStr = '<br><br>'
 
             # Rejoin the content with a line-break

@@ -3624,7 +3624,7 @@
     Text.prototype._keyReturn = function(ev) {
       var element, insertAt, lineBreakStr, selection, tail, tip;
       ev.preventDefault();
-      if (this.content.isWhitespace()) {
+      if (this.content.isWhitespace() && !ev.shiftKey ^ ContentEdit.PREFER_LINE_BREAKS) {
         return;
       }
       selection = ContentSelect.Range.query(this._domElement);
@@ -3634,7 +3634,7 @@
         insertAt = selection.get()[0];
         lineBreakStr = '<br>';
         if (this.content.length() === insertAt) {
-          if (!this.content.characters[insertAt - 1].isTag('br')) {
+          if (this.content.length() === 0 || !this.content.characters[insertAt - 1].isTag('br')) {
             lineBreakStr = '<br><br>';
           }
         }
