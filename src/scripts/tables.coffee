@@ -1,4 +1,8 @@
-class ContentEdit.Table extends ContentEdit.ElementCollection
+class Table extends ContentEdit.Factory.class('ElementCollection')
+
+    # Register `Table` class in Abstract factory
+    # Associate tag `table` with this class
+    ContentEdit.Factory.register(@, 'Table', 'table')
 
     # An editable table (e.g <table>)
 
@@ -74,13 +78,13 @@ class ContentEdit.Table extends ContentEdit.ElementCollection
     # Class properties
 
     @droppers:
-        'Image': ContentEdit.Element._dropBoth
-        'List': ContentEdit.Element._dropVert
-        'PreText': ContentEdit.Element._dropVert
-        'Static': ContentEdit.Element._dropVert
-        'Table': ContentEdit.Element._dropVert
-        'Text': ContentEdit.Element._dropVert
-        'Video': ContentEdit.Element._dropBoth
+        'Image': ContentEdit.Factory.class('Element')._dropBoth
+        'List': ContentEdit.Factory.class('Element')._dropVert
+        'PreText': ContentEdit.Factory.class('Element')._dropVert
+        'Static': ContentEdit.Factory.class('Element')._dropVert
+        'Table': ContentEdit.Factory.class('Element')._dropVert
+        'Text': ContentEdit.Factory.class('Element')._dropVert
+        'Video': ContentEdit.Factory.class('Element')._dropBoth
 
     # Class methods
 
@@ -111,18 +115,18 @@ class ContentEdit.Table extends ContentEdit.ElementCollection
             switch tagName
 
                 when 'tbody', 'tfoot', 'thead'
-                    section = ContentEdit.TableSection.fromDOMElement(childNode)
+                    section = @_factory.TableSection.fromDOMElement(childNode)
                     table.attach(section)
 
                 when 'tr'
                     orphanRows.push(
-                        ContentEdit.TableRow.fromDOMElement(childNode)
+                        @_factory.TableRow.fromDOMElement(childNode)
                         )
 
         # If there are orphan rows
         if orphanRows.length > 0
             if not table._getChild('tbody')
-                table.attach(new ContentEdit.TableSection('tbody'))
+                table.attach(new @_factory.TableSection('tbody'))
 
             for row in orphanRows
                 table.tbody().attach(row)
@@ -133,11 +137,10 @@ class ContentEdit.Table extends ContentEdit.ElementCollection
 
         return table
 
-# Register `ContentEdit.Table` the class with associated tag names
-ContentEdit.TagNames.get().register(ContentEdit.Table, 'table')
+class TableSection extends ContentEdit.Factory.class('ElementCollection')
 
-
-class ContentEdit.TableSection extends ContentEdit.ElementCollection
+    # Register `TableSection` class in Abstract factory
+    ContentEdit.Factory.register(@, 'TableSection')
 
     # An editable section of a table (e.g <thead>, <tbody>, <tfoot>)
 
@@ -189,12 +192,15 @@ class ContentEdit.TableSection extends ContentEdit.ElementCollection
             unless childNode.tagName.toLowerCase() == 'tr'
                 continue
 
-            section.attach(ContentEdit.TableRow.fromDOMElement(childNode))
+            section.attach(@_factory.TableRow.fromDOMElement(childNode))
 
         return section
 
 
-class ContentEdit.TableRow extends ContentEdit.ElementCollection
+class TableRow extends ContentEdit.Factory.class('ElementCollection')
+
+    # Register `TableRow` class in Abstract factory
+    ContentEdit.Factory.register(@, 'TableRow')
 
     # An editable table row (e.g <tr>)
 
@@ -235,7 +241,7 @@ class ContentEdit.TableRow extends ContentEdit.ElementCollection
     # Class properties
 
     @droppers:
-        'TableRow': ContentEdit.Element._dropVert
+        'TableRow': ContentEdit.Factory.class('Element')._dropVert
 
     # Class methods
 
@@ -261,12 +267,15 @@ class ContentEdit.TableRow extends ContentEdit.ElementCollection
             unless tagName == 'td' or tagName == 'th'
                 continue
 
-            row.attach(ContentEdit.TableCell.fromDOMElement(childNode))
+            row.attach(@_factory.TableCell.fromDOMElement(childNode))
 
         return row
 
 
-class ContentEdit.TableCell extends ContentEdit.ElementCollection
+class TableCell extends ContentEdit.Factory.class('ElementCollection')
+
+    # Register `TableCell` class in Abstract factory
+    ContentEdit.Factory.register(@, 'TableCell')
 
     # An editable table cell (e.g <td>, <th>).
 
@@ -323,7 +332,7 @@ class ContentEdit.TableCell extends ContentEdit.ElementCollection
             )
 
         # Attach a table cell text item
-        tableCellText = new ContentEdit.TableCellText(
+        tableCellText = new @_factory.TableCellText(
             domElement.innerHTML.replace(/^\s+|\s+$/g, '')
             )
         tableCell.attach(tableCellText)
@@ -331,7 +340,10 @@ class ContentEdit.TableCell extends ContentEdit.ElementCollection
         return tableCell
 
 
-class ContentEdit.TableCellText extends ContentEdit.Text
+class TableCellText extends ContentEdit.Factory.class('Text')
+
+    # Register `TableCellText` class in Abstract factory
+    ContentEdit.Factory.register(@, 'TableCellText')
 
     # An editable table cell (e.g <td>, <th> -> TEXT_NODE).
 
@@ -393,7 +405,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
             @_domElement.removeAttribute('contenteditable')
 
         # Remove editing focus from this element
-        ContentEdit.Element::blur.call(this)
+        @_factory.Element::blur.call(this)
 
     can: (behaviour, allowed) ->
         # The allowed behaviour for a TableCellText instance reflects its parent
@@ -423,7 +435,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
 
     _onMouseDown: (ev) ->
         # Give the element focus
-        ContentEdit.Element::_onMouseDown.call(this, ev)
+        @_factory.Element::_onMouseDown.call(this, ev)
 
         # Tables support dragging of individual rows or the table. The drag is
         # initialized by clicking and holding the mouse down on a cell, how long
@@ -431,12 +443,12 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         # parent row or table).
         initDrag = () =>
             cell = @parent()
-            if ContentEdit.Root.get().dragging() == cell.parent()
+            if @_factory.root.dragging() == cell.parent()
                 # We're currently dragging the row so switch to dragging the
                 # parent table.
 
                 # Cancel dragging the row
-                ContentEdit.Root.get().cancelDragging()
+                @_factory.root.cancelDragging()
 
                 # Find the table and start dragging it
                 table = cell.parent().parent().parent()
@@ -533,7 +545,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # If no next element was found this must be the last content
                 # node found so trigger an event for external code to manage a
                 # region switch.
-                ContentEdit.Root.get().trigger(
+                @_factory.root.trigger(
                     'next-region',
                     @closest (node) ->
                         node.type() is 'Fixture' or node.type() is 'Region'
@@ -573,15 +585,15 @@ class ContentEdit.TableCellText extends ContentEdit.Text
 
             grandParent = cell.parent().parent()
             if grandParent.tagName() == 'tbody' and @_isLastInSection()
-                row = new ContentEdit.TableRow()
+                row = new @_factory.TableRow()
 
                 # Copy the structure of this row
                 for child in cell.parent().children
-                    newCell = new ContentEdit.TableCell(
+                    newCell = new @_factory.TableCell(
                             child.tagName(),
                             child._attributes
                             )
-                    newCellText = new ContentEdit.TableCellText('')
+                    newCellText = new @_factory.TableCellText('')
                     newCell.attach(newCellText)
                     row.attach(newCell)
 
@@ -616,7 +628,7 @@ class ContentEdit.TableCellText extends ContentEdit.Text
                 # If no previous element was found this must be the first
                 # content node found so trigger an event for external code to
                 # manage a region switch.
-                ContentEdit.Root.get().trigger(
+                @_factory.root.trigger(
                     'previous-region',
                     @closest (node) ->
                         node.type() is 'Fixture' or node.type() is 'Region'

@@ -1,43 +1,44 @@
 # Text
 
-describe '`ContentEdit.Text()`', () ->
+factory = new ContentEdit.Factory()
+
+describe '`Text()`', () ->
 
     it 'should return an instance of Text`', () ->
-        text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>')
-        expect(text instanceof ContentEdit.Text).toBe true
+        text = new factory.Text('p', {}, 'foo <b>bar</b>')
+        expect(text instanceof factory.Text).toBe true
 
 
-describe '`ContentEdit.Text.cssTypeName()`', () ->
+describe '`Text.cssTypeName()`', () ->
 
     it 'should return \'text\'', () ->
-        text = new ContentEdit.Text('p', {}, 'foo')
+        text = new factory.Text('p', {}, 'foo')
         expect(text.cssTypeName()).toBe 'text'
 
 
-describe '`ContentEdit.Text.type()`', () ->
+describe '`Text.type()`', () ->
 
     it 'should return \'Text\'', () ->
-        text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>')
+        text = new factory.Text('p', {}, 'foo <b>bar</b>')
         expect(text.type()).toBe 'Text'
 
 
-describe '`ContentEdit.Text.typeName()`', () ->
+describe '`Text.typeName()`', () ->
 
     it 'should return \'Text\'', () ->
-        text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>')
+        text = new factory.Text('p', {}, 'foo <b>bar</b>')
         expect(text.typeName()).toBe 'Text'
 
 
-describe 'ContentEdit.Text.blur()', () ->
+describe 'Text.blur()', () ->
 
-    root = ContentEdit.Root.get()
     text = null
     region = null
 
     beforeEach ->
         # Mount a text element to a region
-        text = new ContentEdit.Text('p', {}, 'foo')
-        region = new ContentEdit.Region(document.getElementById('test'))
+        text = new factory.Text('p', {}, 'foo')
+        region = new factory.Region(document.getElementById('test'))
         region.attach(text)
         text.focus()
 
@@ -64,7 +65,7 @@ describe 'ContentEdit.Text.blur()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the blur event
-        root.bind('blur', foo.handleFoo)
+        factory.root.bind('blur', foo.handleFoo)
 
         # Detach the node
         text.blur()
@@ -82,12 +83,12 @@ describe 'ContentEdit.Text.blur()', () ->
         expect(text.parent()).not.toBe null
 
 
-describe '`ContentEdit.Text.createDraggingDOMElement()`', () ->
+describe '`Text.createDraggingDOMElement()`', () ->
 
     it 'should create a helper DOM element', () ->
         # Mount an image to a region
-        text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>')
-        region = new ContentEdit.Region(document.createElement('div'))
+        text = new factory.Text('p', {}, 'foo <b>bar</b>')
+        region = new factory.Region(document.createElement('div'))
         region.attach(text)
 
         # Get the helper DOM element
@@ -98,19 +99,18 @@ describe '`ContentEdit.Text.createDraggingDOMElement()`', () ->
         expect(helper.innerHTML).toBe 'foo bar'
 
 
-describe 'ContentEdit.Text.drag()', () ->
+describe 'Text.drag()', () ->
 
-    root = ContentEdit.Root.get()
     text = null
 
     beforeEach ->
         # Mount a text element
-        text = new ContentEdit.Text('p', {}, 'foo')
-        region = new ContentEdit.Region(document.createElement('div'))
+        text = new factory.Text('p', {}, 'foo')
+        region = new factory.Region(document.createElement('div'))
         region.attach(text)
 
     afterEach ->
-        root.cancelDragging()
+        factory.root.cancelDragging()
 
     it 'should call `storeState` against the text element', () ->
         # Spy on the storeState method of root
@@ -123,21 +123,21 @@ describe 'ContentEdit.Text.drag()', () ->
 
     it 'should call `startDragging` against the root element', () ->
         # Spy on the startDragging method of root
-        spyOn(root, 'startDragging')
+        spyOn(factory.root, 'startDragging')
 
         # Drag the text element
         text.drag(0, 0)
 
-        expect(root.startDragging).toHaveBeenCalledWith(text, 0, 0)
+        expect(factory.root.startDragging).toHaveBeenCalledWith(text, 0, 0)
 
 
 describe 'ContentEdit.Text.drop()', () ->
 
     it 'should call the `restoreState` against the text element', () ->
         # Mount a text element
-        textA = new ContentEdit.Text('p', {}, 'foo')
-        textB = new ContentEdit.Text('p', {}, 'bar')
-        region = new ContentEdit.Region(document.createElement('div'))
+        textA = new factory.Text('p', {}, 'foo')
+        textB = new factory.Text('p', {}, 'bar')
+        region = new factory.Region(document.createElement('div'))
         region.attach(textA)
         region.attach(textB)
 
@@ -151,16 +151,15 @@ describe 'ContentEdit.Text.drop()', () ->
         expect(textA.restoreState).toHaveBeenCalled()
 
 
-describe 'ContentEdit.Text.focus()', () ->
+describe 'Text.focus()', () ->
 
-    root = ContentEdit.Root.get()
     text = null
     region = null
 
     beforeEach ->
         # Mount a text element to a region
-        text = new ContentEdit.Text('p', {}, 'foo')
-        region = new ContentEdit.Region(document.getElementById('test'))
+        text = new factory.Text('p', {}, 'foo')
+        region = new factory.Region(document.getElementById('test'))
         region.attach(text)
         text.blur()
 
@@ -181,32 +180,32 @@ describe 'ContentEdit.Text.focus()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the focus event
-        root.bind('focus', foo.handleFoo)
+        factory.root.bind('focus', foo.handleFoo)
 
         # Detach the node
         text.focus()
         expect(foo.handleFoo).toHaveBeenCalledWith(text)
 
 
-describe 'ContentEdit.Text.html()', () ->
+describe 'Text.html()', () ->
 
     it 'should return a HTML string for the text element', () ->
-        text = new ContentEdit.Text('p', {'class': 'foo'}, 'bar <b>zee</b>')
+        text = new factory.Text('p', {'class': 'foo'}, 'bar <b>zee</b>')
         expect(text.html()).toBe '<p class="foo">\n' +
                 "#{ ContentEdit.INDENT }bar <b>zee</b>\n" +
             '</p>'
 
 
-describe 'ContentEdit.Text.mount()', () ->
+describe 'Text.mount()', () ->
 
     text = null
     region = null
 
     beforeEach ->
-        text = new ContentEdit.Text('p', {}, 'foo')
+        text = new factory.Text('p', {}, 'foo')
 
         # Mount the text element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(text)
         text.unmount()
 
@@ -231,22 +230,21 @@ describe 'ContentEdit.Text.mount()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the mount event
-        root = ContentEdit.Root.get()
-        root.bind('mount', foo.handleFoo)
+        factory.root.bind('mount', foo.handleFoo)
 
         # Mount the text element
         text.mount()
         expect(foo.handleFoo).toHaveBeenCalledWith(text)
 
 
-describe 'ContentEdit.Text.restoreState()', () ->
+describe 'Text.restoreState()', () ->
 
     it 'should restore a text elements state after it has been \
         remounted', () ->
 
         # Mount a text element to a region
-        text = new ContentEdit.Text('p', {}, 'foo')
-        region = new ContentEdit.Region(document.getElementById('test'))
+        text = new factory.Text('p', {}, 'foo')
+        region = new factory.Region(document.getElementById('test'))
         region.attach(text)
 
         # Select some text
@@ -268,13 +266,13 @@ describe 'ContentEdit.Text.restoreState()', () ->
         region.detach(text)
 
 
-describe 'ContentEdit.Text.selection()', () ->
+describe 'Text.selection()', () ->
 
     it 'should get/set the content selection for the element', () ->
 
         # Mount a text element to a region
-        text = new ContentEdit.Text('p', {}, 'foobar')
-        region = new ContentEdit.Region(document.getElementById('test'))
+        text = new factory.Text('p', {}, 'foobar')
+        region = new factory.Region(document.getElementById('test'))
         region.attach(text)
 
         # Set/Get the content selection for the text element
@@ -285,13 +283,13 @@ describe 'ContentEdit.Text.selection()', () ->
         region.detach(text)
 
 
-describe 'ContentEdit.Text.storeState()', () ->
+describe 'Text.storeState()', () ->
 
     it 'should store the text elements state so it can be restored', () ->
 
         # Mount a text element to a region
-        text = new ContentEdit.Text('p', {}, 'foo')
-        region = new ContentEdit.Region(document.getElementById('test'))
+        text = new factory.Text('p', {}, 'foo')
+        region = new factory.Region(document.getElementById('test'))
         region.attach(text)
 
         # Select some text
@@ -315,14 +313,14 @@ describe 'ContentEdit.Text.storeState()', () ->
         region.detach(text)
 
 
-describe 'ContentEdit.Text.updateInnerHTML()', () ->
+describe 'Text.updateInnerHTML()', () ->
 
     it 'should update the contents of the text elements related DOM \
         element', () ->
 
         # Mount a text element to a region
-        text = new ContentEdit.Text('p', {}, 'foo')
-        region = new ContentEdit.Region(document.getElementById('test'))
+        text = new factory.Text('p', {}, 'foo')
+        region = new factory.Region(document.getElementById('test'))
         region.attach(text)
 
         text.content = text.content.concat(' bar')
@@ -335,7 +333,7 @@ describe 'ContentEdit.Text.updateInnerHTML()', () ->
         region.detach(text)
 
 
-describe '`ContentEdit.Text.fromDOMElement()`', () ->
+describe '`Text.fromDOMElement()`', () ->
 
     it 'should convert the following DOM elements into a text element: \
         <address>, <h1>, <h2>, <h3>, <h4>, <h5>, <h6>, <p>', () ->
@@ -345,20 +343,20 @@ describe '`ContentEdit.Text.fromDOMElement()`', () ->
         # address
         domAddress = document.createElement('address')
         domAddress.innerHTML = 'foo'
-        address = ContentEdit.Text.fromDOMElement(domAddress)
+        address = factory.Text.fromDOMElement(domAddress)
         expect(address.html()).toBe "<address>\n#{ INDENT }foo\n</address>"
 
         # h1
         for i in [1...7]
             domH = document.createElement("h#{ i }")
             domH.innerHTML = 'foo'
-            h = ContentEdit.Text.fromDOMElement(domH)
+            h = factory.Text.fromDOMElement(domH)
             expect(h.html()).toBe "<h#{ i }>\n#{ INDENT }foo\n</h#{ i }>"
 
         # p
         domP = document.createElement('p')
         domP.innerHTML = 'foo'
-        p = ContentEdit.Text.fromDOMElement(domP)
+        p = factory.Text.fromDOMElement(domP)
         expect(p.html()).toBe "<p>\n#{ INDENT }foo\n</p>"
 
 
@@ -369,12 +367,11 @@ describe '`ContentEdit.Text` key events`', () ->
     INDENT = ContentEdit.INDENT
     ev = {preventDefault: () -> return}
     region = null
-    root = ContentEdit.Root.get()
 
     beforeEach ->
-        region = new ContentEdit.Region(document.getElementById('test'))
+        region = new factory.Region(document.getElementById('test'))
         for content in ['foo', 'bar', 'zee']
-            region.attach(new ContentEdit.Text('p', {}, content))
+            region.attach(new factory.Text('p', {}, content))
 
     afterEach ->
         for child in region.children.slice()
@@ -386,7 +383,7 @@ describe '`ContentEdit.Text` key events`', () ->
         new ContentSelect.Range(3, 3).select(text.domElement())
         text._keyDown(ev)
 
-        expect(root.focused()).toBe region.children[1]
+        expect(factory.root.focused()).toBe region.children[1]
 
     it 'should support left arrow nav to previous content element', () ->
         text = region.children[1]
@@ -394,7 +391,7 @@ describe '`ContentEdit.Text` key events`', () ->
         new ContentSelect.Range(0, 0).select(text.domElement())
         text._keyLeft(ev)
 
-        expect(root.focused()).toBe region.children[0]
+        expect(factory.root.focused()).toBe region.children[0]
 
     it 'should support right arrow nav to next content element', () ->
         text = region.children[0]
@@ -402,7 +399,7 @@ describe '`ContentEdit.Text` key events`', () ->
         new ContentSelect.Range(3, 3).select(text.domElement())
         text._keyRight(ev)
 
-        expect(root.focused()).toBe region.children[1]
+        expect(factory.root.focused()).toBe region.children[1]
 
     it 'should support up arrow nav to previous content element', () ->
         text = region.children[1]
@@ -410,7 +407,7 @@ describe '`ContentEdit.Text` key events`', () ->
         new ContentSelect.Range(0, 0).select(text.domElement())
         text._keyUp(ev)
 
-        expect(root.focused()).toBe region.children[0]
+        expect(factory.root.focused()).toBe region.children[0]
 
     it 'should support delete merge with next content element', () ->
         text = region.children[0]
@@ -470,13 +467,12 @@ describe '`ContentEdit.Text` key events with prefer line breaks`', () ->
     INDENT = ContentEdit.INDENT
     ev = {preventDefault: () -> return}
     region = null
-    root = ContentEdit.Root.get()
 
     beforeEach ->
         ContentEdit.PREFER_LINE_BREAKS = true
-        region = new ContentEdit.Region(document.getElementById('test'))
+        region = new factory.Region(document.getElementById('test'))
         for content in ['foo', 'bar', 'zee']
-            region.attach(new ContentEdit.Text('p', {}, content))
+            region.attach(new factory.Text('p', {}, content))
 
     afterEach ->
         ContentEdit.PREFER_LINE_BREAKS = false
@@ -504,18 +500,18 @@ describe '`ContentEdit.Text` key events with prefer line breaks`', () ->
 
 # Droppers
 
-describe '`ContentEdit.Text` drop interactions`', () ->
+describe '`Text` drop interactions`', () ->
 
     region = null
     text = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
-        text = new ContentEdit.Text('p', {}, 'foo')
+        region = new factory.Region(document.createElement('div'))
+        text = new factory.Text('p', {}, 'foo')
         region.attach(text)
 
     it 'should support dropping on Text', () ->
-        otherText = new ContentEdit.Text('p', {}, 'bar')
+        otherText = new factory.Text('p', {}, 'bar')
         region.attach(otherText)
 
         # Check the initial order
@@ -530,7 +526,7 @@ describe '`ContentEdit.Text` drop interactions`', () ->
         expect(text.nextSibling()).toBe otherText
 
     it 'should support dropping on Static', () ->
-        staticElm = ContentEdit.Static.fromDOMElement(
+        staticElm = factory.Static.fromDOMElement(
             document.createElement('div')
             )
         region.attach(staticElm)
@@ -547,7 +543,7 @@ describe '`ContentEdit.Text` drop interactions`', () ->
         expect(text.nextSibling()).toBe staticElm
 
     it 'should support being dropped on by `moveable` Static', () ->
-        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        staticElm = new factory.Static('div', {'data-ce-moveable'}, 'foo')
         region.attach(staticElm, 0)
 
         # Check the initial order
@@ -564,14 +560,14 @@ describe '`ContentEdit.Text` drop interactions`', () ->
 
 # Mergers
 
-describe '`ContentEdit.Text` merge interactions`', () ->
+describe '`Text` merge interactions`', () ->
 
     text = null
     region = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.getElementById('test'))
-        text = new ContentEdit.Text('p', {}, 'foo')
+        region = new factory.Region(document.getElementById('test'))
+        text = new factory.Text('p', {}, 'foo')
         region.attach(text)
 
     afterEach ->
@@ -579,7 +575,7 @@ describe '`ContentEdit.Text` merge interactions`', () ->
             region.detach(child)
 
     it 'should support merging with Text', () ->
-        otherText = new ContentEdit.Text('p', {}, 'bar')
+        otherText = new factory.Text('p', {}, 'bar')
         region.attach(otherText)
 
         # Merge the text
@@ -590,52 +586,51 @@ describe '`ContentEdit.Text` merge interactions`', () ->
 
 # PreText
 
-describe '`ContentEdit.PreText()`', () ->
+describe '`PreText()`', () ->
 
     it 'should return an instance of PreText`', () ->
-        preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>')
-        expect(preText instanceof ContentEdit.PreText).toBe true
+        preText = new factory.PreText('pre', {}, 'foo <b>bar</b>')
+        expect(preText instanceof factory.PreText).toBe true
 
 
-describe '`ContentEdit.PreText.cssTypeName()`', () ->
+describe '`PreText.cssTypeName()`', () ->
 
     it 'should return \'pre-text\'', () ->
-        preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>')
+        preText = new factory.PreText('pre', {}, 'foo <b>bar</b>')
         expect(preText.cssTypeName()).toBe 'pre-text'
 
 
-describe '`ContentEdit.PreText.type()`', () ->
+describe '`PreText.type()`', () ->
 
     it 'should return \'PreText\'', () ->
-        preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>')
+        preText = new factory.PreText('pre', {}, 'foo <b>bar</b>')
         expect(preText.type()).toBe 'PreText'
 
 
-describe '`ContentEdit.PreText.typeName()`', () ->
+describe '`PreText.typeName()`', () ->
 
     it 'should return \'Preformatted\'', () ->
-        preText = new ContentEdit.PreText('pre', {}, 'foo <b>bar</b>')
+        preText = new factory.PreText('pre', {}, 'foo <b>bar</b>')
         expect(preText.typeName()).toBe 'Preformatted'
 
 
-describe 'ContentEdit.PreText.html()', () ->
+describe 'PreText.html()', () ->
 
     it 'should return a HTML string for the pre-text element', () ->
         I = ContentEdit.INDENT
 
-        preText = new ContentEdit.PreText(
+        preText = new factory.PreText(
             'pre',
             {'class': 'foo'}, """
 &lt;div&gt;
     test &amp; test
 &lt;/div&gt;
 """)
-
         expect(preText.html()).toBe """<pre class="foo">&lt;div&gt;
 #{ ContentEdit.INDENT }test &amp; test
 &lt;/div&gt;</pre>"""
 
-describe '`ContentEdit.PreText.fromDOMElement()`', () ->
+describe '`PreText.fromDOMElement()`', () ->
 
     it 'should convert a <pre> DOM element into a preserved text element', () ->
         I = ContentEdit.INDENT
@@ -646,7 +641,7 @@ describe '`ContentEdit.PreText.fromDOMElement()`', () ->
 #{ ContentEdit.INDENT }test &amp; test
 &lt;/div&gt;</pre>"""
 
-        preText = ContentEdit.PreText.fromDOMElement(domDiv.childNodes[0])
+        preText = factory.PreText.fromDOMElement(domDiv.childNodes[0])
 
         expect(preText.html()).toBe """<pre>&lt;div&gt;
 #{ ContentEdit.INDENT }test &amp; test
@@ -655,17 +650,16 @@ describe '`ContentEdit.PreText.fromDOMElement()`', () ->
 
 # Key events
 
-describe '`ContentEdit.PreText` key events`', () ->
+describe '`PreText` key events`', () ->
 
     I = ContentEdit.INDENT
     ev = {preventDefault: () -> return}
     region = null
     preText = null
-    root = ContentEdit.Root.get()
 
     beforeEach ->
-        region = new ContentEdit.Region(document.getElementById('test'))
-        preText = new ContentEdit.PreText(
+        region = new factory.Region(document.getElementById('test'))
+        preText = new factory.PreText(
             'pre',
             {'class': 'foo'}, """&lt;div&gt;
 #{ ContentEdit.INDENT }test &amp; test
@@ -696,12 +690,12 @@ describe '`ContentEdit.PreText` drop interactions`', () ->
     preText = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
-        preText = new ContentEdit.PreText('p', {}, 'foo')
+        region = new factory.Region(document.createElement('div'))
+        preText = new factory.PreText('p', {}, 'foo')
         region.attach(preText)
 
     it 'should support dropping on PreText', () ->
-        otherPreText = new ContentEdit.PreText('pre', {}, '')
+        otherPreText = new factory.PreText('pre', {}, '')
         region.attach(otherPreText)
 
         # Check the initial order
@@ -716,7 +710,7 @@ describe '`ContentEdit.PreText` drop interactions`', () ->
         expect(preText.nextSibling()).toBe otherPreText
 
     it 'should support dropping on Static', () ->
-        staticElm = ContentEdit.Static.fromDOMElement(
+        staticElm = factory.Static.fromDOMElement(
             document.createElement('div')
             )
         region.attach(staticElm)
@@ -733,7 +727,7 @@ describe '`ContentEdit.PreText` drop interactions`', () ->
         expect(preText.nextSibling()).toBe staticElm
 
     it 'should support being dropped on by `moveable` Static', () ->
-        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        staticElm = new factory.Static('div', {'data-ce-moveable'}, 'foo')
         region.attach(staticElm, 0)
 
         # Check the initial order
@@ -748,7 +742,7 @@ describe '`ContentEdit.PreText` drop interactions`', () ->
         expect(staticElm.nextSibling()).toBe preText
 
     it 'should support dropping on Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text)
 
         # Check the initial order
@@ -763,7 +757,7 @@ describe '`ContentEdit.PreText` drop interactions`', () ->
         expect(preText.nextSibling()).toBe text
 
     it 'should support being dropped on by Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text, 0)
 
         # Check the initial order

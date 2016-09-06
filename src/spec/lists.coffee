@@ -1,34 +1,36 @@
 # List
 
-describe '`ContentEdit.List()`', () ->
+factory = new ContentEdit.Factory()
+
+describe '`List()`', () ->
 
     it 'should return an instance of List`', () ->
-        list = new ContentEdit.List('ul')
-        expect(list instanceof ContentEdit.List).toBe true
+        list = new factory.List('ul')
+        expect(list instanceof factory.List).toBe true
 
 
-describe '`ContentEdit.List.cssTypeName()`', () ->
+describe '`List.cssTypeName()`', () ->
 
     it 'should return \'list\'', () ->
-        list = new ContentEdit.List('ul')
+        list = new factory.List('ul')
         expect(list.cssTypeName()).toBe 'list'
 
 
-describe '`ContentEdit.List.typeName()`', () ->
+describe '`List.typeName()`', () ->
 
     it 'should return \'List\'', () ->
-        list = new ContentEdit.List('ul')
+        list = new factory.List('ul')
         expect(list.type()).toBe 'List'
 
 
-describe '`ContentEdit.List.typeName()`', () ->
+describe '`List.typeName()`', () ->
 
     it 'should return \'List\'', () ->
-        list = new ContentEdit.List('ul')
+        list = new factory.List('ul')
         expect(list.typeName()).toBe 'List'
 
 
-describe '`ContentEdit.List.fromDOMElement()`', () ->
+describe '`List.fromDOMElement()`', () ->
 
     it 'should convert the following DOM elements into a list element: \
         <ol>, <ul>', () ->
@@ -38,30 +40,30 @@ describe '`ContentEdit.List.fromDOMElement()`', () ->
         # ol
         domOl = document.createElement('ol')
         domOl.innerHTML = '<li>foo</li>'
-        ol = ContentEdit.Text.fromDOMElement(domOl)
+        ol = factory.Text.fromDOMElement(domOl)
         expect(ol.html()).toBe "<ol>\n#{ INDENT }<li>foo</li>\n</ol>"
 
         # ul
         domUl = document.createElement('ul')
         domUl.innerHTML = '<li>foo</li>'
-        ul = ContentEdit.Text.fromDOMElement(domUl)
+        ul = factory.Text.fromDOMElement(domUl)
         expect(ul.html()).toBe "<ul>\n#{ INDENT }<li>foo</li>\n</ul>"
 
 
 # Droppers
 
-describe '`ContentEdit.List` drop interactions`', () ->
+describe '`List` drop interactions`', () ->
 
     list = null
     region = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
-        list = new ContentEdit.List('ul')
+        region = new factory.Region(document.createElement('div'))
+        list = new factory.List('ul')
         region.attach(list)
 
     it 'should support dropping on Image', () ->
-        image = new ContentEdit.Image({'src': '/bar.jpg'})
+        image = new factory.Image({'src': '/bar.jpg'})
         region.attach(image)
 
         # Check the initial order
@@ -76,7 +78,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(list.nextSibling()).toBe image
 
     it 'should support being dropped on by Image', () ->
-        image = new ContentEdit.Image({'src': '/bar.jpg'})
+        image = new factory.Image({'src': '/bar.jpg'})
         region.attach(image, 0)
 
         # Check the initial order
@@ -104,7 +106,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(image.nextSibling()).toBe list
 
     it 'should support dropping on List', () ->
-        otherList = new ContentEdit.Image({'src': '/bar.jpg'})
+        otherList = new factory.Image({'src': '/bar.jpg'})
         region.attach(otherList)
 
         # Check the initial order
@@ -119,7 +121,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(list.nextSibling()).toBe otherList
 
     it 'should support dropping on PreText', () ->
-        preText = new ContentEdit.PreText('pre', {}, '')
+        preText = new factory.PreText('pre', {}, '')
         region.attach(preText)
 
         # Check the initial order
@@ -134,7 +136,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(list.nextSibling()).toBe preText
 
     it 'should support being dropped on by PreText', () ->
-        preText = new ContentEdit.PreText('pre', {}, '')
+        preText = new factory.PreText('pre', {}, '')
         region.attach(preText, 0)
 
         # Check the initial order
@@ -149,7 +151,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(preText.nextSibling()).toBe list
 
     it 'should support dropping on Static', () ->
-        staticElm = ContentEdit.Static.fromDOMElement(
+        staticElm = factory.Static.fromDOMElement(
             document.createElement('div')
             )
         region.attach(staticElm)
@@ -166,7 +168,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(list.nextSibling()).toBe staticElm
 
     it 'should support being dropped on by `moveable` Static', () ->
-        staticElm = new ContentEdit.Static('div', {'data-ce-moveable'}, 'foo')
+        staticElm = new factory.Static('div', {'data-ce-moveable'}, 'foo')
         region.attach(staticElm, 0)
 
         # Check the initial order
@@ -181,7 +183,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(staticElm.nextSibling()).toBe list
 
     it 'should support dropping on Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text)
 
         # Check the initial order
@@ -196,7 +198,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(list.nextSibling()).toBe text
 
     it 'should support being dropped on by Text', () ->
-        text = new ContentEdit.Text('p')
+        text = new factory.Text('p')
         region.attach(text, 0)
 
         # Check the initial order
@@ -211,7 +213,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(text.nextSibling()).toBe list
 
     it 'should support dropping on Video', () ->
-        video = new ContentEdit.Video('iframe', {'src': '/foo.jpg'})
+        video = new factory.Video('iframe', {'src': '/foo.jpg'})
         region.attach(video)
 
         # Check the initial order
@@ -226,7 +228,7 @@ describe '`ContentEdit.List` drop interactions`', () ->
         expect(list.nextSibling()).toBe video
 
     it 'should support being dropped on by Video', () ->
-        video = new ContentEdit.Video('iframe', {'src': '/foo.jpg'})
+        video = new factory.Video('iframe', {'src': '/foo.jpg'})
         region.attach(video, 0)
 
         # Check the initial order
@@ -256,64 +258,64 @@ describe '`ContentEdit.List` drop interactions`', () ->
 
 # ListItem
 
-describe '`ContentEdit.ListItem()`', () ->
+describe '`ListItem()`', () ->
 
     it 'should return an instance of ListLitem`', () ->
-        listItem = new ContentEdit.ListItem()
-        expect(listItem instanceof ContentEdit.ListItem).toBe true
+        listItem = new factory.ListItem()
+        expect(listItem instanceof factory.ListItem).toBe true
 
 
-describe '`ContentEdit.List.cssTypeName()`', () ->
+describe '`List.cssTypeName()`', () ->
 
     it 'should return \'list-item\'', () ->
-        listItem = new ContentEdit.ListItem()
+        listItem = new factory.ListItem()
         expect(listItem.cssTypeName()).toBe 'list-item'
 
 
-describe '`ContentEdit.ListItem.list()`', () ->
+describe '`ListItem.list()`', () ->
 
     it 'should return any associated List element, or null if there isn\'t \
         one', () ->
 
         # Build a list item with a child text node and list
-        listItem = new ContentEdit.ListItem()
+        listItem = new factory.ListItem()
         expect(listItem.list()).toBe null
 
-        listItemText = new ContentEdit.ListItemText('foo')
+        listItemText = new factory.ListItemText('foo')
         listItem.attach(listItemText)
         expect(listItem.list()).toBe null
 
-        list = new ContentEdit.List('ul')
+        list = new factory.List('ul')
         listItem.attach(list)
         expect(listItem.list()).toBe list
 
 
-describe '`ContentEdit.ListItem.listItemText()`', () ->
+describe '`ListItem.listItemText()`', () ->
 
     it 'should return any associated ListItemText element, or null if there
         isn\'t one', () ->
 
         # Build a list item with a child text node
-        listItem = new ContentEdit.ListItem()
+        listItem = new factory.ListItem()
         expect(listItem.listItemText()).toBe null
 
-        listItemText = new ContentEdit.ListItemText('foo')
+        listItemText = new factory.ListItemText('foo')
         listItem.attach(listItemText)
         expect(listItem.listItemText()).toBe listItemText
 
 
-describe '`ContentEdit.ListItem.type()`', () ->
+describe '`ListItem.type()`', () ->
 
     it 'should return \'ListItem\'', () ->
-        listItem = new ContentEdit.ListItem()
+        listItem = new factory.ListItem()
         expect(listItem.type()).toBe 'ListItem'
 
 
-describe 'ContentEdit.ListItem.html()', () ->
+describe 'ListItem.html()', () ->
 
     it 'should return a HTML string for the list element', () ->
-        listItem = new ContentEdit.ListItem({'class': 'foo'})
-        listItemText = new ContentEdit.ListItemText('bar')
+        listItem = new factory.ListItem({'class': 'foo'})
+        listItemText = new factory.ListItemText('bar')
         listItem.attach(listItemText)
 
         expect(listItem.html()).toBe '<li class="foo">\n' +
@@ -321,7 +323,7 @@ describe 'ContentEdit.ListItem.html()', () ->
             '</li>'
 
 
-describe 'ContentEdit.ListItem.indent()', () ->
+describe 'factory.ListItem.indent()', () ->
 
     it 'should indent an item in a list by at most one level', () ->
         I = ContentEdit.INDENT
@@ -333,7 +335,7 @@ describe 'ContentEdit.ListItem.indent()', () ->
             <li>Two</li>
             <li>Three</li>
             '''
-        list = ContentEdit.List.fromDOMElement(domElement)
+        list = factory.List.fromDOMElement(domElement)
 
         # Attempt to indent the first item
         list.children[0].indent()
@@ -400,7 +402,7 @@ describe 'ContentEdit.ListItem.indent()', () ->
             <li>Two</li>
             <li>Three</li>
             '''
-        list = ContentEdit.List.fromDOMElement(domElement)
+        list = factory.List.fromDOMElement(domElement)
 
         # Disallow indenting for the list item
         list.children[2].can('indent', false)
@@ -422,7 +424,7 @@ describe 'ContentEdit.ListItem.indent()', () ->
 """)
 
 
-describe 'ContentEdit.ListItem.remove()', () ->
+describe 'ListItem.remove()', () ->
 
     it 'should remove an item from a list keeping integrity of the lists \
         structure', () ->
@@ -440,7 +442,7 @@ describe 'ContentEdit.ListItem.remove()', () ->
                 </ul>
             </li>
             '''
-        list = ContentEdit.List.fromDOMElement(domElement)
+        list = factory.List.fromDOMElement(domElement)
 
         # Remove a sub-item with no child list from
         list.children[2].list().children[1].remove()
@@ -517,9 +519,9 @@ describe 'ContentEdit.ListItem.unindent()', () ->
                 </ul>
             </li>
             '''
-        list = ContentEdit.List.fromDOMElement(domElement)
+        list = factory.List.fromDOMElement(domElement)
 
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(list)
 
         # Sub-list item with siblings
@@ -669,12 +671,12 @@ describe 'ContentEdit.ListItem.unindent()', () ->
             <li>One</li>
             <li>Two</li>
             '''
-        list = ContentEdit.List.fromDOMElement(domElement)
+        list = factory.List.fromDOMElement(domElement)
 
         # Disallow indent behaviour for the list item
         list.children[0].can('indent', false)
 
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(list)
 
         # Sub-list item with siblings
@@ -690,7 +692,7 @@ describe 'ContentEdit.ListItem.unindent()', () ->
 </ul>
 """)
 
-describe '`ContentEdit.ListItem.fromDOMElement()`', () ->
+describe '`ListItem.fromDOMElement()`', () ->
 
     it 'should convert a <li> DOM element into an ListItem element', () ->
         I = ContentEdit.INDENT
@@ -698,7 +700,7 @@ describe '`ContentEdit.ListItem.fromDOMElement()`', () ->
         # No child list
         domLi = document.createElement('li')
         domLi.innerHTML = 'foo'
-        li = ContentEdit.ListItem.fromDOMElement(domLi)
+        li = factory.ListItem.fromDOMElement(domLi)
         expect(li.html()).toBe "<li>\n#{ I }foo\n</li>"
 
         # Child list
@@ -709,7 +711,7 @@ describe '`ContentEdit.ListItem.fromDOMElement()`', () ->
                 <li>bar</li>
             </ul>
             '''
-        li = ContentEdit.ListItem.fromDOMElement(domLi)
+        li = factory.ListItem.fromDOMElement(domLi)
         expect(li.html()).toBe """
 <li>
 #{ I }foo
@@ -724,37 +726,36 @@ describe '`ContentEdit.ListItem.fromDOMElement()`', () ->
 
 # ListItemText
 
-describe '`ContentEdit.ListItemText()`', () ->
+describe '`ListItemText()`', () ->
 
     it 'should return an instance of ListItemText`', () ->
-        listItemText = new ContentEdit.ListItemText('foo')
-        expect(listItemText instanceof ContentEdit.ListItemText).toBe true
+        listItemText = new factory.ListItemText('foo')
+        expect(listItemText instanceof factory.ListItemText).toBe true
 
 
-describe '`ContentEdit.ListItemText.cssTypeName()`', () ->
+describe '`ListItemText.cssTypeName()`', () ->
 
     it 'should return \'list-item-text\'', () ->
-        listItemText = new ContentEdit.ListItemText('foo')
+        listItemText = new factory.ListItemText('foo')
         expect(listItemText.cssTypeName()).toBe 'list-item-text'
 
 
-describe '`ContentEdit.ListItemText.type()`', () ->
+describe '`ListItemText.type()`', () ->
 
     it 'should return \'ListItemText\'', () ->
-        listItemText = new ContentEdit.ListItemText()
+        listItemText = new factory.ListItemText()
         expect(listItemText.type()).toBe 'ListItemText'
 
 
-describe '`ContentEdit.ListItemText.typeName()`', () ->
+describe '`ListItemText.typeName()`', () ->
 
     it 'should return \'List item\'', () ->
-        listItemText = new ContentEdit.ListItemText('foo')
+        listItemText = new factory.ListItemText('foo')
         expect(listItemText.typeName()).toBe 'List item'
 
 
-describe '`ContentEdit.ListItemText.blur()`', () ->
+describe '`ListItemText.blur()`', () ->
 
-    root = ContentEdit.Root.get()
     region = null
 
     beforeEach ->
@@ -765,7 +766,7 @@ describe '`ContentEdit.ListItemText.blur()`', () ->
     <li>zee</li>
 </ul>
         '''
-        region = new ContentEdit.Region(document.getElementById('test'))
+        region = new factory.Region(document.getElementById('test'))
         region.children[0].children[1].listItemText().focus()
 
     afterEach ->
@@ -793,7 +794,7 @@ describe '`ContentEdit.ListItemText.blur()`', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the blur event
-        root.bind('blur', foo.handleFoo)
+        factory.root.bind('blur', foo.handleFoo)
 
         # Detach the node
         listItemText = region.children[0].children[1].listItemText()
@@ -817,7 +818,7 @@ describe '`ContentEdit.ListItemText.blur()`', () ->
 describe 'ContentEdit.Text.html()', () ->
 
     it 'should return a HTML string for the list item text element', () ->
-        listItemText = new ContentEdit.ListItemText('bar <b>zee</b>')
+        listItemText = new factory.ListItemText('bar <b>zee</b>')
         expect(listItemText.html()).toBe 'bar <b>zee</b>'
 
 
@@ -830,7 +831,6 @@ describe '`ContentEdit.ListItemText` key events`', () ->
     listItem = null
     listItemText = null
     region = null
-    root = ContentEdit.Root.get()
 
     beforeEach ->
         ev = {preventDefault: () -> return}
@@ -841,7 +841,7 @@ describe '`ContentEdit.ListItemText` key events`', () ->
     <li>zee</li>
 </ul>
         '''
-        region = new ContentEdit.Region(document.getElementById('test'))
+        region = new factory.Region(document.getElementById('test'))
         list = region.children[0]
         listItem = list.children[1]
         listItemText = listItem.listItemText()
@@ -891,7 +891,7 @@ describe '`ContentEdit.ListItemText` key events`', () ->
 
 # Droppers
 
-describe '`ContentEdit.ListItemText` drop interactions`', () ->
+describe '`ListItemText` drop interactions`', () ->
     I = ContentEdit.INDENT
     listItemText = null
     region = null
@@ -905,7 +905,7 @@ describe '`ContentEdit.ListItemText` drop interactions`', () ->
 </ul>
 <p>zee</p>
         '''
-        region = new ContentEdit.Region(domElement)
+        region = new factory.Region(domElement)
         listItemText = region.children[0].children[0].listItemText()
 
     it 'should support dropping on ListItemText', () ->
@@ -982,7 +982,7 @@ describe '`ContentEdit.ListItemText` drop interactions`', () ->
 """
 
         # Check the order after dropping the element above
-        text = new ContentEdit.Text('p', {}, 'umm')
+        text = new factory.Text('p', {}, 'umm')
         region.attach(text, 0)
         text.drop(listItemText, ['above', 'center'])
         expect(region.html()).toBe """
@@ -1005,7 +1005,7 @@ describe '`ContentEdit.ListItemText` drop interactions`', () ->
 
 # Mergers
 
-describe '`ContentEdit.Text` merge interactions`', () ->
+describe '`Text` merge interactions`', () ->
 
     I = ContentEdit.INDENT
     region = null
@@ -1020,7 +1020,7 @@ describe '`ContentEdit.Text` merge interactions`', () ->
 </ul>
 <p>umm</p>
         '''
-        region = new ContentEdit.Region(domElement)
+        region = new factory.Region(domElement)
 
     afterEach ->
         for child in region.children.slice()

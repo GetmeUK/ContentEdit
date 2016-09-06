@@ -1,6 +1,7 @@
 # Fixture
+factory = new ContentEdit.Factory()
 
-describe '`ContentEdit.Fixture()`', () ->
+describe '`factory.Fixture()`', () ->
 
     it 'should return an instance of Fixture`', () ->
 
@@ -8,8 +9,8 @@ describe '`ContentEdit.Fixture()`', () ->
         p = document.createElement('p')
         p.innerHTML = 'foo <b>bar</b>'
         div.appendChild(p)
-        fixture = new ContentEdit.Fixture(p)
-        expect(fixture instanceof ContentEdit.Fixture).toBe true
+        fixture = new factory.Fixture(p)
+        expect(fixture instanceof factory.Fixture).toBe true
 
         # Check the child element has been correctly modified
         child = fixture.children[0]
@@ -26,29 +27,29 @@ describe '`ContentEdit.Fixture()`', () ->
         expect(child.can('spawn')).toBe false
 
 
-describe '`ContentEdit.Fixture.domElement()`', () ->
+describe '`factory.Fixture.domElement()`', () ->
 
     it 'should return the DOM element of the child `Element` it wraps', () ->
         div = document.createElement('div')
         p = document.createElement('p')
         p.innerHTML = 'foo <b>bar</b>'
         div.appendChild(p)
-        fixture = new ContentEdit.Fixture(p)
+        fixture = new factory.Fixture(p)
         expect(fixture.domElement()).toBe fixture.children[0].domElement()
 
 
-describe '`ContentEdit.Fixture.isMounted()`', () ->
+describe '`factory.Fixture.isMounted()`', () ->
 
     it 'should always return true', () ->
         div = document.createElement('div')
         p = document.createElement('p')
         p.innerHTML = 'foo <b>bar</b>'
         div.appendChild(p)
-        fixture = new ContentEdit.Fixture(p)
+        fixture = new factory.Fixture(p)
         expect(fixture.isMounted()).toBe true
 
 
-describe '`ContentEdit.Fixture.html()`', () ->
+describe '`factory.Fixture.html()`', () ->
 
     it 'should return a HTML string for the fixture', () ->
         # The HTML output for a fixture should typically be the same as the
@@ -60,24 +61,22 @@ describe '`ContentEdit.Fixture.html()`', () ->
         p = document.createElement('p')
         p.innerHTML = 'foo <b>bar</b>'
         div.appendChild(p)
-        fixture = new ContentEdit.Fixture(p)
+        fixture = new factory.Fixture(p)
         expect(fixture.html()).toBe("foo <b>bar</b>")
 
 
 # Test specific to fixtures containing text elements
 
-describe '`ContentEdit.Fixture` text behaviour', () ->
+describe '`factory.Fixture` text behaviour', () ->
 
     it 'should return trigger next/previous-region event when tab key is
         pressed', () ->
-
-        root = ContentEdit.Root.get()
 
         div = document.createElement('div')
         p = document.createElement('p')
         p.innerHTML = 'foo <b>bar</b>'
         div.appendChild(p)
-        fixture = new ContentEdit.Fixture(p)
+        fixture = new factory.Fixture(p)
         child = fixture.children[0]
 
         # Create event handlers
@@ -94,8 +93,8 @@ describe '`ContentEdit.Fixture` text behaviour', () ->
         spyOn(handlers, 'previousRegion')
 
         # Bind the event handlers to the root for the events of interest
-        root.bind('next-region', handlers.nextRegion)
-        root.bind('previous-region', handlers.previousRegion)
+        factory.root.bind('next-region', handlers.nextRegion)
+        factory.root.bind('previous-region', handlers.previousRegion)
 
         # Simulate tab key being pressed
         child._keyTab({

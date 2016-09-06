@@ -1,27 +1,29 @@
 # Static
 
-describe '`ContentEdit.Static()`', () ->
+factory = new ContentEdit.Factory()
+
+describe '`Static()`', () ->
 
     it 'should return an instance of Static`', () ->
 
-        staticElm = new ContentEdit.Static('div', {}, '<div></div>')
-        expect(staticElm instanceof ContentEdit.Static).toBe true
+        staticElm = new factory.Static('div', {}, '<div></div>')
+        expect(staticElm instanceof factory.Static).toBe true
 
 
-describe '`ContentEdit.Static.cssTypeName()`', () ->
+describe '`Static.cssTypeName()`', () ->
 
     it 'should return \'static\'', () ->
 
-        staticElm = new ContentEdit.Static('div', {}, '<div></div>')
+        staticElm = new factory.Static('div', {}, '<div></div>')
         expect(staticElm.cssTypeName()).toBe 'static'
 
 
-describe '`ContentEdit.Static.createDraggingDOMElement()`', () ->
+describe '`Static.createDraggingDOMElement()`', () ->
 
     it 'should create a helper DOM element', () ->
         # Mount an image to a region
-        staticElm = new ContentEdit.Static('div', {}, 'foo <b>bar</b>')
-        region = new ContentEdit.Region(document.createElement('div'))
+        staticElm = new factory.Static('div', {}, 'foo <b>bar</b>')
+        region = new factory.Region(document.createElement('div'))
         region.attach(staticElm)
 
         # Get the helper DOM element
@@ -32,25 +34,25 @@ describe '`ContentEdit.Static.createDraggingDOMElement()`', () ->
         expect(helper.innerHTML).toBe 'foo bar'
 
 
-describe '`ContentEdit.Static.type()`', () ->
+describe '`Static.type()`', () ->
 
     it 'should return \'Static\'', () ->
-        staticElm = new ContentEdit.Static('div', {}, '<div></div>')
+        staticElm = new factory.Static('div', {}, '<div></div>')
         expect(staticElm.type()).toBe 'Static'
 
 
-describe '`ContentEdit.Static.typeName()`', () ->
+describe '`Static.typeName()`', () ->
 
     it 'should return \'Static\'', () ->
 
-        staticElm = new ContentEdit.Static('div', {}, '<div></div>')
+        staticElm = new factory.Static('div', {}, '<div></div>')
         expect(staticElm.typeName()).toBe 'Static'
 
 
-describe 'ContentEdit.Static.html()', () ->
+describe 'Static.html()', () ->
 
     it 'should return a HTML string for the static element', () ->
-        staticElm = new ContentEdit.Static(
+        staticElm = new factory.Static(
             'div',
             {'class': 'foo'},
             '<div><b>foo</b></div>'
@@ -60,20 +62,20 @@ describe 'ContentEdit.Static.html()', () ->
             )
 
 
-describe 'ContentEdit.Static.mount()', () ->
+describe 'Static.mount()', () ->
 
     region = null
     staticElm = null
 
     beforeEach ->
-        staticElm = new ContentEdit.Static(
+        staticElm = new factory.Static(
             'div',
             {'class': 'foo'},
             '<div><b>foo</b></div>'
             )
 
         # Mount the static element
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         region.attach(staticElm)
         staticElm.unmount()
 
@@ -92,22 +94,22 @@ describe 'ContentEdit.Static.mount()', () ->
         spyOn(foo, 'handleFoo')
 
         # Bind the function to the root for the mount event
-        root = ContentEdit.Root.get()
-        root.bind('mount', foo.handleFoo)
+        factory.root.bind('mount', foo.handleFoo)
 
         # Mount the static element
         staticElm.mount()
         expect(foo.handleFoo).toHaveBeenCalledWith(staticElm)
 
 
-describe '`ContentEdit.Static.fromDOMElement()`', () ->
+describe '`Static.fromDOMElement()`', () ->
 
     it 'should convert a DOM element into an static element', () ->
 
-        region = new ContentEdit.Region(document.createElement('div'))
+        region = new factory.Region(document.createElement('div'))
         domElement = document.createElement('div')
         domElement.innerHTML = '<div><b>foo</b></div>'
-        staticElm = ContentEdit.Static.fromDOMElement(domElement)
+
+        staticElm = factory.Static.fromDOMElement(domElement)
         region.attach(staticElm)
 
         expect(staticElm.domElement().innerHTML).toBe '<div><b>foo</b></div>'
@@ -115,15 +117,15 @@ describe '`ContentEdit.Static.fromDOMElement()`', () ->
 
 # Droppers
 
-describe '`ContentEdit.Static` drop interactions if `data-ce-moveable` is
+describe '`Static` drop interactions if `data-ce-moveable` is
         set', () ->
 
     staticElm = null
     region = null
 
     beforeEach ->
-        region = new ContentEdit.Region(document.createElement('div'))
-        staticElm = new ContentEdit.Static(
+        region = new factory.Region(document.createElement('div'))
+        staticElm = new factory.Static(
             'div',
             {'data-ce-moveable': ''},
             'foo'
@@ -131,7 +133,7 @@ describe '`ContentEdit.Static` drop interactions if `data-ce-moveable` is
         region.attach(staticElm)
 
     it 'should support dropping on Text', () ->
-        otherStaticElm = new ContentEdit.Static(
+        otherStaticElm = new factory.Static(
             'div',
             {'data-ce-moveable': ''},
             'bar'

@@ -1,4 +1,8 @@
-class ContentEdit.Image extends ContentEdit.ResizableElement
+class Image extends ContentEdit.Factory.class('ResizableElement')
+
+    # Register `Image` class in Abstract factory
+    # Associate tag `img` with this class
+    ContentEdit.Factory.register(@, 'Image', 'img')
 
     # An editable image (e.g <image src="..." alt="foo" width="5" height="5">).
     # The `Image` element supports 2 special tags to allow the the size of the
@@ -105,10 +109,10 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
     # Class properties
 
     @droppers:
-        'Image': ContentEdit.Element._dropBoth
-        'PreText': ContentEdit.Element._dropBoth
-        'Static': ContentEdit.Element._dropBoth
-        'Text': ContentEdit.Element._dropBoth
+        'Image': ContentEdit.Factory.class('Element')._dropBoth
+        'PreText': ContentEdit.Factory.class('Element')._dropBoth
+        'Static': ContentEdit.Factory.class('Element')._dropBoth
+        'Text': ContentEdit.Factory.class('Element')._dropBoth
 
     # List of allowed drop placements for the class, supported values are:
     @placements: ['above', 'below', 'left', 'right', 'center']
@@ -155,7 +159,3 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
                 attributes['height'] = domElement.clientHeight
 
         return new @(attributes, a)
-
-
-# Register `ContentEdit.Image` the class with associated tag names
-ContentEdit.TagNames.get().register(ContentEdit.Image, 'img')
