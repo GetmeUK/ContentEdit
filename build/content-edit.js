@@ -2999,7 +2999,6 @@
         child = _ref[_i];
         this.detach(child);
       }
-      this._domElement = domElement.cloneNode(false);
       tagNames = ContentEdit.TagNames.get();
       childNodes = (function() {
         var _j, _len1, _ref1, _results;
@@ -3022,12 +3021,10 @@
           cls = tagNames.match(childNode.tagName);
         }
         element = cls.fromDOMElement(childNode);
+        domElement.removeChild(childNode);
         if (element) {
           this.attach(element);
         }
-      }
-      if (domElement.parentNode) {
-        domElement.parentNode.replaceChild(this._domElement, domElement);
       }
       return ContentEdit.Root.get().trigger('ready', this);
     };
