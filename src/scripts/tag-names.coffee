@@ -23,8 +23,9 @@ class _TagNames
     match: (tagName) ->
         # Return an element class for the specified tag name (case insensitive),
         # if we can't find an associated class return `ContentEdit.Static`.
-        if @_tagNames[tagName.toLowerCase()]
-            return @_tagNames[tagName.toLowerCase()]
+        tagName = tagName.toLowerCase()
+        if @_tagNames[tagName]
+            return @_tagNames[tagName]
 
         return ContentEdit.Static
 

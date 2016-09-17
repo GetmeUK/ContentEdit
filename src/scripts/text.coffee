@@ -538,6 +538,8 @@ class ContentEdit.PreText extends ContentEdit.Text
 
     # An editable body of preserved text (e.g <pre>).
 
+    @TAB_INDENT: '    '
+
     constructor: (tagName, attributes, content) ->
         # The content of the text element
         if content instanceof HTMLString.String
@@ -642,6 +644,116 @@ class ContentEdit.PreText extends ContentEdit.Text
         selection.select(@_domElement)
 
         @taint()
+
+    _keyTab: (ev) ->
+        ev.preventDefault()
+
+        # Measure the length of the block before the indentation
+        blockLength = @content.length()
+
+        # Indent/Unindent the selected block of text
+        indentText = ContentEdit.PreText.TAB_INDENT
+        indentLength = indentText.length
+
+        # Split the current content into lines
+        lines = @content.split('\n')
+
+        # Determine the first and last line within the selection
+        selection = @selection().get()
+
+        # Ensure the selection doesn't overshoot the block content
+        selection[0] = Math.min(selection[0], blockLength)
+        selection[1] = Math.min(selection[1], blockLength)
+
+        charIndex = 0
+        startLine = -1
+        endLine = -1
+        for line, i in lines
+            # We add +1 to the line length to account for the new line character
+            lineLength = (line.length() + 1)
+
+            if selection[0] < charIndex + lineLength
+                if startLine == -1
+                    startLine = i
+
+            if selection[1] < charIndex + lineLength
+                if endLine == -1
+                    endLine = i
+
+            if startLine > -1 and endLine > -1
+                break
+
+            charIndex += lineLength
+
+        if startLine == endLine
+            # If a single line is selected then indent from the start of the
+            # current selection to the nearest indent multiple.
+
+            # Modify the indent length to indent the line to the next indent
+            # point.
+            indentLength -= (selection[0] - charIndex) % indentLength
+            indentHTML = new HTMLString.String(
+                Array(indentLength + 1).join(' '),
+                true
+                )
+
+            # Insert the indent within the string
+            tip = lines[startLine].substring(0, selection[0] - charIndex)
+            tail = lines[startLine].substring(selection[1] - charIndex)
+            lines[startLine] = tip.concat(indentHTML, tail)
+
+            # Set the selection offset to the full/partial indent length
+            selectionOffset = indentLength
+
+        else
+            # If multiple lines are selected then indent/unindent the start of
+            # each line.
+            if ev.shiftKey
+                # Remove a tab indent worth of spaces from the start of each
+                # line.
+                firstLineShift = 0
+                for i in [startLine..endLine]
+                    for c, j in lines[i].characters.slice()
+                        if j > (indentLength - 1)
+                            break
+                        if not c.isWhitespace()
+                            break
+
+                        # Not strictly a nice approach but it's more efficient
+                        # than using `substring`.
+                        lines[i].characters.shift()
+
+                    # Store the indent applied to the first line as we need it
+                    # to determine the selection start shift.
+                    if i == startLine
+                        firstLineShift = j
+
+                # Flip the `indentLength` to reverse the change in selection
+                # direction.
+                selectionOffset = Math.max(-indentLength, -firstLineShift)
+
+            else
+                # Add a tab indent worth of spaces to the start of each line
+                indentHTML = new HTMLString.String(indentText, true)
+                for i in [startLine..endLine]
+                    lines[i] = indentHTML.concat(lines[i])
+
+                # Set the selection offset to the full indent length
+                selectionOffset = indentLength
+
+        # Update the content in the DOM
+        @content = HTMLString.String.join(
+            new HTMLString.String('\n', true),
+            lines
+            )
+        @updateInnerHTML()
+
+        # Restore the selection
+        selectionLength = @content.length() - blockLength
+        new ContentSelect.Range(
+            selection[0] + selectionOffset,
+            selection[1] + selectionLength
+            ).select(@_domElement)
 
     # Private methods
 

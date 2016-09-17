@@ -1253,11 +1253,11 @@
   });
 
   describe('`ContentEdit.Region.domElement()`', function() {
-    return it('should return the DOM element the region was initialized with', function() {
+    return it('should return a clone of the DOM element the region was initialized with or a clone of', function() {
       var domElement, region;
       domElement = document.createElement('div');
       region = new ContentEdit.Region(domElement);
-      return expect(region.domElement()).toBe(domElement);
+      return expect(region.domElement()).toEqual(domElement);
     });
   });
 
@@ -2235,11 +2235,30 @@
       }
       return _results;
     });
-    return it('should support return adding a newline', function() {
+    it('should support return adding a newline', function() {
       preText.focus();
       new ContentSelect.Range(13, 13).select(preText.domElement());
       preText._keyReturn(ev);
       return expect(preText.html()).toBe("<pre class=\"foo\">&lt;div&gt;\n" + ContentEdit.INDENT + "tes\nt &amp; test\n&lt;/div&gt;</pre>");
+    });
+    it('should support tab indenting a single line', function() {
+      preText.focus();
+      new ContentSelect.Range(10, 10).select(preText.domElement());
+      preText._keyTab(ev);
+      return expect(preText.html()).toBe("<pre class=\"foo\">&lt;div&gt;\n" + ContentEdit.INDENT + ContentEdit.PreText.TAB_INDENT + "test &amp; test\n&lt;/div&gt;</pre>");
+    });
+    it('should support tab indenting multiple lines', function() {
+      preText.focus();
+      new ContentSelect.Range(10, 24).select(preText.domElement());
+      preText._keyTab(ev);
+      return expect(preText.html()).toBe("<pre class=\"foo\">&lt;div&gt;\n" + ContentEdit.INDENT + ContentEdit.PreText.TAB_INDENT + "test &amp; test\n" + ContentEdit.PreText.TAB_INDENT + "&lt;/div&gt;</pre>");
+    });
+    return it('should support tab unindenting multiple lines', function() {
+      preText.focus();
+      new ContentSelect.Range(10, 24).select(preText.domElement());
+      ev.shiftKey = true;
+      preText._keyTab(ev);
+      return expect(preText.html()).toBe("<pre class=\"foo\">&lt;div&gt;\ntest &amp; test\n&lt;/div&gt;</pre>");
     });
   });
 

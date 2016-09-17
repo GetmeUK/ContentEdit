@@ -9,10 +9,11 @@ describe '`ContentEdit.Region()`', () ->
 
 describe '`ContentEdit.Region.domElement()`', () ->
 
-    it 'should return the DOM element the region was initialized with', () ->
+    it 'should return a clone of the DOM element the region was initialized with
+            or a clone of', () ->
         domElement = document.createElement('div')
         region = new ContentEdit.Region(domElement)
-        expect(region.domElement()).toBe domElement
+        expect(region.domElement()).toEqual domElement
 
 
 describe '`ContentEdit.Region.isMounted()`', () ->

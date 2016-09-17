@@ -48,6 +48,7 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
             @detach(child)
 
         # Build and attach new content
+        @_domElement = domElement.cloneNode(false)
 
         # Convert the existing contents of the DOM element to editable elements
         tagNames = ContentEdit.TagNames.get()
@@ -63,20 +64,21 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
                 continue
 
             # Find the class associated with this node's tag name
-            if childNode.getAttribute("data-ce-tag")
-                cls = tagNames.match(childNode.getAttribute("data-ce-tag"))
+            if childNode.getAttribute('data-ce-tag')
+                cls = tagNames.match(childNode.getAttribute('data-ce-tag'))
             else
                 cls = tagNames.match(childNode.tagName)
 
             # Convert the node to a ContentEdit.Element
             element = cls.fromDOMElement(childNode)
 
-            # Remove the node from the DOM
-            domElement.removeChild(childNode)
-
             # Attach the element to the region
             if element
                 @attach(element)
+
+        # Replace the old region DOM element with the clone
+        if domElement.parentNode
+            domElement.parentNode.replaceChild(@_domElement, domElement)
 
         # Trigger a ready event for the region
         ContentEdit.Root.get().trigger('ready', this)

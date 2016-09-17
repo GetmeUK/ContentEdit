@@ -561,7 +561,7 @@
     };
 
     String.prototype.split = function(separator, limit) {
-      var count, i, index, indexes, lastIndex, substrings, _i, _ref;
+      var count, end, i, index, indexes, lastIndex, start, substrings, _i, _ref;
       if (separator == null) {
         separator = '';
       }
@@ -576,7 +576,7 @@
           break;
         }
         index = this.indexOf(separator, lastIndex);
-        if (index === -1 || index === (this.length() - 1)) {
+        if (index === -1) {
           break;
         }
         indexes.push(index);
@@ -585,7 +585,12 @@
       indexes.push(this.length());
       substrings = [];
       for (i = _i = 0, _ref = indexes.length - 2; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-        substrings.push(this.slice(indexes[i], indexes[i + 1]));
+        start = indexes[i];
+        if (i > 0) {
+          start += 1;
+        }
+        end = indexes[i + 1];
+        substrings.push(this.slice(start, end));
       }
       return substrings;
     };
@@ -785,6 +790,13 @@
       return stringCopy;
     };
 
+    String.decode = function(string) {
+      var textarea;
+      textarea = document.createElement('textarea');
+      textarea.innerHTML = string;
+      return textarea.textContent;
+    };
+
     String.encode = function(string) {
       var textarea;
       textarea = document.createElement('textarea');
@@ -792,11 +804,14 @@
       return textarea.innerHTML;
     };
 
-    String.decode = function(string) {
-      var textarea;
-      textarea = document.createElement('textarea');
-      textarea.innerHTML = string;
-      return textarea.textContent;
+    String.join = function(separator, strings) {
+      var joined, s, _i, _len;
+      joined = strings.shift();
+      for (_i = 0, _len = strings.length; _i < _len; _i++) {
+        s = strings[_i];
+        joined = joined.concat(separator, s);
+      }
+      return joined;
     };
 
     return String;

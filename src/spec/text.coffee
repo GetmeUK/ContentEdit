@@ -687,6 +687,34 @@ describe '`ContentEdit.PreText` key events`', () ->
 t &amp; test
 &lt;/div&gt;</pre>"""
 
+    it 'should support tab indenting a single line', () ->
+        preText.focus()
+        new ContentSelect.Range(10, 10).select(preText.domElement())
+        preText._keyTab(ev)
+
+        expect(preText.html()).toBe  """<pre class="foo">&lt;div&gt;
+#{ ContentEdit.INDENT }#{ ContentEdit.PreText.TAB_INDENT }test &amp; test
+&lt;/div&gt;</pre>"""
+
+    it 'should support tab indenting multiple lines', () ->
+        preText.focus()
+        new ContentSelect.Range(10, 24).select(preText.domElement())
+        preText._keyTab(ev)
+
+        expect(preText.html()).toBe  """<pre class="foo">&lt;div&gt;
+#{ ContentEdit.INDENT }#{ ContentEdit.PreText.TAB_INDENT }test &amp; test
+#{ ContentEdit.PreText.TAB_INDENT }&lt;/div&gt;</pre>"""
+
+    it 'should support tab unindenting multiple lines', () ->
+        preText.focus()
+        new ContentSelect.Range(10, 24).select(preText.domElement())
+        ev.shiftKey = true
+        preText._keyTab(ev)
+
+        expect(preText.html()).toBe  """<pre class="foo">&lt;div&gt;
+test &amp; test
+&lt;/div&gt;</pre>"""
+
 
 # Droppers
 
