@@ -10,6 +10,7 @@ describe 'ContentEdit', () ->
         expect(ContentEdit.DROP_EDGE_SIZE).toBe 50
         expect(ContentEdit.HELPER_CHAR_LIMIT).toBe 250
         expect(ContentEdit.INDENT).toBe '    '
+        expect(ContentEdit.LINE_ENDINGS).toBe '\n'
         expect(ContentEdit.LANGUAGE).toBe 'en'
         expect(ContentEdit.RESIZE_CORNER_SIZE).toBe 15
         expect(ContentEdit.TRIM_WHITESPACE).toBe true

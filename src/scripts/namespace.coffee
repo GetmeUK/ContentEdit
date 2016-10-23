@@ -40,8 +40,8 @@ ContentEdit =
     # The current language. Must be a a 2 digit ISO_639-1 code.
     LANGUAGE: 'en'
 
-    # String used to join HTML output from editable elements and to format the
-    # the structure of tags from editable elements.
+    # String used for  line endings when formatting the HTML output of editable
+    # elements.
     LINE_ENDINGS: '\n'
 
     # By default a new paragraph `<p>` is created when the enter/return key is
@@ -57,8 +57,9 @@ ContentEdit =
     # more than a 1/4 of the total size.
     RESIZE_CORNER_SIZE: 15
 
-    # If true then whitespace will be stripped from editable elements with text
-    # content when the editable element is loaded, modified and saved.
+    # If true then whitespace will be stripped from the start and end of
+    # editable elements with text content, if false then &nbsp; and <br> tags
+    # will be preserved.
     TRIM_WHITESPACE: true
 
     # Translation - the ContentEdit library provides basic translation support
