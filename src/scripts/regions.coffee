@@ -31,7 +31,8 @@ class ContentEdit.Region extends ContentEdit.NodeCollection
 
     html: (indent='') ->
         # Return a HTML string for the node
-        return (c.html(indent) for c in @children).join('\n').trim()
+        le = ContentEdit.LINE_ENDINGS
+        return (c.html(indent) for c in @children).join(le).trim()
 
     setContent: (domElementOrHTML) ->
         # Set the contents of the region using a DOM element or HTML string

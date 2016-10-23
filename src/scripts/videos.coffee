@@ -65,6 +65,7 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
 
     html: (indent='') ->
         # Return a HTML string for the node
+        le = ContentEdit.LINE_ENDINGS
         if @tagName() == 'video'
             sourceStrings = []
             for source in @sources
@@ -72,9 +73,9 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
                 sourceStrings.push(
                     "#{ indent }#{ ContentEdit.INDENT }<source #{ attributes }>"
                     )
-            return "#{ indent }<video#{ @_attributesToString() }>\n" +
-                sourceStrings.join('\n') +
-                "\n#{ indent }</video>"
+            return "#{ indent }<video#{ @_attributesToString() }>#{ le }" +
+                sourceStrings.join(le) +
+                "#{ le }#{ indent }</video>"
         else
             return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>" +
                 "</#{ @_tagName }>"

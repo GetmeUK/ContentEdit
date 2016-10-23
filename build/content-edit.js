@@ -1666,6 +1666,7 @@
     HELPER_CHAR_LIMIT: 250,
     INDENT: '    ',
     LANGUAGE: 'en',
+    LINE_ENDINGS: '\n',
     PREFER_LINE_BREAKS: false,
     RESIZE_CORNER_SIZE: 15,
     TRIM_WHITESPACE: true,
@@ -2738,7 +2739,7 @@
     };
 
     ElementCollection.prototype.html = function(indent) {
-      var c, children;
+      var attributes, c, children, le;
       if (indent == null) {
         indent = '';
       }
@@ -2752,10 +2753,12 @@
         }
         return _results;
       }).call(this);
+      le = ContentEdit.LINE_ENDINGS;
       if (this.isFixed()) {
-        return children.join('\n');
+        return children.join(le);
       } else {
-        return ("" + indent + "<" + (this.tagName()) + (this._attributesToString()) + ">\n") + ("" + (children.join('\n')) + "\n") + ("" + indent + "</" + (this.tagName()) + ">");
+        attributes = this._attributesToString();
+        return ("" + indent + "<" + (this.tagName()) + attributes + ">" + le) + ("" + (children.join(le)) + le) + ("" + indent + "</" + (this.tagName()) + ">");
       }
     };
 
@@ -2972,10 +2975,11 @@
     };
 
     Region.prototype.html = function(indent) {
-      var c;
+      var c, le;
       if (indent == null) {
         indent = '';
       }
+      le = ContentEdit.LINE_ENDINGS;
       return ((function() {
         var _i, _len, _ref, _results;
         _ref = this.children;
@@ -2985,7 +2989,7 @@
           _results.push(c.html(indent));
         }
         return _results;
-      }).call(this)).join('\n').trim();
+      }).call(this)).join(le).trim();
     };
 
     Region.prototype.setContent = function(domElementOrHTML) {
@@ -3068,10 +3072,11 @@
     };
 
     Fixture.prototype.html = function(indent) {
-      var c;
+      var c, le;
       if (indent == null) {
         indent = '';
       }
+      le = ContentEdit.LINE_ENDINGS;
       return ((function() {
         var _i, _len, _ref, _results;
         _ref = this.children;
@@ -3081,7 +3086,7 @@
           _results.push(c.html(indent));
         }
         return _results;
-      }).call(this)).join('\n').trim();
+      }).call(this)).join(le).trim();
     };
 
     return Fixture;
@@ -3454,7 +3459,7 @@
     };
 
     Text.prototype.html = function(indent) {
-      var content;
+      var attributes, content, le;
       if (indent == null) {
         indent = '';
       }
@@ -3471,7 +3476,9 @@
       if (this.isFixed()) {
         return this._cached;
       } else {
-        return ("" + indent + "<" + this._tagName + (this._attributesToString()) + ">\n") + ("" + indent + ContentEdit.INDENT + this._cached + "\n") + ("" + indent + "</" + this._tagName + ">");
+        le = ContentEdit.LINE_ENDINGS;
+        attributes = this._attributesToString();
+        return ("" + indent + "<" + this._tagName + attributes + ">" + le) + ("" + indent + ContentEdit.INDENT + this._cached + le) + ("" + indent + "</" + this._tagName + ">");
       }
     };
 
@@ -4038,15 +4045,16 @@
     };
 
     Image.prototype.html = function(indent) {
-      var attributes, img;
+      var attributes, img, le;
       if (indent == null) {
         indent = '';
       }
       img = "" + indent + "<img" + (this._attributesToString()) + ">";
       if (this.a) {
+        le = ContentEdit.LINE_ENDINGS;
         attributes = ContentEdit.attributesToString(this.a);
         attributes = "" + attributes + " data-ce-tag=\"img\"";
-        return ("" + indent + "<a " + attributes + ">\n") + ("" + ContentEdit.INDENT + img + "\n") + ("" + indent + "</a>");
+        return ("" + indent + "<a " + attributes + ">" + le) + ("" + ContentEdit.INDENT + img + le) + ("" + indent + "</a>");
       } else {
         return img;
       }
@@ -4202,10 +4210,11 @@
     };
 
     Video.prototype.html = function(indent) {
-      var attributes, source, sourceStrings, _i, _len, _ref;
+      var attributes, le, source, sourceStrings, _i, _len, _ref;
       if (indent == null) {
         indent = '';
       }
+      le = ContentEdit.LINE_ENDINGS;
       if (this.tagName() === 'video') {
         sourceStrings = [];
         _ref = this.sources;
@@ -4214,7 +4223,7 @@
           attributes = ContentEdit.attributesToString(source);
           sourceStrings.push("" + indent + ContentEdit.INDENT + "<source " + attributes + ">");
         }
-        return ("" + indent + "<video" + (this._attributesToString()) + ">\n") + sourceStrings.join('\n') + ("\n" + indent + "</video>");
+        return ("" + indent + "<video" + (this._attributesToString()) + ">" + le) + sourceStrings.join(le) + ("" + le + indent + "</video>");
       } else {
         return ("" + indent + "<" + this._tagName + (this._attributesToString()) + ">") + ("</" + this._tagName + ">");
       }
@@ -4404,7 +4413,7 @@
         lines.push(this.list().html(indent + ContentEdit.INDENT));
       }
       lines.push("" + indent + "</li>");
-      return lines.join('\n');
+      return lines.join(ContentEdit.LINE_ENDINGS);
     };
 
     ListItem.prototype.indent = function() {
@@ -5098,7 +5107,7 @@
         lines.push(this.tableCellText().html(indent + ContentEdit.INDENT));
       }
       lines.push("" + indent + "</" + (this.tagName()) + ">");
-      return lines.join('\n');
+      return lines.join(ContentEdit.LINE_ENDINGS);
     };
 
     TableCell.prototype._onMouseOver = function(ev) {

@@ -126,8 +126,10 @@ class ContentEdit.Text extends ContentEdit.Element
         if @isFixed()
             return @_cached
         else
-            return "#{ indent }<#{ @_tagName }#{ @_attributesToString() }>\n" +
-                "#{ indent }#{ ContentEdit.INDENT }#{ @_cached }\n" +
+            le = ContentEdit.LINE_ENDINGS
+            attributes = @_attributesToString()
+            return "#{ indent }<#{ @_tagName }#{ attributes }>#{le}" +
+                "#{ indent }#{ ContentEdit.INDENT }#{ @_cached }#{le}" +
                 "#{ indent }</#{ @_tagName }>"
 
     mount: () ->

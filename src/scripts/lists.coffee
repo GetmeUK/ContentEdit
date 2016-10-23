@@ -126,7 +126,7 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
         if @list()
             lines.push(@list().html(indent + ContentEdit.INDENT))
         lines.push("#{ indent }</li>")
-        return lines.join('\n')
+        return lines.join(ContentEdit.LINE_ENDINGS)
 
     indent: () ->
         # Indent the list item

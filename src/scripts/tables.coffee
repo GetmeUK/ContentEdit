@@ -298,7 +298,7 @@ class ContentEdit.TableCell extends ContentEdit.ElementCollection
         if @tableCellText()
             lines.push(@tableCellText().html(indent + ContentEdit.INDENT))
         lines.push("#{ indent }</#{ @tagName() }>")
-        return lines.join('\n')
+        return lines.join(ContentEdit.LINE_ENDINGS)
 
     # Event handlers
 

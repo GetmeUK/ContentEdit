@@ -40,6 +40,10 @@ ContentEdit =
     # The current language. Must be a a 2 digit ISO_639-1 code.
     LANGUAGE: 'en'
 
+    # String used to join HTML output from editable elements and to format the
+    # the structure of tags from editable elements.
+    LINE_ENDINGS: '\n'
+
     # By default a new paragraph `<p>` is created when the enter/return key is
     # pressed, to insert a line-break `<br>` the shift key can be held down when
     # pressing enter. This behaviour can be reversed by setting the preference

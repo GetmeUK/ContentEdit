@@ -1087,12 +1087,14 @@ class ContentEdit.ElementCollection extends ContentEdit.Element
         # Return a HTML string for the node
         children = (c.html(indent + ContentEdit.INDENT) for c in @children)
 
+        le = ContentEdit.LINE_ENDINGS
         if @isFixed()
-            return children.join('\n')
+            return children.join(le)
 
         else
-            return "#{ indent }<#{ @tagName() }#{ @_attributesToString() }>\n" +
-                "#{ children.join('\n') }\n" +
+            attributes = @_attributesToString()
+            return "#{ indent }<#{ @tagName() }#{ attributes }>#{ le }" +
+                "#{ children.join(le) }#{ le }" +
                 "#{ indent }</#{ @tagName() }>"
 
     mount: () ->

@@ -47,10 +47,11 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
         # Return a HTML string for the node
         img = "#{ indent }<img#{ @_attributesToString() }>"
         if @a
+            le = ContentEdit.LINE_ENDINGS
             attributes = ContentEdit.attributesToString(@a)
             attributes = "#{ attributes } data-ce-tag=\"img\""
-            return "#{ indent }<a #{ attributes }>\n" +
-                "#{ ContentEdit.INDENT }#{ img }\n" +
+            return "#{ indent }<a #{ attributes }>#{ le }" +
+                "#{ ContentEdit.INDENT }#{ img }#{ le }" +
                 "#{ indent }</a>"
         else
             return img
