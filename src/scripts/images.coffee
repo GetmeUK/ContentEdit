@@ -39,7 +39,7 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
         helper = super()
 
         # Set the background image for the helper element
-        helper.style.backgroundImage = "url(#{ @_attributes['src'] })"
+        helper.style.backgroundImage = "url('#{ @_attributes['src'] }')"
 
         return helper
 
@@ -75,7 +75,7 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
 
         # Set the background image for the
         style = if @_attributes['style'] then @_attributes['style'] else ''
-        style += "background-image:url(#{ @_attributes['src'] });"
+        style += "background-image:url('#{ @_attributes['src'] }');"
 
         # Set the size using style
         if @_attributes['width']

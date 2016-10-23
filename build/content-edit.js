@@ -4040,7 +4040,7 @@
         return;
       }
       helper = Image.__super__.createDraggingDOMElement.call(this);
-      helper.style.backgroundImage = "url(" + this._attributes['src'] + ")";
+      helper.style.backgroundImage = "url('" + this._attributes['src'] + "')";
       return helper;
     };
 
@@ -4072,7 +4072,7 @@
       }
       this._domElement.setAttribute('class', classes);
       style = this._attributes['style'] ? this._attributes['style'] : '';
-      style += "background-image:url(" + this._attributes['src'] + ");";
+      style += "background-image:url('" + this._attributes['src'] + "');";
       if (this._attributes['width']) {
         style += "width:" + this._attributes['width'] + "px;";
       }
@@ -4558,7 +4558,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         childNode = _ref[_i];
         if (childNode.nodeType === 1) {
-          if ((_ref1 = childNode.tagName.toLowerCase()) === 'ul' || _ref1 === 'li') {
+          if ((_ref1 = childNode.tagName.toLowerCase()) === 'ul' || _ref1 === 'ol' || _ref1 === 'li') {
             if (!listDOMElement) {
               listDOMElement = childNode;
             }

@@ -331,7 +331,7 @@ class ContentEdit.ListItem extends ContentEdit.ElementCollection
             if childNode.nodeType == 1 # ELEMENT_NODE
 
                 # Check for lists
-                if childNode.tagName.toLowerCase() in ['ul', 'li']
+                if childNode.tagName.toLowerCase() in ['ul', 'ol', 'li']
 
                     # Keep a reference to the first list found
                     if not listDOMElement

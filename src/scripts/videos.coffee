@@ -86,7 +86,7 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
         # Create the DOM element to mount
         @_domElement = document.createElement('div')
 
-        # Set the classes for the image, we use the wrapping <a> tag's class if
+        # Set the classes for the video, we use the wrapping <a> tag's class if
         # it exists, else we use the class applied to the image.
         if @a and @a['class']
             @_domElement.setAttribute('class', @a['class'])
@@ -94,7 +94,7 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
         else if @_attributes['class']
             @_domElement.setAttribute('class', @_attributes['class'])
 
-        # Set the background image for the
+        # Set any styles for the element
         style = if @_attributes['style'] then @_attributes['style'] else ''
 
         # Set the size using style
@@ -115,12 +115,12 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
         # Unmount the element from the DOM
 
         if @isFixed()
-            # Revert the DOM element to an image
+            # Revert the DOM element to an iframe
             wrapper = document.createElement('div')
             wrapper.innerHTML = @html()
             domElement = wrapper.querySelector('iframe')
 
-            # Replace the current DOM element with the image
+            # Replace the current DOM element with the iframe
             @_domElement.parentNode.replaceChild(domElement, @_domElement)
             @_domElement = domElement
 
