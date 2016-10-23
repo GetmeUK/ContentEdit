@@ -2532,7 +2532,9 @@
       }
     };
 
-    Element.prototype._onMouseUp = function(ev) {};
+    Element.prototype._onMouseUp = function(ev) {
+      return this._ieMouseDownEchoed = false;
+    };
 
     Element.prototype._onNativeDrop = function(ev) {
       ev.preventDefault();
@@ -3407,7 +3409,6 @@
     };
 
     Text.prototype.blur = function() {
-      var error;
       if (this.isMounted()) {
         this._syncContent();
       }
@@ -3416,10 +3417,8 @@
           this.parent().detach(this);
         }
       } else if (this.isMounted()) {
-        try {
+        if (!document.documentMode && !/Edge/.test(navigator.userAgent)) {
           this._domElement.blur();
-        } catch (_error) {
-          error = _error;
         }
         this._domElement.removeAttribute('contenteditable');
       }

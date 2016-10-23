@@ -47,14 +47,17 @@ class ContentEdit.Text extends ContentEdit.Element
 
         else if @isMounted()
             # Blur the DOM element
-            try
+
+            # HACK: Do nothing if this in InternetExporer which doesn't allow
+            # blur to be triggered against the contentediable element
+            # programatically and will trigger the following error:
+            #
+            # `Unexpected call to method or property access.`
+            #
+            # Which in later versions of the browser (IE11+) cannot be captured.
+            if not document.documentMode and
+                    not /Edge/.test(navigator.userAgent)
                 @_domElement.blur()
-            catch error
-                # HACK: Do nothing if this fails, internet explorer doesn't
-                # allow blur to be triggered against the contentediable element
-                # programatically and will trigger the following error:
-                #
-                # `Unexpected call to method or property access.`
 
             # Stop the element from being editable
             @_domElement.removeAttribute('contenteditable')

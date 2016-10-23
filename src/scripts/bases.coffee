@@ -801,6 +801,7 @@ class ContentEdit.Element extends ContentEdit.Node
         # No default behaviour
 
     _onMouseDown: (ev) ->
+        # Check the element supports a `focus` method
         if @focus
             # We suppress the DOM focus that would normally be inniated as it
             # this helps prevent page jumps when selecting large blocks of
@@ -830,6 +831,7 @@ class ContentEdit.Element extends ContentEdit.Node
 
     _onMouseUp: (ev) ->
         # No default behaviour
+        @_ieMouseDownEchoed = false
 
     _onNativeDrop: (ev) ->
         # By default we don't support native drop events and external libraries
