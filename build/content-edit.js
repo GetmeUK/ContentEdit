@@ -1174,7 +1174,8 @@
       if (this._attributes[name] === void 0) {
         return;
       }
-      return delete this._attributes[name];
+      delete this._attributes[name];
+      return this._head = null;
     };
 
     Tag.prototype.copy = function() {
