@@ -53,6 +53,10 @@ ContentEdit =
     # more than a 1/4 of the total size.
     RESIZE_CORNER_SIZE: 15
 
+    # If true then whitespace will be stripped from editable elements with text
+    # content when the editable element is loaded, modified and saved.
+    TRIM_WHITESPACE: true
+
     # Translation - the ContentEdit library provides basic translation support
     # which is used both by the library itself and the associated ContentTools
     # library.

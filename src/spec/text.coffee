@@ -2,9 +2,25 @@
 
 describe '`ContentEdit.Text()`', () ->
 
+    afterEach ->
+        ContentEdit.TRIM_WHITESPACE = true
+
     it 'should return an instance of Text`', () ->
         text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>')
         expect(text instanceof ContentEdit.Text).toBe true
+
+    it 'should trim whitespace by default`', () ->
+        text = new ContentEdit.Text('p', {}, '&nbsp;foo <b>bar</b><br>')
+        expect(text.html()).toBe '<p class="foo">\n' +
+                "#{ ContentEdit.INDENT }bar <b>var</b>\n" +
+            '</p>'
+
+    it 'should preserve whitespace if `TRIM_WHITESPACE` is false`', () ->
+        ContentEdit.TRIM_WHITESPACE = false
+        text = new ContentEdit.Text('p', {}, '&nbsp;foo <b>bar</b><br>')
+        expect(text.html()).toBe '<p class="foo">\n' +
+                "#{ ContentEdit.INDENT }&nbsp;bar <b>var</b><br>\n" +
+            '</p>'
 
 
 describe '`ContentEdit.Text.cssTypeName()`', () ->

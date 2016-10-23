@@ -9,10 +9,11 @@ class ContentEdit.Text extends ContentEdit.Element
         if content instanceof HTMLString.String
             @content = content
         else
-            # Strings are trimmed initially to prevent selection issues with
-            # whitespaces inside of starting or ending tags
-            # (e.g starting <p><a> abc</a>, or ending <a>abc </a></p>).
-            @content = new HTMLString.String(content).trim()
+            # Parse the content
+            if ContentEdit.TRIM_WHITESPACE
+                @content = new HTMLString.String(content).trim()
+            else
+                @content = new HTMLString.String(content, true)
 
     # Read-only properties
 
@@ -107,8 +108,15 @@ class ContentEdit.Text extends ContentEdit.Element
         # performance for repeated calls.
         if not @_lastCached or @_lastCached < @_modified
 
+            # Copy the content so we can optimize if for output, we also trim
+            # whitespace from the string (if the behaviour hasn't been
+            # disabled).
+            if ContentEdit.TRIM_WHITESPACE
+                content = @content.copy().trim()
+            else
+                content = @content.copy()
+
             # Optimize the content for output
-            content = @content.copy().trim()
             content.optimize()
 
             @_lastCached = Date.now()

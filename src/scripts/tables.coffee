@@ -410,8 +410,15 @@ class ContentEdit.TableCellText extends ContentEdit.Text
         # performance for repeated calls.
         if not @_lastCached or @_lastCached < @_modified
 
+            # Copy the content so we can optimize if for output, we also trim
+            # whitespace from the string (if the behaviour hasn't been
+            # disabled).
+            if ContentEdit.TRIM_WHITESPACE
+                content = @content.copy().trim()
+            else
+                content = @content.copy()
+
             # Optimize the content for output
-            content = @content.copy().trim()
             content.optimize()
 
             @_lastCached = Date.now()

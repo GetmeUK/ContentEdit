@@ -12,6 +12,7 @@ describe 'ContentEdit', () ->
         expect(ContentEdit.INDENT).toBe '    '
         expect(ContentEdit.LANGUAGE).toBe 'en'
         expect(ContentEdit.RESIZE_CORNER_SIZE).toBe 15
+        expect(ContentEdit.TRIM_WHITESPACE).toBe true
 
 
 describe 'ContentEdit._', () ->

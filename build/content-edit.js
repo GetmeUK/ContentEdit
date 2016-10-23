@@ -1668,6 +1668,7 @@
     LANGUAGE: 'en',
     PREFER_LINE_BREAKS: false,
     RESIZE_CORNER_SIZE: 15,
+    TRIM_WHITESPACE: true,
     _translations: {},
     _: function(s) {
       var lang;
@@ -3380,7 +3381,11 @@
       if (content instanceof HTMLString.String) {
         this.content = content;
       } else {
-        this.content = new HTMLString.String(content).trim();
+        if (ContentEdit.TRIM_WHITESPACE) {
+          this.content = new HTMLString.String(content).trim();
+        } else {
+          this.content = new HTMLString.String(content, true);
+        }
       }
     }
 
@@ -3454,7 +3459,11 @@
         indent = '';
       }
       if (!this._lastCached || this._lastCached < this._modified) {
-        content = this.content.copy().trim();
+        if (ContentEdit.TRIM_WHITESPACE) {
+          content = this.content.copy().trim();
+        } else {
+          content = this.content.copy();
+        }
         content.optimize();
         this._lastCached = Date.now();
         this._cached = content.html();
@@ -4607,7 +4616,11 @@
         indent = '';
       }
       if (!this._lastCached || this._lastCached < this._modified) {
-        content = this.content.copy().trim();
+        if (ContentEdit.TRIM_WHITESPACE) {
+          content = this.content.copy().trim();
+        } else {
+          content = this.content.copy();
+        }
         content.optimize();
         this._lastCached = Date.now();
         this._cached = content.html();
@@ -5180,7 +5193,11 @@
         indent = '';
       }
       if (!this._lastCached || this._lastCached < this._modified) {
-        content = this.content.copy().trim();
+        if (ContentEdit.TRIM_WHITESPACE) {
+          content = this.content.copy().trim();
+        } else {
+          content = this.content.copy();
+        }
         content.optimize();
         this._lastCached = Date.now();
         this._cached = content.html();
