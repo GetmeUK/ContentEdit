@@ -225,9 +225,11 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
 
     html: (indent='') ->
         # Return a HTML string for the node
-        img = "#{ indent }<img src=\"#{ src }\" alt=\"#{ alt }\">"
+        le = ContentEdit.LINE_ENDINGS
+        attributes = @_attributesToString()
+        img = "#{ indent }<img src=\"#{ @src() }\" alt=\"#{ @alt() }\">"
         return "#{ indent }<#{ @tagName() } #{ attributes }>#{ le }" +
-            "#{ ContentEdit.INDENT }#{ img }#{ ContentEdit.LINE_ENDINGS }" +
+            "#{ ContentEdit.INDENT }#{ img }#{ le }" +
             "#{ indent }</#{ @tagName() }>"
 
     mount: () ->

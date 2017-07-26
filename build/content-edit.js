@@ -4187,12 +4187,14 @@
     };
 
     ImageFixture.prototype.html = function(indent) {
-      var img;
+      var attributes, img, le;
       if (indent == null) {
         indent = '';
       }
-      img = "" + indent + "<img src=\"" + src + "\" alt=\"" + alt + "\">";
-      return ("" + indent + "<" + (this.tagName()) + " " + attributes + ">" + le) + ("" + ContentEdit.INDENT + img + ContentEdit.LINE_ENDINGS) + ("" + indent + "</" + (this.tagName()) + ">");
+      le = ContentEdit.LINE_ENDINGS;
+      attributes = this._attributesToString();
+      img = "" + indent + "<img src=\"" + (this.src()) + "\" alt=\"" + (this.alt()) + "\">";
+      return ("" + indent + "<" + (this.tagName()) + " " + attributes + ">" + le) + ("" + ContentEdit.INDENT + img + le) + ("" + indent + "</" + (this.tagName()) + ">");
     };
 
     ImageFixture.prototype.mount = function() {
