@@ -4104,7 +4104,7 @@
     Image.placements = ['above', 'below', 'left', 'right', 'center'];
 
     Image.fromDOMElement = function(domElement) {
-      var a, attributes, c, childNode, childNodes, _i, _len;
+      var a, attributes, c, childNode, childNodes, height, width, _i, _len;
       a = null;
       if (domElement.tagName.toLowerCase() === 'a') {
         a = this.getDOMElementAttributes(domElement);
@@ -4130,20 +4130,24 @@
         }
       }
       attributes = this.getDOMElementAttributes(domElement);
+      width = attributes['width'];
+      height = attributes['height'];
       if (attributes['width'] === void 0) {
         if (attributes['height'] === void 0) {
-          attributes['width'] = domElement.naturalWidth;
+          width = domElement.naturalWidth;
         } else {
-          attributes['width'] = domElement.clientWidth;
+          width = domElement.clientWidth;
         }
       }
       if (attributes['height'] === void 0) {
         if (attributes['width'] === void 0) {
-          attributes['height'] = domElement.naturalHeight;
+          height = domElement.naturalHeight;
         } else {
-          attributes['height'] = domElement.clientHeight;
+          height = domElement.clientHeight;
         }
       }
+      attributes['width'] = width;
+      attributes['height'] = height;
       return new this(attributes, a);
     };
 

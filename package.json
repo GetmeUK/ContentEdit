@@ -1,7 +1,7 @@
 {
   "name": "ContentEdit",
   "description": "A JavaScript library that provides a set of classes for building content-editable HTML elements.",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "keywords": [
     "wysiwyg",
     "inline",

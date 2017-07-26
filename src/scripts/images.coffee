@@ -143,17 +143,22 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
 
         # If the width and height of the image haven't been specified, we query
         # the DOM for these values.
+        width = attributes['width']
+        height = attributes['height']
         if attributes['width'] is undefined
             if attributes['height'] is undefined
-                attributes['width'] = domElement.naturalWidth
+                width = domElement.naturalWidth
             else
-                attributes['width'] = domElement.clientWidth
+                width = domElement.clientWidth
 
         if attributes['height'] is undefined
             if attributes['width'] is undefined
-                attributes['height'] = domElement.naturalHeight
+                height = domElement.naturalHeight
             else
-                attributes['height'] = domElement.clientHeight
+                height = domElement.clientHeight
+
+        attributes['width'] = width
+        attributes['height'] = height
 
         return new @(attributes, a)
 
