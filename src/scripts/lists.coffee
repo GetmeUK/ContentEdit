@@ -34,6 +34,7 @@ class ContentEdit.List extends ContentEdit.ElementCollection
 
     @droppers:
         'Image': ContentEdit.Element._dropBoth
+        'ImageFixture': ContentEdit.Element._dropVert
         'List': ContentEdit.Element._dropVert
         'PreText': ContentEdit.Element._dropVert
         'Static': ContentEdit.Element._dropVert

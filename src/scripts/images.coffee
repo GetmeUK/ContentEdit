@@ -160,3 +160,154 @@ class ContentEdit.Image extends ContentEdit.ResizableElement
 
 # Register `ContentEdit.Image` the class with associated tag names
 ContentEdit.TagNames.get().register(ContentEdit.Image, 'img')
+
+
+class ContentEdit.ImageFixture extends ContentEdit.Element
+
+    # Image fixtures provide a mechanism for adding images as fixtures.
+    #
+    # The structure of an image fixture is slightly different than you might
+    # at first expect, rather than using an image element alone image fixtures
+    # use a image element within a (typically) block level element, for
+    # example:
+    #
+    # <div
+    #    data-ce-tag="img-fixed"
+    #    style="background-url: url('some-image.jpg');"
+    #    >
+    #    <img scr="some-image.jpg" alt="Some image">
+    # </div>
+    #
+    # This structure provides makes it easy to use CSS to set how the image
+    # covers the fixture (typically the inner image element is hidden).
+
+    constructor: (tagName, attributes, src, alt) ->
+        super(tagName, attributes)
+
+        # The source of the image
+        @_src = src
+
+        # An alternative description for the image
+        @_alt = alt
+
+    # Read-only properties
+
+    cssTypeName: () ->
+        return 'image-fixture'
+
+    type: () ->
+        # Return the type of element (this should be the same as the class name)
+        return 'ImageFixture'
+
+    typeName: () ->
+        # Return the name of the element type (e.g Image, List item)
+        return 'ImageFixture'
+
+    # Methods
+
+    alt: (alt) ->
+        # Get/Set the alternative description for the image
+
+        # Get...
+        if alt == undefined
+            return @_alt
+
+        # ...or Set the tag name
+        @_alt = alt.toLowerCase()
+
+        # Re-mount the element if mounted
+        if @isMounted()
+            @unmount()
+            @mount()
+
+        # Mark as modified
+        @taint()
+
+    html: (indent='') ->
+        # Return a HTML string for the node
+        img = "#{ indent }<img src=\"#{ src }\" alt=\"#{ alt }\">"
+        return "#{ indent }<#{ @tagName() } #{ attributes }>#{ le }" +
+            "#{ ContentEdit.INDENT }#{ img }#{ ContentEdit.LINE_ENDINGS }" +
+            "#{ indent }</#{ @tagName() }>"
+
+    mount: () ->
+        # Mount the element on to the DOM
+
+        # Create the DOM element to mount
+        @_domElement = document.createElement(@tagName())
+
+        # Set the classes for the image, we combine classes from both the outer
+        # link tag (if there is one) and image element.
+        classes = ''
+        if @a and @a['class']
+            classes += ' ' + @a['class']
+
+        if @_attributes['class']
+            classes += ' ' + @_attributes['class']
+
+        @_domElement.setAttribute('class', classes)
+
+        # Set the background image for the element
+        style = if @_attributes['style'] then @_attributes['style'] else ''
+        style += "background-image:url('#{ @src() }');"
+
+        @_domElement.setAttribute('style', style)
+
+        super()
+
+    src: (src) ->
+        # Get/Set the image src for the element
+
+        # Get...
+        if src == undefined
+            return @_src
+
+        # ...or Set the tag name
+        @_src = src.toLowerCase()
+
+        # Re-mount the element if mounted
+        if @isMounted()
+            @unmount()
+            @mount()
+
+        # Mark as modified
+        @taint()
+
+    # Class properties
+
+    @droppers:
+        'ImageFixture': ContentEdit.Element._dropVert
+        'Image': ContentEdit.Element._dropVert
+        'PreText': ContentEdit.Element._dropVert
+        'Text': ContentEdit.Element._dropVert
+
+    # Class methods
+
+    @fromDOMElement: (domElement) ->
+        # Convert an element (DOM) to an element of this type
+
+        # Get the outer fixture attributes
+        tagName = domElement.tagName
+        attributes = @getDOMElementAttributes(domElement)
+
+        # Get the image attributes
+        src = ''
+        alt = ''
+        childNodes = (c for c in domElement.childNodes)
+        for childNode in childNodes
+            if childNode.nodeType == 1 \
+                    and childNode.tagName.toLowerCase() == 'img'
+                src = childNode.getAttribute('src') or ''
+                alt = childNode.getAttribute('alt') or ''
+                break
+
+        return new @(
+            domElement.tagName,
+            @getDOMElementAttributes(domElement),
+            src,
+            alt
+            )
+
+
+# Register `ContentEdit.ImageFixture` the class with associated tag names
+ContentEdit.TagNames.get().register(ContentEdit.ImageFixture, 'img-fixture')
