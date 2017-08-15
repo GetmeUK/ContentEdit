@@ -125,15 +125,11 @@ class ContentEdit.Text extends ContentEdit.Element
             @_lastCached = Date.now()
             @_cached = content.html()
 
-        # If this is a fixed element only return the inner HTML
-        if @isFixed()
-            return @_cached
-        else
-            le = ContentEdit.LINE_ENDINGS
-            attributes = @_attributesToString()
-            return "#{ indent }<#{ @_tagName }#{ attributes }>#{le}" +
-                "#{ indent }#{ ContentEdit.INDENT }#{ @_cached }#{le}" +
-                "#{ indent }</#{ @_tagName }>"
+        le = ContentEdit.LINE_ENDINGS
+        attributes = @_attributesToString()
+        return "#{ indent }<#{ @_tagName }#{ attributes }>#{le}" +
+            "#{ indent }#{ ContentEdit.INDENT }#{ @_cached }#{le}" +
+            "#{ indent }</#{ @_tagName }>"
 
     mount: () ->
         # Mount the element on to the DOM

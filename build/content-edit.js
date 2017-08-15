@@ -3472,13 +3472,9 @@
         this._lastCached = Date.now();
         this._cached = content.html();
       }
-      if (this.isFixed()) {
-        return this._cached;
-      } else {
-        le = ContentEdit.LINE_ENDINGS;
-        attributes = this._attributesToString();
-        return ("" + indent + "<" + this._tagName + attributes + ">" + le) + ("" + indent + ContentEdit.INDENT + this._cached + le) + ("" + indent + "</" + this._tagName + ">");
-      }
+      le = ContentEdit.LINE_ENDINGS;
+      attributes = this._attributesToString();
+      return ("" + indent + "<" + this._tagName + attributes + ">" + le) + ("" + indent + ContentEdit.INDENT + this._cached + le) + ("" + indent + "</" + this._tagName + ">");
     };
 
     Text.prototype.mount = function() {
@@ -4213,8 +4209,9 @@
       }
       this._domElement.setAttribute('class', classes);
       style = this._attributes['style'] ? this._attributes['style'] : '';
-      style += "background-image:url('" + (this.src()) + "');";
-      this._domElement.setAttribute('style', style);
+      style = style.replace(/background-image:.+?(;|$)/i, '');
+      style = [style.trim(), "background-image:url('" + (this.src()) + "');"].join(' ');
+      this._domElement.setAttribute('style', style.trim());
       return ImageFixture.__super__.mount.call(this);
     };
 
@@ -4228,6 +4225,33 @@
         this.mount();
       }
       return this.taint();
+    };
+
+    ImageFixture.prototype.unmount = function() {
+      var domElement, wrapper;
+      if (this.isFixed()) {
+        wrapper = document.createElement('div');
+        wrapper.innerHTML = this.html();
+        domElement = wrapper.firstElementChild;
+        this._domElement.parentNode.replaceChild(domElement, this._domElement);
+        this._domElement = domElement;
+        return this.parent()._domElement = this._domElement;
+      } else {
+        return ImageFixture.__super__.unmount.call(this);
+      }
+    };
+
+    ImageFixture.prototype._attributesToString = function() {
+      var style;
+      if (this._attributes['style']) {
+        style = this._attributes['style'] ? this._attributes['style'] : '';
+        style = style.replace(/background-image:.+?(;|$)/i, '');
+        style = [style.trim(), "background-image:url('" + (this.src()) + "');"].join(' ');
+        this._attributes['style'] = style.trim();
+      } else {
+        this._attributes['style'] = "background-image:url('" + (this.src()) + "');";
+      }
+      return ImageFixture.__super__._attributesToString.call(this);
     };
 
     ImageFixture.droppers = {

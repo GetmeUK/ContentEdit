@@ -180,7 +180,7 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
     #    data-ce-tag="img-fixed"
     #    style="background-url: url('some-image.jpg');"
     #    >
-    #    <img scr="some-image.jpg" alt="Some image">
+    #    <img src="some-image.jpg" alt="Some image">
     # </div>
     #
     # This structure provides makes it easy to use CSS to set how the image
@@ -254,11 +254,14 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
 
         @_domElement.setAttribute('class', classes)
 
-        # Set the background image for the element
+        # Remove any existing background image from the style attribute
         style = if @_attributes['style'] then @_attributes['style'] else ''
-        style += "background-image:url('#{ @src() }');"
+        style = style.replace(/background-image:.+?(;|$)/i, '')
 
-        @_domElement.setAttribute('style', style)
+        # Set the background image for the element
+        style = [style.trim(), "background-image:url('#{ @src() }');"].join(' ')
+
+        @_domElement.setAttribute('style', style.trim())
 
         super()
 
@@ -279,6 +282,41 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
 
         # Mark as modified
         @taint()
+
+    unmount: () ->
+        # Unmount the element from the DOM
+        if @isFixed()
+            # Build the DOM element
+            wrapper = document.createElement('div')
+            wrapper.innerHTML = @html()
+            domElement = wrapper.firstElementChild
+
+            # Replace the current DOM element
+            @_domElement.parentNode.replaceChild(domElement, @_domElement)
+            @_domElement = domElement
+            @parent()._domElement = @_domElement
+
+        else
+            super()
+
+    # Private methods
+
+    _attributesToString: () ->
+        if @_attributes['style']
+            # Remove any existing background image from the style attribute
+            style = if @_attributes['style'] then @_attributes['style'] else ''
+            style = style.replace(/background-image:.+?(;|$)/i, '')
+
+            # Set the background image for the element
+            style = [
+                style.trim(),
+                "background-image:url('#{ @src() }');"
+            ].join(' ')
+            @_attributes['style'] = style.trim()
+        else
+            @_attributes['style'] = "background-image:url('#{ @src() }');"
+
+        return super()
 
     # Class properties
 
