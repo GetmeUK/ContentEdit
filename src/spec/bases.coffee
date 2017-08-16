@@ -1140,10 +1140,10 @@ describe 'ContentEdit.ElementCollection.html()', () ->
         text = new ContentEdit.Text('p', {}, 'test')
         collection.attach(text)
 
-        le = ContentEdit.LINE_ENDING
+        le = ContentEdit.LINE_ENDINGS
 
         expect(collection.html()).toBe(
-            '<div class="foo">#{ le }' +
+            "<div class=\"foo\">#{ le }" +
                 "#{ ContentEdit.INDENT }<p>#{ le }" +
                 "#{ ContentEdit.INDENT }#{ ContentEdit.INDENT }test#{ le }" +
                 "#{ ContentEdit.INDENT }</p>#{ le }" +

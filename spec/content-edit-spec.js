@@ -9,8 +9,10 @@
       expect(ContentEdit.DROP_EDGE_SIZE).toBe(50);
       expect(ContentEdit.HELPER_CHAR_LIMIT).toBe(250);
       expect(ContentEdit.INDENT).toBe('    ');
+      expect(ContentEdit.LINE_ENDINGS).toBe('\n');
       expect(ContentEdit.LANGUAGE).toBe('en');
-      return expect(ContentEdit.RESIZE_CORNER_SIZE).toBe(15);
+      expect(ContentEdit.RESIZE_CORNER_SIZE).toBe(15);
+      return expect(ContentEdit.TRIM_WHITESPACE).toBe(true);
     });
   });
 
@@ -939,13 +941,14 @@
 
   describe('ContentEdit.ElementCollection.html()', function() {
     return it('should return a HTML string for the collection', function() {
-      var collection, text;
+      var collection, le, text;
       collection = new ContentEdit.ElementCollection('div', {
         'class': 'foo'
       });
       text = new ContentEdit.Text('p', {}, 'test');
       collection.attach(text);
-      return expect(collection.html()).toBe('<div class="foo">\n' + ("" + ContentEdit.INDENT + "<p>\n") + ("" + ContentEdit.INDENT + ContentEdit.INDENT + "test\n") + ("" + ContentEdit.INDENT + "</p>\n") + '</div>');
+      le = ContentEdit.LINE_ENDINGS;
+      return expect(collection.html()).toBe(("<div class=\"foo\">" + le) + ("" + ContentEdit.INDENT + "<p>" + le) + ("" + ContentEdit.INDENT + ContentEdit.INDENT + "test" + le) + ("" + ContentEdit.INDENT + "</p>" + le) + '</div>');
     });
   });
 
@@ -1354,7 +1357,7 @@
       p.innerHTML = 'foo <b>bar</b>';
       div.appendChild(p);
       fixture = new ContentEdit.Fixture(p);
-      return expect(fixture.html()).toBe("foo <b>bar</b>");
+      return expect(fixture.html()).toBe("<p>\n" + ContentEdit.INDENT + "foo <b>bar</b>\n</p>");
     });
   });
 
@@ -1643,10 +1646,24 @@
   });
 
   describe('`ContentEdit.Text()`', function() {
-    return it('should return an instance of Text`', function() {
+    afterEach(function() {
+      return ContentEdit.TRIM_WHITESPACE = true;
+    });
+    it('should return an instance of Text`', function() {
       var text;
       text = new ContentEdit.Text('p', {}, 'foo <b>bar</b>');
       return expect(text instanceof ContentEdit.Text).toBe(true);
+    });
+    it('should trim whitespace by default`', function() {
+      var text;
+      text = new ContentEdit.Text('p', {}, '&nbsp;foo <b>bar</b><br>');
+      return expect(text.html()).toBe('<p>\n' + ("" + ContentEdit.INDENT + "foo <b>bar</b>\n") + '</p>');
+    });
+    return it('should preserve whitespace if `TRIM_WHITESPACE` is false`', function() {
+      var text;
+      ContentEdit.TRIM_WHITESPACE = false;
+      text = new ContentEdit.Text('p', {}, '&nbsp;foo <b>bar</b><br>');
+      return expect(text.html()).toBe('<p>\n' + ("" + ContentEdit.INDENT + "&nbsp;foo <b>bar</b><br>\n") + '</p>');
     });
   });
 

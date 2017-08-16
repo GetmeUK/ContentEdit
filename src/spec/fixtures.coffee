@@ -61,7 +61,9 @@ describe '`ContentEdit.Fixture.html()`', () ->
         p.innerHTML = 'foo <b>bar</b>'
         div.appendChild(p)
         fixture = new ContentEdit.Fixture(p)
-        expect(fixture.html()).toBe("foo <b>bar</b>")
+        expect(fixture.html()).toBe(
+            "<p>\n#{ ContentEdit.INDENT }foo <b>bar</b>\n</p>"
+        )
 
 
 # Test specific to fixtures containing text elements
