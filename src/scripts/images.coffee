@@ -186,14 +186,11 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
     # This structure provides makes it easy to use CSS to set how the image
     # covers the fixture (typically the inner image element is hidden).
 
-    constructor: (tagName, attributes, src, alt) ->
+    constructor: (tagName, attributes, src) ->
         super(tagName, attributes)
 
         # The source of the image
         @_src = src
-
-        # An alternative description for the image
-        @_alt = alt
 
     # Read-only properties
 
@@ -210,29 +207,14 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
 
     # Methods
 
-    alt: (alt) ->
-        # Get/Set the alternative description for the image
-
-        # Get...
-        if alt == undefined
-            return @_alt
-
-        # ...or Set the tag name
-        @_alt = alt.toLowerCase()
-
-        # Re-mount the element if mounted
-        if @isMounted()
-            @unmount()
-            @mount()
-
-        # Mark as modified
-        @taint()
-
     html: (indent='') ->
         # Return a HTML string for the node
         le = ContentEdit.LINE_ENDINGS
         attributes = @_attributesToString()
-        img = "#{ indent }<img src=\"#{ @src() }\" alt=\"#{ @alt() }\">"
+        alt = ''
+        if @_attributes['alt']
+            alt = "alt=\"#{ @_attributes['alt'] }\""
+        img = "#{ indent }<img src=\"#{ @src() }\"#{ alt }>"
         return "#{ indent }<#{ @tagName() } #{ attributes }>#{ le }" +
             "#{ ContentEdit.INDENT }#{ img }#{ le }" +
             "#{ indent }</#{ @tagName() }>"
@@ -242,6 +224,12 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
 
         # Create the DOM element to mount
         @_domElement = document.createElement(@tagName())
+
+        # Set the attributes
+        for name, value of @_attributes
+            if name is 'alt' or name is 'style'
+                continue
+            @_domElement.setAttribute(name, value)
 
         # Set the classes for the image, we combine classes from both the outer
         # link tag (if there is one) and image element.
@@ -302,6 +290,7 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
     # Private methods
 
     _attributesToString: () ->
+        # Special case handling of the background image within styles
         if @_attributes['style']
             # Remove any existing background image from the style attribute
             style = if @_attributes['style'] then @_attributes['style'] else ''
@@ -316,7 +305,15 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
         else
             @_attributes['style'] = "background-image:url('#{ @src() }');"
 
-        return super()
+        # Build the table of attributes to compile into the string
+        attributes = {}
+        for k, v of @_attributes
+            if k is 'alt'
+                continue
+            attributes[k] = v
+
+        # Compile and return the string
+        return ' ' + ContentEdit.attributesToString(attributes)
 
     # Class properties
 
@@ -346,12 +343,11 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
                 alt = childNode.getAttribute('alt') or ''
                 break
 
-        return new @(
-            domElement.tagName,
-            @getDOMElementAttributes(domElement),
-            src,
-            alt
-            )
+        attributes = @getDOMElementAttributes(domElement)
+        if alt
+            attributes['alt'] = alt
+
+        return new @(domElement.tagName, attributes, src)
 
 
 # Register `ContentEdit.ImageFixture` the class with associated tag names
