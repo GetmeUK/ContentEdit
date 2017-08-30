@@ -212,7 +212,7 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
         le = ContentEdit.LINE_ENDINGS
         attributes = @_attributesToString()
         alt = ''
-        if @_attributes['alt']
+        unless @_attributes['alt'] is undefined
             alt = "alt=\"#{ @_attributes['alt'] }\""
         img = "#{ indent }<img src=\"#{ @src() }\"#{ alt }>"
         return "#{ indent }<#{ @tagName() } #{ attributes }>#{ le }" +
@@ -344,8 +344,7 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
                 break
 
         attributes = @getDOMElementAttributes(domElement)
-        if alt
-            attributes['alt'] = alt
+        attributes['alt'] = alt
 
         return new @(domElement.tagName, attributes, src)
 
