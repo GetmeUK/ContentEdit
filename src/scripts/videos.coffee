@@ -20,6 +20,9 @@ class ContentEdit.Video extends ContentEdit.ResizableElement
         size = @size()
         @_aspectRatio = size[1] / size[0]
 
+        # Allow video elements to be nagivated to.
+        @navigate = true
+
     # Read-only properties
 
     cssTypeName: () ->

@@ -161,6 +161,12 @@ class ContentEdit.Node
         return @nextWithTest (node) ->
             node.content != undefined
 
+    nextNavigable: () ->
+        # Return the next node that supports a navigate property (e.g
+        # `ContentEdit.Text`).
+        return @nextWithTest (node) ->
+            node.navigate != undefined
+
     nextSibling: () ->
         # Return the nodes next sibling
         index = @parent().children.indexOf(this)
@@ -216,6 +222,11 @@ class ContentEdit.Node
         # Return the previous node that supports a content property (e.g
         # `ContentEdit.Text`).
         node = @previousWithTest (node) -> node.content != undefined
+
+    previousNavigable: () ->
+        # Return the previous node that supports a navigate property (e.g
+        # `ContentEdit.Text`).
+        node = @previousWithTest (node) -> node.navigate != undefined
 
     previousSibling: () ->
         # Return the nodes previous sibling
