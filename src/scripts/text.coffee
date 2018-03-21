@@ -277,7 +277,7 @@ class ContentEdit.Text extends ContentEdit.Element
 
     _keyBack: (ev) ->
         selection = ContentSelect.Range.query(@_domElement)
-        unless selection.get()[0] == 0 and selection.isCollapsed()
+        unless @_atStart(selection) and selection.isCollapsed()
             return
 
         ev.preventDefault()
@@ -311,7 +311,7 @@ class ContentEdit.Text extends ContentEdit.Element
 
     _keyLeft: (ev) ->
         selection = ContentSelect.Range.query(@_domElement)
-        unless selection.get()[0] == 0 and selection.isCollapsed()
+        unless @_atStart(selection) and selection.isCollapsed()
             return
 
         # If we're at the start of the element and the selection is collapsed we
@@ -463,6 +463,16 @@ class ContentEdit.Text extends ContentEdit.Element
         @_keyLeft(ev)
 
     # Private methods
+
+    _atStart: (selection) ->
+        # Determine if the cursor/caret starts at the start of the content
+
+        # Fix for Firefox occasionally appending spurious <br> tag to the end of the content
+        start = 0
+        if @content.length() == 1 and @content.charAt(0).c() == ''
+            start = 1
+
+        return selection.get()[0] >= 0 and selection.get()[0] <= start
 
     _atEnd: (selection) ->
         # Determine if the cursor/caret starts at the end of the content
@@ -643,13 +653,13 @@ class ContentEdit.PreText extends ContentEdit.Text
         cursor = selection.get()[0] + 1
 
         # Depending on the selection determine how best to insert the content
-        if selection.get()[0] == 0 and selection.isCollapsed()
+        if @_atStart(selection) and selection.isCollapsed()
             @content = new HTMLString.String('\n', true).concat(@content)
 
         else if @_atEnd(selection) and selection.isCollapsed()
             @content = @content.concat(new HTMLString.String('\n', true))
 
-        else if selection.get()[0] == 0 and
+        else if @_atStart(selection) and
                     selection.get()[1] == @content.length()
             @content = new HTMLString.String('\n', true)
             cursor = 0
