@@ -40,8 +40,10 @@ class ContentEdit.Text extends ContentEdit.Element
         if @isMounted()
             @_syncContent()
 
-        if @content.isWhitespace() and @can('remove')
-            # Detatch element from parent if empty
+        if @content.isWhitespace() and @can('remove') and 
+                (k for own k in @_attributes).length == 0
+            # Detatch element from parent if empty and has no attributes.
+            
             if @parent()
                 @parent().detach(this)
 
