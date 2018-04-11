@@ -41,7 +41,7 @@ class ContentEdit.Text extends ContentEdit.Element
             @_syncContent()
 
         if @content.isWhitespace() and @can('remove') and 
-                (k for own k in @_attributes).length == 0
+                Object.keys(@_attributes).length == 0
             # Detatch element from parent if it has neither children nor attributes.
             
             if @parent()
