@@ -246,7 +246,7 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
         style = if @_attributes['style'] then @_attributes['style'] else ''
         styleElm = document.createElement('div')
         styleElm.setAttribute('style', style.trim())
-        styleElm.backgroundImage = null
+        styleElm.style.backgroundImage = null
         style = styleElm.getAttribute('style')
 
         # Set the background image for the element
@@ -299,7 +299,7 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
             style = if @_attributes['style'] then @_attributes['style'] else ''
             styleElm = document.createElement('div')
             styleElm.setAttribute('style', style.trim())
-            styleElm.backgroundImage = null
+            styleElm.style.backgroundImage = null
             style = styleElm.getAttribute('style')
 
             # Set the background image for the element
