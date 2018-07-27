@@ -244,7 +244,10 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
 
         # Remove any existing background image from the style attribute
         style = if @_attributes['style'] then @_attributes['style'] else ''
-        style = style.replace(/background-image:.+?(;|$)/i, '')
+        styleElm = document.createElement('div')
+        styleElm.setAttribute('style', style.trim())
+        styleElm.backgroundImage = null
+        style = styleElm.getAttribute('style')
 
         # Set the background image for the element
         style = [style.trim(), "background-image:url('#{ @src() }');"].join(' ')
@@ -294,7 +297,10 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
         if @_attributes['style']
             # Remove any existing background image from the style attribute
             style = if @_attributes['style'] then @_attributes['style'] else ''
-            style = style.replace(/background-image:.+?(;|$)/i, '')
+            styleElm = document.createElement('div')
+            styleElm.setAttribute('style', style.trim())
+            styleElm.backgroundImage = null
+            style = styleElm.getAttribute('style')
 
             # Set the background image for the element
             style = [
