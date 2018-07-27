@@ -260,8 +260,8 @@ class ContentEdit.ImageFixture extends ContentEdit.Element
         if src == undefined
             return @_src
 
-        # ...or Set the tag name
-        @_src = src.toLowerCase()
+        # ...or set the image source
+        @_src = src
 
         # Re-mount the element if mounted
         if @isMounted()
