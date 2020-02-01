@@ -490,6 +490,12 @@ class ContentEdit.Element extends ContentEdit.Node
         # ...or Set the permission
         @_behaviours[behaviour] = allowed
 
+    clone: () ->
+        # Clone this element
+        wrapper = document.createElement('div')
+        wrapper.innerHTML = @html()
+        return @constructor.fromDOMElement(wrapper.children[0])
+
     createDraggingDOMElement: () ->
         # Create a DOM element that visually aids the user in dragging the
         # element to a new location in the editiable tree structure.
@@ -957,8 +963,13 @@ class ContentEdit.Element extends ContentEdit.Node
     @_dropVert: (element, target, placement) ->
         # Drop an element above or below another element
 
-        # Remove the element from it's current parent
-        element.parent().detach(element)
+        if ContentEdit.ENABLE_DRAG_CLONING and window.event.altKey
+            # Clone the element rather than move it
+            element = element.clone()
+
+        else
+            # Remove the element from it's current parent
+            element.parent().detach(element)
 
         # Get the position of the target element we're dropping on to
         insertIndex = target.parent().children.indexOf(target)
@@ -973,8 +984,13 @@ class ContentEdit.Element extends ContentEdit.Node
     @_dropBoth: (element, target, placement) ->
         # Drop an element above, below, left or right of another element
 
-        # Remove the element from it's current parent
-        element.parent().detach(element)
+        if ContentEdit.ENABLE_DRAG_CLONING and window.event.altKey
+            # Clone the element rather than move it
+            element = element.clone()
+
+        else
+            # Remove the element from it's current parent
+            element.parent().detach(element)
 
         # Get the position of the target element we're dropping on to
         insertIndex = target.parent().children.indexOf(target)

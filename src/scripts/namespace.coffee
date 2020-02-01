@@ -28,6 +28,10 @@ ContentEdit =
     # example an image being dragged to the right edge of a text element).
     DROP_EDGE_SIZE: 50
 
+    # Set this to true to allow elements to be cloned when dragged them with
+    # the alt key depressed.
+    ENABLE_DRAG_CLONING: false
+
     # The maximum number of characters to insert into a helper (for example the
     # helper tool that appears when dragging elements).
     HELPER_CHAR_LIMIT: 250
