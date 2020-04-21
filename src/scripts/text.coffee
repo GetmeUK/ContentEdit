@@ -15,6 +15,9 @@ class ContentEdit.Text extends ContentEdit.Element
             else
                 @content = new HTMLString.String(content, true)
 
+        # Allow text to be nagivated to.
+        @navigate = true
+
     # Read-only properties
 
     cssTypeName: () ->
@@ -274,7 +277,7 @@ class ContentEdit.Text extends ContentEdit.Element
 
     _keyBack: (ev) ->
         selection = ContentSelect.Range.query(@_domElement)
-        unless selection.get()[0] == 0 and selection.isCollapsed()
+        unless @_atStart(selection) and selection.isCollapsed()
             return
 
         ev.preventDefault()
@@ -292,7 +295,7 @@ class ContentEdit.Text extends ContentEdit.Element
 
     _keyDelete: (ev) ->
         selection = ContentSelect.Range.query(@_domElement)
-        unless @_atEnd(selection)and selection.isCollapsed()
+        unless @_atEnd(selection) and selection.isCollapsed()
             return
 
         ev.preventDefault()
@@ -308,22 +311,24 @@ class ContentEdit.Text extends ContentEdit.Element
 
     _keyLeft: (ev) ->
         selection = ContentSelect.Range.query(@_domElement)
-        unless selection.get()[0] == 0 and selection.isCollapsed()
+        unless @_atStart(selection) and selection.isCollapsed()
             return
 
         # If we're at the start of the element and the selection is collapsed we
-        # should navigate to the previous text node.
+        # should navigate to the previous navigable node.
         ev.preventDefault()
+        ev.stopPropagation()
 
-        # Attempt to find and select the previous content element
-        previous = @previousContent()
+        # Attempt to find and select the previous navigable element
+        previous = @previousNavigable()
         if previous
             previous.focus()
-            selection = new ContentSelect.Range(
-                previous.content.length(),
-                previous.content.length()
-                )
-            selection.select(previous.domElement())
+            if previous.content != undefined
+                selection = new ContentSelect.Range(
+                    previous.content.length(),
+                    previous.content.length()
+                    )
+                selection.select(previous.domElement())
         else
             # If no element was found this must be the last content node found
             # so trigger an event for external code to manage a region switch.
@@ -411,15 +416,17 @@ class ContentEdit.Text extends ContentEdit.Element
             return
 
         # If we're at the end of the element and the selection is collapsed we
-        # should navigate to the next text node.
+        # should navigate to the next navigable node.
         ev.preventDefault()
+        ev.stopPropagation()
 
-        # Attempt to find and select the next text element
-        next = @nextContent()
+        # Attempt to find and select the next navigable element
+        next = @nextNavigable()
         if next
             next.focus()
-            selection = new ContentSelect.Range(0, 0)
-            selection.select(next.domElement())
+            if next.content != undefined
+                selection = new ContentSelect.Range(0, 0)
+                selection.select(next.domElement())
         else
             # If no element was found this must be the last content node found
             # so trigger an event for external code to manage a region switch.
@@ -457,9 +464,25 @@ class ContentEdit.Text extends ContentEdit.Element
 
     # Private methods
 
+    _atStart: (selection) ->
+        # Determine if the cursor/caret starts at the start of the content
+
+        # Fix for Firefox occasionally appending spurious <br> tag to the end of the content
+        start = 0
+        if @content.length() == 1 and @content.charAt(0).c() == ''
+            start = 1
+
+        return selection.get()[0] >= 0 and selection.get()[0] <= start
+
     _atEnd: (selection) ->
         # Determine if the cursor/caret starts at the end of the content
-        return selection.get()[0] >= @content.length()
+
+        # Fix for Firefox occasionally appending spurious <br> tag to the end of the content
+        len = @content.length()
+        if len and @content.charAt(len - 1).c() == ''
+            len--
+
+        return selection.get()[0] >= len
 
     _flagIfEmpty: () ->
         # Flag the element as empty if there's no content
@@ -630,13 +653,13 @@ class ContentEdit.PreText extends ContentEdit.Text
         cursor = selection.get()[0] + 1
 
         # Depending on the selection determine how best to insert the content
-        if selection.get()[0] == 0 and selection.isCollapsed()
+        if @_atStart(selection) and selection.isCollapsed()
             @content = new HTMLString.String('\n', true).concat(@content)
 
         else if @_atEnd(selection) and selection.isCollapsed()
             @content = @content.concat(new HTMLString.String('\n', true))
 
-        else if selection.get()[0] == 0 and
+        else if @_atStart(selection) and
                     selection.get()[1] == @content.length()
             @content = new HTMLString.String('\n', true)
             cursor = 0
