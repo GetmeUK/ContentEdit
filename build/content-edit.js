@@ -2442,6 +2442,11 @@
             return ev.preventDefault();
           };
         })(this),
+        'input': (function(_this) {
+          return function(ev) {
+            return _this._onInput(ev);
+          };
+        })(this),
         'keydown': (function(_this) {
           return function(ev) {
             return _this._onKeyDown(ev);
@@ -2505,6 +2510,8 @@
       }
       return _results;
     };
+
+    Element.prototype._onInput = function(ev) {};
 
     Element.prototype._onKeyDown = function(ev) {};
 
@@ -3572,8 +3579,8 @@
       }
     };
 
-    Text.prototype._onKeyUp = function(ev) {
-      Text.__super__._onKeyUp.call(this, ev);
+    Text.prototype._onInput = function(ev) {
+      Text.__super__._onInput.call(this, ev);
       return this._syncContent();
     };
 

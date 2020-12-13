@@ -218,7 +218,7 @@ class ContentEdit.Text extends ContentEdit.Element
             # Splitting
             when 13 then @_keyReturn(ev)
 
-    _onKeyUp: (ev) ->
+    _onInput: (ev) ->
         super(ev)
         @_syncContent()
 
