@@ -758,6 +758,9 @@ class ContentEdit.Element extends ContentEdit.Node
                 ev.preventDefault()
 
             # Keyboard events
+            'input': (ev) =>
+                @_onInput(ev)
+
             'keydown': (ev) =>
                 @_onKeyDown(ev)
 
@@ -799,6 +802,9 @@ class ContentEdit.Element extends ContentEdit.Node
         # Add all event listeners
         for eventName, eventHandler of @_domEventHandlers
             @_domElement.addEventListener(eventName, eventHandler)
+
+    _onInput: (ev) ->
+        # No default behaviour
 
     _onKeyDown: (ev) ->
         # No default behaviour
