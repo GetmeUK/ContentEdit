@@ -15,7 +15,7 @@
   },
   "main": "build/content-edit.js",
   "devDependencies": {
-    "grunt": "~0.4.5",
+    "grunt": "~1.3.0",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-coffee": "^0.11.1",
     "grunt-contrib-concat": "^0.5.0",
